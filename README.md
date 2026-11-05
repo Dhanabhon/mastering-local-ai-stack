@@ -1,14 +1,14 @@
-# Mastering Local AI Stack: Jupyter Notebook × LM Studio × ComfyUI
+# Mastering Local AI Stack 2026: Jupyter Notebook × LM Studio × ComfyUI
 
 > **โครงการอบรมเชิงปฏิบัติการเรื่อง การพัฒนาเวิร์กโฟลว์ปัญญาประดิษฐ์สำหรับสร้างข้อความและรูปภาพบนเครื่องคอมพิวเตอร์ส่วนบุคคล**  
-> *(6-Hour University Training Course)*
+> *Workshop materials, Jupyter Notebooks, ComfyUI workflows, and Setup Guide for "Mastering Local AI Stack: Jupyter Notebook × LM Studio × ComfyUI" (6-Hour University Training Course).*
 
-[![Setup Guide](https://img.shields.io/badge/🌐_Setup_Guide-GitHub_Pages-2563eb?style=for-the-badge)](./docs/index.html)
+[![Setup Guide](https://img.shields.io/badge/🌐_Live_Setup_Guide-GitHub_Pages-2563eb?style=for-the-badge)](https://dhanabhon.github.io/mastering-local-ai-stack/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![LM Studio](https://img.shields.io/badge/LM_Studio-Local_LLM_API-10b981?style=for-the-badge)](https://lmstudio.ai/)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-SD_1.5_Node_API-8b5cf6?style=for-the-badge)](https://github.com/comfyanonymous/ComfyUI)
 
-ยินดีต้อนรับสู่คลังสื่อการสอนและใบงานปฏิบัติการ (Workshop Repository) สำหรับหลักสูตร **"Mastering Local AI Stack"** หลักสูตร 6 ชั่วโมงที่ออกแบบมาเพื่อให้นักศึกษา อาจารย์ และนักพัฒนา สามารถสร้างไปป์ไลน์ AI อัตโนมัติ (Text-to-Text และ Text-to-Image) ที่รันบนเครื่องคอมพิวเตอร์ส่วนบุคคลแบบ Offline 100% โดยไม่มีค่าใช้จ่าย API และรักษาความเป็นส่วนตัวของข้อมูลอย่างสมบูรณ์
+ยินดีต้อนรับสู่คลังสื่อการสอนและใบงานปฏิบัติการ (Workshop Repository) สำหรับหลักสูตร **"Mastering Local AI Stack 2026"** หลักสูตร 6 ชั่วโมงที่ออกแบบมาเพื่อให้นักศึกษา อาจารย์ และนักพัฒนา สามารถสร้างไปป์ไลน์ AI อัตโนมัติ (Text-to-Text และ Text-to-Image) ที่รันบนเครื่องคอมพิวเตอร์ส่วนบุคคลแบบ Offline 100% โดยไม่มีค่าใช้จ่าย API และรักษาความเป็นส่วนตัวของข้อมูลอย่างสมบูรณ์
 
 ---
 
@@ -16,7 +16,8 @@
 
 ผู้เข้าอบรมและเจ้าหน้าที่ดูแลห้องปฏิบัติการสามารถเปิดดูคู่มือการติดตั้งโปรแกรม โมเดล และรายการตรวจสอบความพร้อม (Pre-flight Checklist) แยกตามระบบปฏิบัติการ (**Windows NVIDIA GPU** และ **macOS Apple Silicon**) ได้ที่หน้าเว็บคู่มือของเรา:
 
-👉 **[เปิดหน้าเว็บคู่มือเตรียมเครื่อง (Interactive Setup Guide - Windows / macOS)](./docs/index.html)** *(หรือผ่าน GitHub Pages ของ Repository นี้)*
+- 🌐 **GitHub Pages (Live Web Guide):** **[https://dhanabhon.github.io/mastering-local-ai-stack/](https://dhanabhon.github.io/mastering-local-ai-stack/)**
+- 📄 **เปิดไฟล์ HTML จากในคลังโดยตรง:** [`docs/index.html`](./docs/index.html)
 
 ---
 
@@ -59,7 +60,7 @@
 ## 📂 โครงสร้างโฟลเดอร์โปรเจกต์ (Repository Structure)
 
 ```text
-local-ai-stack-workshop/
+mastering-local-ai-stack/
 ├── README.md                                      # คู่มือหลักสูตรและวิธีเริ่มต้นใช้งาน
 ├── requirements.txt                               # รายการไลบรารี Python ที่จำเป็น
 ├── .gitignore                                     # ตั้งค่าเพิกเฉยไฟล์ขยะ, .venv และไฟล์โมเดลขนาดใหญ่

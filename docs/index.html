@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
   <title>Setup Guide | Mastering Local AI Stack (Jupyter × LM Studio × ComfyUI)</title>
   <meta name="description" content="คู่มือเตรียมเครื่องสำหรับหลักสูตรการพัฒนาเวิร์กโฟลว์ปัญญาประดิษฐ์สำหรับสร้างข้อความและรูปภาพบนเครื่องคอมพิวเตอร์ส่วนบุคคล (Windows RTX 3050 6GB และ macOS Apple Silicon)" />
 
-  <!-- Google Fonts: Google Sans Thai / Noto Sans Thai & Inter & JetBrains Mono -->
+  <!-- Google Fonts: Google Sans Thai, Inter & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -38,149 +39,436 @@
   </script>
 
   <style>
-    html {
+    :root {
+      --brand-accent-light: #4338ca;
+      --brand-accent-dark: #818cf8;
+      --brand-color: var(--brand-accent-light);
+      --scrollbar-thumb: #64748b;
+      --scrollbar-track: #e2e8f0;
+      color-scheme: light dark;
+      accent-color: var(--brand-color);
+      scrollbar-width: thin;
+      scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
       scroll-behavior: smooth;
+      scroll-padding-top: 5.5rem;
     }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --brand-color: var(--brand-accent-dark);
+        --scrollbar-thumb: #475569;
+        --scrollbar-track: #0f172a;
+      }
+    }
+
+    html.dark {
+      --brand-color: var(--brand-accent-dark);
+      --scrollbar-thumb: #475569;
+      --scrollbar-track: #0f172a;
+      color-scheme: dark;
+    }
+
+    html:not(.dark) {
+      --brand-color: var(--brand-accent-light);
+      --scrollbar-thumb: #94a3b8;
+      --scrollbar-track: #f1f5f9;
+      color-scheme: light;
+    }
+
+    @supports (color: light-dark(white, black)) {
+      :root {
+        --brand-color: light-dark(var(--brand-accent-light), var(--brand-accent-dark));
+        --scrollbar-thumb: light-dark(#94a3b8, #475569);
+        --scrollbar-track: light-dark(#f1f5f9, #0f172a);
+      }
+    }
+
+    @supports not (scrollbar-color: auto) {
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--scrollbar-track);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--scrollbar-thumb);
+        border-radius: 9999px;
+      }
+    }
+
     body {
       font-family: 'Google Sans Thai', 'Inter', system-ui, -apple-system, sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+      caret-color: var(--brand-color);
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     }
-    code, pre {
+
+    /* Explicit typographic hierarchy scale (>= 1.25x progression) */
+    h1 {
+      font-size: clamp(1.875rem, 3.2vw, 2.5rem);
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    h2 {
+      font-size: clamp(1.375rem, 2vw, 1.625rem);
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      line-height: 1.4;
+      font-weight: 600;
+      text-wrap: balance;
+    }
+
+    p, li, dd {
+      text-wrap: pretty;
+    }
+
+    code, pre, .tabular-data {
       font-family: 'JetBrains Mono', monospace;
     }
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
+
+    .tabular-nums-ui {
+      font-variant-numeric: tabular-nums;
     }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.2);
+
+    a {
+      text-underline-offset: 0.24em;
+      text-decoration-thickness: 1px;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(100, 116, 139, 0.4);
+
+    ::selection {
+      background-color: #4f46e5;
+      color: #ffffff;
+    }
+
+    html.dark ::selection {
+      background-color: #6366f1;
+      color: #ffffff;
+    }
+
+    :where(a:any-link, button, input[type="checkbox"]):focus-visible {
+      outline: 2px solid var(--brand-color);
+      outline-offset: 2px;
+    }
+
+    /* Accessible visually-hidden utility with focus-within reveal for skip link */
+    .visually-hidden:where(:not(:focus-within, :active)) {
+      position: absolute !important;
+      clip-path: inset(50%) !important;
+      overflow: hidden !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      white-space: nowrap !important;
+    }
+
+    /* Fallback for older browsers without accent-color */
+    @supports not (accent-color: var(--brand-color)) {
+      #checklist-container input[type="checkbox"].visually-hidden-fallback {
+        position: absolute !important;
+        clip-path: inset(50%) !important;
+        overflow: hidden !important;
+        width: 1px !important;
+        height: 1px !important;
+        margin: -1px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        white-space: nowrap !important;
+      }
+      #checklist-container label {
+        position: relative;
+        padding-left: 2.25rem;
+      }
+      #checklist-container input[type="checkbox"] + span::before {
+        content: "";
+        position: absolute;
+        left: 0.75rem;
+        top: 1.25rem;
+        width: 1.15rem;
+        height: 1.15rem;
+        border: 2px solid #94a3b8;
+        background: transparent;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      #checklist-container input[type="checkbox"]:focus-visible + span::before {
+        outline: 2px solid var(--brand-color);
+        outline-offset: 2px;
+      }
+      #checklist-container input[type="checkbox"]:checked + span::before {
+        background-color: var(--brand-color, #4f46e5);
+        border-color: var(--brand-color, #4f46e5);
+      }
+      #checklist-container input[type="checkbox"]:checked + span::after {
+        content: "✓";
+        position: absolute;
+        left: 0.95rem;
+        top: 1.15rem;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.85rem;
+      }
+      progress {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border: none;
+        background: #e2e8f0;
+        color: #0f172a;
+        height: 8px;
+        border-radius: 9999px;
+      }
+      progress::-webkit-progress-bar {
+        background-color: #e2e8f0;
+        border-radius: 9999px;
+      }
+      progress::-webkit-progress-value {
+        background-color: var(--brand-color, #4f46e5);
+        border-radius: 9999px;
+      }
+      progress::-moz-progress-bar {
+        background-color: var(--brand-color, #4f46e5);
+        border-radius: 9999px;
+      }
+    }
+
+    /* Native progress styling enhancement */
+    .checklist-meter {
+      width: 100%;
+      height: 0.5rem;
+      border-radius: 9999px;
+      overflow: hidden;
+      accent-color: #10b981;
+      color: #0f172a;
+    }
+    html.dark .checklist-meter {
+      color: #f8fafc;
+    }
+    .checklist-meter::-webkit-progress-bar {
+      background-color: rgba(148, 163, 184, 0.25);
       border-radius: 9999px;
     }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(100, 116, 139, 0.7);
+    .checklist-meter::-webkit-progress-value {
+      background-color: #10b981;
+      border-radius: 9999px;
+      transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .os-panel-win, .os-panel-mac {
-      transition: opacity 0.2s ease-in-out;
+    .checklist-meter::-moz-progress-bar {
+      background-color: #10b981;
+      border-radius: 9999px;
     }
+
+    /* Authored OS panel transition */
+    @keyframes panelReveal {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .os-panel-win,
+    .os-panel-mac {
+      animation: panelReveal 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      .os-panel-win,
+      .os-panel-mac {
+        animation: none;
+      }
+      .checklist-meter::-webkit-progress-value {
+        transition: none;
+      }
+    }
+
     body[data-os="windows"] .os-panel-mac {
       display: none !important;
     }
     body[data-os="macos"] .os-panel-win {
       display: none !important;
     }
+
+    /* Checked row visual treatment */
+    .checklist-row:has(input[type="checkbox"]:checked) {
+      background-color: rgba(16, 185, 129, 0.06);
+    }
   </style>
 </head>
 
-<body data-os="windows" class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 selection:bg-indigo-500 selection:text-white">
+<body data-os="windows" class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+  <!-- Skip Link for Keyboard Accessibility -->
+  <a href="#main-content" class="visually-hidden fixed top-3 left-3 z-[100] px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold shadow-lg">
+    ข้ามไปยังเนื้อหาหลัก (Skip to main content)
+  </a>
 
   <!-- Sticky Top Navigation Bar -->
-  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-emerald-500 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20">
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-slate-950/90 border-b border-slate-200/90 dark:border-slate-800/90">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 shrink-0 rounded-lg bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm tracking-tight shadow-sm">
           AI
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="flex items-center gap-2">
-            <span class="font-bold text-base sm:text-lg tracking-tight text-slate-900 dark:text-white">Mastering Local AI Stack</span>
-            <span class="hidden sm:inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">6-Hour Workshop</span>
+            <span class="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white truncate">Mastering Local AI Stack</span>
+            <span class="hidden md:inline-block text-xs font-medium px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200 tabular-nums-ui">
+              6-Hour Workshop
+            </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Jupyter Notebook × LM Studio × ComfyUI</p>
+          <p class="text-xs text-slate-600 dark:text-slate-400 truncate">Jupyter Notebook × LM Studio × ComfyUI</p>
         </div>
       </div>
 
-      <!-- Quick Controls: OS Pill + Dark/Light Mode Toggle -->
-      <div class="flex items-center gap-2.5">
-        <div class="hidden md:flex items-center text-xs bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-          <button onclick="setOS('windows')" id="nav-btn-win" class="px-2.5 py-1 rounded-md font-medium transition-all">
-            Windows (RTX 3050 6GB)
+      <!-- Quick Controls: OS Pill (All Viewports) + Dark/Light Mode Toggle -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div role="group" aria-label="เลือกระบบปฏิบัติการ" class="flex items-center text-xs bg-slate-200/70 dark:bg-slate-900 p-1 rounded-lg">
+          <button type="button" onclick="setOS('windows')" id="nav-btn-win" aria-pressed="true" class="px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px]">
+            <span class="sm:hidden">Windows</span>
+            <span class="hidden sm:inline">Windows (RTX 3050)</span>
           </button>
-          <button onclick="setOS('macos')" id="nav-btn-mac" class="px-2.5 py-1 rounded-md font-medium transition-all">
-            macOS (Apple Silicon)
+          <button type="button" onclick="setOS('macos')" id="nav-btn-mac" aria-pressed="false" class="px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px]">
+            <span class="sm:hidden">macOS</span>
+            <span class="hidden sm:inline">macOS (Apple Silicon)</span>
           </button>
         </div>
 
-        <button onclick="toggleTheme()" id="theme-toggle-btn" aria-label="สลับโหมดสี" class="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition-all">
-          <span id="theme-icon">Dark</span>
-          <span id="theme-label" class="hidden sm:inline">Mode</span>
+        <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" aria-label="สลับโหมดสี" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium bg-slate-200/70 hover:bg-slate-300/70 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors">
+          <!-- Sun Icon (shown in dark mode to switch to light) -->
+          <svg id="theme-icon-sun" aria-hidden="true" class="w-4 h-4 text-amber-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <!-- Moon Icon (shown in light mode to switch to dark) -->
+          <svg id="theme-icon-moon" aria-hidden="true" class="w-4 h-4 text-indigo-700 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+          <span id="theme-label">Dark</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative overflow-hidden border-b border-slate-200 dark:border-slate-800/80 bg-gradient-to-b from-indigo-500/5 via-transparent to-transparent">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-10 pb-8">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 mb-4">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        คู่มือเตรียมเครื่องก่อนเข้าห้องอบรม (Pre-Workshop Setup Guide)
-      </div>
-
-      <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight mb-3">
-        โครงการอบรมเชิงปฏิบัติการเรื่อง การพัฒนาเวิร์กโฟลว์ปัญญาประดิษฐ์<br class="hidden md:inline" />
-        <span class="bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 bg-clip-text text-transparent">
-          สำหรับสร้างข้อความและรูปภาพบนเครื่องคอมพิวเตอร์ส่วนบุคคล
-        </span>
+  <!-- Hero & Hardware Profile Section -->
+  <section class="border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-10 pb-9">
+      <h1 id="main-content" tabindex="-1" class="text-slate-900 dark:text-white max-w-4xl">
+        โครงการอบรมเชิงปฏิบัติการเรื่อง การพัฒนาเวิร์กโฟลว์ปัญญาประดิษฐ์สำหรับสร้างข้อความและรูปภาพบนเครื่องคอมพิวเตอร์ส่วนบุคคล
       </h1>
-      <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-3xl leading-relaxed mb-6">
-        ขั้นตอนการติดตั้ง <strong>Jupyter Notebook</strong>, <strong>LM Studio</strong> และ <strong>ComfyUI</strong> สำหรับสร้างไปป์ไลน์ AI บนเครื่องส่วนตัวและเครื่องในห้องปฏิบัติการมหาวิทยาลัย
+
+      <p class="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-[68ch] leading-relaxed">
+        คู่มือเตรียมเครื่องก่อนเข้าห้องอบรม (Pre-Workshop Setup Guide) สำหรับติดตั้ง <strong>Jupyter Notebook</strong>, <strong>LM Studio</strong> และ <strong>ComfyUI</strong> เพื่อสร้างไปป์ไลน์ AI บนเครื่องในห้องปฏิบัติการมหาวิทยาลัยและเครื่องส่วนตัวของผู้เข้าอบรม
       </p>
 
-      <!-- Hardware Spec Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-        <!-- Windows Lab Spec Card -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+      <!-- Hardware Specification Comparison (Open Two-Column Architectural Grid — No Nested Cards) -->
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
+        <!-- Windows Lab Spec -->
+        <div class="py-5 md:pr-6">
+          <div class="flex items-center justify-between gap-2 mb-3.5">
+            <h3 class="text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-indigo-600 dark:bg-indigo-400" aria-hidden="true"></span>
               เครื่องห้องปฏิบัติการหลัก (Windows Lab PC)
+            </h3>
+            <span class="text-xs font-mono font-semibold text-amber-800 dark:text-amber-300 tabular-nums-ui">
+              VRAM 6GB Limit
             </span>
-            <span class="text-xs font-mono text-amber-600 dark:text-amber-400 font-semibold">VRAM 6GB Limit</span>
           </div>
-          <ul class="text-xs sm:text-sm space-y-1.5 text-slate-600 dark:text-slate-300">
-            <li>• <strong>CPU:</strong> Intel Core Ultra 7 265 (20C/20T, up to 5.3GHz, NPU Intel AI Boost 13 TOPS)</li>
-            <li>• <strong>GPU:</strong> NVIDIA GeForce RTX 3050 <strong>6GB GDDR6</strong></li>
-            <li>• <strong>RAM / Storage:</strong> 16GB DDR5-5600MT/s | 1TB SSD PCIe Gen4 (Windows 11 Home)</li>
-            <li>• <strong>การเลือกโมเดล:</strong> ใช้ LLM <code>3B (Q4_K_M ~2.2GB)</code> คู่กับ <code>SD 1.5 (~2.0GB)</code> และเปิดแฟล็ก <code>--lowvram</code></li>
-          </ul>
+          <dl class="text-xs sm:text-sm space-y-2 text-slate-700 dark:text-slate-300">
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">CPU / NPU</dt>
+              <dd>Intel Core Ultra 7 265 (20C/20T, 5.3GHz, NPU 13 TOPS)</dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">GPU</dt>
+              <dd>NVIDIA GeForce RTX 3050 <strong>6GB GDDR6</strong></dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">RAM / Disk</dt>
+              <dd>16GB DDR5-5600MT/s · 1TB SSD PCIe Gen4 (Windows 11)</dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">การเลือกโมเดล</dt>
+              <dd>LLM <code class="text-indigo-700 dark:text-indigo-300 font-semibold">3B (Q4_K_M ~2.2GB)</code> คู่กับ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">SD 1.5 (~2.0GB)</code> และเปิดแฟล็ก <code class="text-indigo-700 dark:text-indigo-300 font-semibold">--lowvram</code></dd>
+            </div>
+          </dl>
         </div>
 
-        <!-- macOS BYOD Spec Card -->
-        <div class="p-4 sm:p-5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+        <!-- macOS BYOD Spec -->
+        <div class="py-5 md:pl-6">
+          <div class="flex items-center justify-between gap-2 mb-3.5">
+            <h3 class="text-slate-900 dark:text-white flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-400" aria-hidden="true"></span>
               เครื่องส่วนตัวผู้เข้าอบรม (macOS BYOD)
+            </h3>
+            <span class="text-xs font-mono font-semibold text-emerald-800 dark:text-emerald-300">
+              Apple Metal / MPS
             </span>
-            <span class="text-xs font-mono text-emerald-600 dark:text-emerald-400 font-semibold">Apple Metal / MPS</span>
           </div>
-          <ul class="text-xs sm:text-sm space-y-1.5 text-slate-600 dark:text-slate-300">
-            <li>• <strong>SoC:</strong> Apple Silicon ตระกูล <strong>M1 / M2 / M3 / M4</strong></li>
-            <li>• <strong>Memory:</strong> Unified Memory <strong>16GB ขึ้นไป</strong> (แชร์แรมร่วมกันระหว่าง CPU และ GPU)</li>
-            <li>• <strong>Backend:</strong> รัน LM Studio ผ่าน Apple Metal / MLX และ ComfyUI ผ่าน PyTorch <code>MPS</code></li>
-            <li>• <strong>การเลือกโมเดล:</strong> ใช้ไฟล์โมเดลชุดเดียวกับห้องแล็บ ใช้เวลาเรนเดอร์ภาพละ 2 ถึง 3 วินาที</li>
-          </ul>
+          <dl class="text-xs sm:text-sm space-y-2 text-slate-700 dark:text-slate-300">
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">SoC</dt>
+              <dd>Apple Silicon ตระกูล <strong>M1 / M2 / M3 / M4</strong></dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">Memory</dt>
+              <dd>Unified Memory <strong>16GB ขึ้นไป</strong> (แชร์แรมร่วมกันระหว่าง CPU และ GPU)</dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">Backend</dt>
+              <dd>รัน LM Studio ผ่าน Apple Metal / MLX และ ComfyUI ผ่าน PyTorch <code class="text-indigo-700 dark:text-indigo-300 font-semibold">MPS</code></dd>
+            </div>
+            <div class="grid grid-cols-[6.5rem_1fr] gap-2">
+              <dt class="font-semibold text-slate-900 dark:text-slate-200">การเลือกโมเดล</dt>
+              <dd>ใช้ไฟล์โมเดลชุดเดียวกับห้องแล็บ ใช้เวลาเรนเดอร์ภาพละ 2 ถึง 3 วินาที</dd>
+            </div>
+          </dl>
         </div>
       </div>
 
-      <!-- Main Interactive OS Switcher Tabs -->
-      <div class="bg-slate-200/70 dark:bg-slate-900 p-2 rounded-2xl border border-slate-300 dark:border-slate-800 shadow-inner">
-        <p class="text-xs font-medium text-center text-slate-500 dark:text-slate-400 mb-2">
-          เลือกระบบปฏิบัติการของเครื่องที่คุณใช้งาน เพื่อดูคำสั่งติดตั้งที่ตรงกับระบบของคุณ
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button onclick="setOS('windows')" id="main-tab-win" class="flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all">
-            <div class="text-left">
-              <div>Windows (NVIDIA GPU / เครื่องห้องปฏิบัติการ RTX 3050 6GB)</div>
-              <div class="text-xs font-normal opacity-80">คำสั่งสำหรับ PowerShell และ ComfyUI Windows Portable</div>
+      <!-- Main Interactive OS Switcher Control -->
+      <div class="mt-7">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <span class="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            เลือกระบบปฏิบัติการของเครื่องที่คุณใช้งาน เพื่อแสดงชุดคำสั่งติดตั้งที่ตรงกับระบบของคุณ
+          </span>
+          <span id="active-os-indicator" class="text-xs font-mono text-indigo-700 dark:text-indigo-300 font-medium">
+            โหมดปัจจุบัน: Windows (PowerShell)
+          </span>
+        </div>
+        <div role="group" aria-label="สลับคู่มือตามระบบปฏิบัติการ" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button type="button" onclick="setOS('windows')" id="main-tab-win" aria-pressed="true" class="flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left">
+            <div>
+              <div>Windows (NVIDIA GPU / RTX 3050 6GB)</div>
+              <div class="text-xs font-normal opacity-90 mt-0.5">คำสั่งสำหรับ PowerShell และ ComfyUI Windows Portable</div>
             </div>
+            <span class="text-xs font-mono shrink-0 opacity-90">CUDA</span>
           </button>
 
-          <button onclick="setOS('macos')" id="main-tab-mac" class="flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all">
-            <div class="text-left">
-              <div>macOS (Apple Silicon M1/M2/M3/M4)</div>
-              <div class="text-xs font-normal opacity-80">คำสั่งสำหรับ Terminal (zsh) และ Apple Metal (MPS)</div>
+          <button type="button" onclick="setOS('macos')" id="main-tab-mac" aria-pressed="false" class="flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left">
+            <div>
+              <div>macOS (Apple Silicon M1 / M2 / M3 / M4)</div>
+              <div class="text-xs font-normal opacity-90 mt-0.5">คำสั่งสำหรับ Terminal (zsh) และ Apple Metal (MPS)</div>
             </div>
+            <span class="text-xs font-mono shrink-0 opacity-90">MPS</span>
           </button>
         </div>
       </div>
@@ -188,98 +476,99 @@
   </section>
 
   <!-- Main Setup Steps Content -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
 
     <!-- Quick Jump Navigation -->
-    <nav class="flex flex-wrap items-center gap-2 text-xs sm:text-sm bg-white dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
-      <span class="font-semibold text-slate-500 dark:text-slate-400 mr-1">ข้ามไปยังขั้นตอน:</span>
-      <a href="#step-1" class="px-2.5 py-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-500 transition">1. Python & Git</a>
-      <a href="#step-2" class="px-2.5 py-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-500 transition">2. Clone & .venv</a>
-      <a href="#step-3" class="px-2.5 py-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-500 transition">3. LM Studio (3B)</a>
-      <a href="#step-4" class="px-2.5 py-1 rounded-lg hover:bg-indigo-500/10 hover:text-indigo-500 transition">4. ComfyUI (SD 1.5)</a>
-      <a href="#step-5" class="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">5. Pre-flight Checklist</a>
+    <nav aria-label="สารบัญขั้นตอนการติดตั้ง" class="flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs sm:text-sm pb-8 border-b border-slate-200 dark:border-slate-800">
+      <span class="font-semibold text-slate-700 dark:text-slate-300 mr-1">ข้ามไปยังขั้นตอน:</span>
+      <a href="#step-1" class="px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors tabular-nums-ui">1. Python &amp; Git</a>
+      <a href="#step-2" class="px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors tabular-nums-ui">2. Clone &amp; .venv</a>
+      <a href="#step-3" class="px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors tabular-nums-ui">3. LM Studio (3B)</a>
+      <a href="#step-4" class="px-2.5 py-1.5 rounded-lg text-slate-700 dark:text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors tabular-nums-ui">4. ComfyUI (SD 1.5)</a>
+      <a href="#step-5" class="px-2.5 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 font-semibold hover:bg-emerald-500/20 transition-colors tabular-nums-ui">5. Pre-flight Checklist</a>
     </nav>
 
-    <!-- ==========================================
-         STEP 1: Python & Git Installation
-         ========================================== -->
-    <section id="step-1" class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
-      <div class="flex items-start gap-4 mb-5">
-        <div class="w-10 h-10 shrink-0 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
-          1
-        </div>
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">การเตรียม Python (3.10 - 3.12) และ Git</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+    <div class="divide-y divide-slate-200 dark:divide-slate-800">
+      <!-- ==========================================
+           STEP 1: Python & Git Installation
+           ========================================== -->
+      <section id="step-1" class="py-10">
+        <div class="mb-5">
+          <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
+            1. การเตรียม Python (3.10 ถึง 3.12) และ Git
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
             ติดตั้งโปรแกรมพื้นฐานสำหรับรัน JupyterLab และดึงไฟล์ใบงานจาก GitHub Repository
           </p>
         </div>
-      </div>
 
-      <!-- Windows Step 1 -->
-      <div class="os-panel-win space-y-4">
-        <div class="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-sm text-slate-700 dark:text-slate-300">
-          <strong>สำหรับ Windows 11 (เครื่องห้องแล็บ):</strong> ติดตั้งผ่านคำสั่ง <code>winget</code> ใน PowerShell ได้เลย หรือดาวน์โหลดตัวติดตั้งจากเว็บ <a href="https://www.python.org/downloads/" target="_blank" class="text-indigo-500 underline">python.org</a> (ตอนติดตั้งอย่าลืมติ๊กถูกที่ช่อง <code>Add python.exe to PATH</code>)
-        </div>
+        <!-- Windows Step 1 -->
+        <div class="os-panel-win space-y-4">
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
+            <strong>สำหรับ Windows 11 (เครื่องห้องแล็บ):</strong> ติดตั้งผ่านคำสั่ง <code class="text-indigo-700 dark:text-indigo-300 font-semibold">winget</code> ใน PowerShell ได้เลย หรือดาวน์โหลดตัวติดตั้งจากเว็บ <a href="https://www.python.org/downloads/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">python.org</a> (ตอนติดตั้งอย่าลืมติ๊กถูกที่ช่อง <code class="text-indigo-700 dark:text-indigo-300 font-semibold">Add python.exe to PATH</code>)
+          </p>
 
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">PowerShell (Windows): ติดตั้งและตรวจสอบเวอร์ชัน</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
-          </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>winget install -e --id Python.Python.3.11
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">PowerShell (Windows): ติดตั้งและตรวจสอบเวอร์ชัน</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งติดตั้ง Python และ Git สำหรับ Windows" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>winget install -e --id Python.Python.3.11
 winget install -e --id Git.Git
 
 # ปิดและเปิด PowerShell ใหม่ จากนั้นตรวจสอบเวอร์ชัน
 python --version
 git --version</code></pre>
-        </div>
-      </div>
-
-      <!-- macOS Step 1 -->
-      <div class="os-panel-mac space-y-4">
-        <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20 text-sm text-slate-700 dark:text-slate-300">
-          <strong>สำหรับ macOS (Apple Silicon):</strong> แนะนำให้ติดตั้งผ่าน <strong>Homebrew</strong> เพื่อให้ได้ Python 3.11 และ Git ที่ทำงานบนชิปตระกูล M-series (`arm64`) ได้โดยตรง
-        </div>
-
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">Terminal (macOS zsh): ติดตั้งผ่าน Homebrew และตรวจสอบเวอร์ชัน</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>brew install python@3.11 git
+        </div>
+
+        <!-- macOS Step 1 -->
+        <div class="os-panel-mac space-y-4">
+          <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
+            <strong>สำหรับ macOS (Apple Silicon):</strong> แนะนำให้ติดตั้งผ่าน <strong>Homebrew</strong> เพื่อให้ได้ Python 3.11 และ Git ที่ทำงานบนชิปตระกูล M-series (<code class="text-indigo-700 dark:text-indigo-300 font-semibold">arm64</code>) ได้โดยตรง
+          </p>
+
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">Terminal (macOS zsh): ติดตั้งผ่าน Homebrew และตรวจสอบเวอร์ชัน</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งติดตั้ง Python และ Git สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>brew install python@3.11 git
 
 # ตรวจสอบเวอร์ชันหลังติดตั้งเสร็จ
 python3 --version
 git --version</code></pre>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ==========================================
-         STEP 2: Clone Repo & Virtual Environment
-         ========================================== -->
-    <section id="step-2" class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
-      <div class="flex items-start gap-4 mb-5">
-        <div class="w-10 h-10 shrink-0 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
-          2
-        </div>
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">การ Clone Repo, สร้าง Virtual Environment (`.venv`) และเปิด JupyterLab</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            สร้างสภาพแวดล้อม Python แยกสำหรับโปรเจกต์นี้ แล้วติดตั้งไลบรารีจากไฟล์ <code>requirements.txt</code>
+      <!-- ==========================================
+           STEP 2: Clone Repo & Virtual Environment
+           ========================================== -->
+      <section id="step-2" class="py-10">
+        <div class="mb-5">
+          <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
+            2. การ Clone Repo, สร้าง Virtual Environment (<code>.venv</code>) และเปิด JupyterLab
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
+            สร้างสภาพแวดล้อม Python แยกสำหรับโปรเจกต์นี้ แล้วติดตั้งไลบรารีจากไฟล์ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">requirements.txt</code>
           </p>
         </div>
-      </div>
 
-      <!-- Windows Step 2 -->
-      <div class="os-panel-win space-y-4">
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">PowerShell (Windows): สร้าง .venv และติดตั้งไลบรารี</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
-          </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>git clone https://github.com/Dhanabhon/mastering-local-ai-stack.git
+        <!-- Windows Step 2 -->
+        <div class="os-panel-win space-y-4">
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">PowerShell (Windows): สร้าง .venv และติดตั้งไลบรารี</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งสร้าง Virtual Environment สำหรับ Windows" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>git clone https://github.com/Dhanabhon/mastering-local-ai-stack.git
 cd mastering-local-ai-stack
 
 # สร้างและเปิดใช้งาน Virtual Environment บน Windows
@@ -290,29 +579,35 @@ python -m venv .venv
 pip install --upgrade pip
 pip install -r requirements.txt
 jupyter lab</code></pre>
-        </div>
-
-        <div class="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs sm:text-sm text-amber-700 dark:text-amber-300">
-          <strong>วิธีแก้ปัญหาบน Windows PowerShell:</strong> หากขึ้นข้อความแจ้งเตือน <em>"running scripts is disabled on this system"</em> ตอนสั่ง <code>.venv\Scripts\activate</code> ให้รันคำสั่งด้านล่างนี้ก่อน 1 ครั้ง:
-        </div>
-
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">PowerShell: อนุญาตการรันสคริปต์สำหรับผู้ใช้ปัจจุบัน</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre>
-        </div>
-      </div>
 
-      <!-- macOS Step 2 -->
-      <div class="os-panel-mac space-y-4">
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">Terminal (macOS): สร้าง .venv และติดตั้งไลบรารี</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
+          <div class="pt-2">
+            <p class="text-xs sm:text-sm text-amber-800 dark:text-amber-300 mb-2.5 max-w-[70ch]">
+              <strong>วิธีแก้ปัญหาบน Windows PowerShell:</strong> หากขึ้นข้อความแจ้งเตือน <em>"running scripts is disabled on this system"</em> ตอนสั่ง <code>.venv\Scripts\activate</code> ให้รันคำสั่งด้านล่างนี้ก่อน 1 ครั้ง:
+            </p>
+
+            <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+              <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+                <span class="font-medium">PowerShell: อนุญาตการรันสคริปต์สำหรับผู้ใช้ปัจจุบัน</span>
+                <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่ง Set-ExecutionPolicy" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                  <span>Copy</span>
+                </button>
+              </div>
+              <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser</code></pre>
+            </div>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>git clone https://github.com/Dhanabhon/mastering-local-ai-stack.git
+        </div>
+
+        <!-- macOS Step 2 -->
+        <div class="os-panel-mac space-y-4">
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">Terminal (macOS): สร้าง .venv และติดตั้งไลบรารี</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งสร้าง Virtual Environment สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>git clone https://github.com/Dhanabhon/mastering-local-ai-stack.git
 cd mastering-local-ai-stack
 
 # สร้างและเปิดใช้งาน Virtual Environment บน macOS
@@ -323,237 +618,262 @@ source .venv/bin/activate
 pip install --upgrade pip
 pip install -r requirements.txt
 jupyter lab</code></pre>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         STEP 3: LM Studio Installation & Config
-         ========================================== -->
-    <section id="step-3" class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
-      <div class="flex items-start gap-4 mb-5">
-        <div class="w-10 h-10 shrink-0 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
-          3
-        </div>
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">การติดตั้งและตั้งค่า LM Studio (Local LLM Server)</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            โหลดโมเดลขนาด <strong>3B Parameters</strong> เพื่อเปิด Local OpenAI-Compatible API ที่ <code>http://localhost:1234/v1</code>
-          </p>
-        </div>
-      </div>
-
-      <!-- OS-specific Download Callout -->
-      <div class="os-panel-win mb-5 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 text-sm">
-        <p class="font-semibold text-slate-900 dark:text-white mb-1">การดาวน์โหลดสำหรับ Windows (RTX 3050 6GB):</p>
-        <p class="text-slate-600 dark:text-slate-300">
-          ดาวน์โหลดตัวติดตั้ง <strong>LM Studio for Windows (x64)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" class="text-indigo-500 underline font-medium">https://lmstudio.ai</a> โปรแกรมจะเลือกใช้ NVIDIA CUDA 12 ให้โดยอัตโนมัติ
-        </p>
-      </div>
-
-      <div class="os-panel-mac mb-5 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700/80 text-sm">
-        <p class="font-semibold text-slate-900 dark:text-white mb-1">การดาวน์โหลดสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</p>
-        <p class="text-slate-600 dark:text-slate-300">
-          ดาวน์โหลด <strong>LM Studio for Mac (Apple Silicon - M1/M2/M3/M4)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" class="text-indigo-500 underline font-medium">https://lmstudio.ai</a> ซึ่งรันผ่าน Apple Metal และ MLX โดยตรง
-        </p>
-      </div>
-
-      <!-- Recommended Model & Parameters Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
-          <div class="text-xs font-semibold uppercase text-indigo-500 mb-1">1. โมเดลหลักที่ใช้ในคลาส (3B)</div>
-          <div class="font-mono text-sm font-bold text-slate-900 dark:text-white">Qwen2.5-3B-Instruct-GGUF</div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            เลือกไฟล์ระดับ <code>Q4_K_M</code> หรือ <code>Q8_0</code> (หรือใช้ <code>Llama-3.2-3B-Instruct-GGUF</code>) ใช้พื้นที่ VRAM ประมาณ <strong>2.2 GB</strong>
-          </p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
-          <div class="text-xs font-semibold uppercase text-emerald-500 mb-1">2. Context Length</div>
-          <div class="font-mono text-sm font-bold text-slate-900 dark:text-white">2048 ถึง 4096 Tokens</div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            <strong>ไม่ควรตั้งเกิน 4096</strong> บนการ์ดจอ 6GB เพื่อกันพื้นที่ VRAM ไว้ให้ ComfyUI ในช่วงบ่าย
-          </p>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800">
-          <div class="text-xs font-semibold uppercase text-purple-500 mb-1">3. GPU Offload</div>
-          <div class="font-mono text-sm font-bold text-slate-900 dark:text-white">Max (Module 2) / 60% (Module 4)</div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            ตอนรันคู่กับ ComfyUI บน RTX 3050 6GB ในช่วง Capstone สามารถลด GPU Offload ลงเหลือ 50% ถึง 70% เพื่อแบ่งงานให้ซีพียู Intel Core Ultra 7 265
-          </p>
-        </div>
-      </div>
-
-      <!-- Test LM Studio API via curl -->
-      <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-        <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-          <span class="font-mono">คำสั่งทดสอบสถานะ LM Studio Local Server (พอร์ต 1234)</span>
-          <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
-        </div>
-        <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>curl http://localhost:1234/v1/models</code></pre>
-      </div>
-    </section>
-
-    <!-- ==========================================
-         STEP 4: ComfyUI & SD 1.5 Model Setup
-         ========================================== -->
-    <section id="step-4" class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
-      <div class="flex items-start gap-4 mb-5">
-        <div class="w-10 h-10 shrink-0 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-lg">
-          4
-        </div>
-        <div>
-          <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">การติดตั้ง ComfyUI และการวางไฟล์โมเดล Stable Diffusion 1.5</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            ใช้โมเดล <strong>SD 1.5</strong> (เช่น <code>v1-5-pruned-emaonly.safetensors</code> หรือ <code>DreamShaper_8_pruned.safetensors</code> ขนาดประมาณ 2GB) เรนเดอร์ภาพขนาด <code>512x512</code> เสร็จภายใน 2 ถึง 3 วินาที
-          </p>
-        </div>
-      </div>
-
-      <!-- Windows ComfyUI Instructions -->
-      <div class="os-panel-win space-y-4">
-        <div class="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 text-sm space-y-2 text-slate-700 dark:text-slate-300">
-          <div class="font-bold text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ Windows (ComfyUI Windows Portable):</div>
-          <ol class="list-decimal list-inside space-y-1.5">
-            <li>ดาวน์โหลดไฟล์ <code>ComfyUI_windows_portable_nvidia.7z</code> จากหน้า <a href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" class="text-indigo-500 underline">ComfyUI GitHub Releases</a> แล้วแตกไฟล์ด้วยโปรแกรม 7-Zip</li>
-            <li>นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
-              <code class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code>
-            </li>
-            <li>สำหรับการ์ดจอห้องแล็บ <strong>RTX 3050 6GB</strong> แนะนำให้เติมแฟล็ก <code>--lowvram</code> ในไฟล์ <code>run_nvidia_gpu.bat</code> เพื่อให้เปิดคู่กับ LM Studio ได้โดยการ์ดจอไม่เต็ม</li>
-          </ol>
-        </div>
-
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">run_nvidia_gpu.bat (Windows RTX 3050 6GB: แนะนำเติม --lowvram สำหรับ Module 4)</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
+        </div>
+      </section>
+
+      <!-- ==========================================
+           STEP 3: LM Studio Installation & Config
+           ========================================== -->
+      <section id="step-3" class="py-10">
+        <div class="mb-5">
+          <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
+            3. การติดตั้งและตั้งค่า LM Studio (Local LLM Server)
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
+            โหลดโมเดลขนาด <strong>3B Parameters</strong> เพื่อเปิด Local OpenAI-Compatible API ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://localhost:1234/v1</code>
+          </p>
+        </div>
+
+        <!-- OS-specific Download Callout -->
+        <p class="os-panel-win mb-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
+          <strong>การดาวน์โหลดสำหรับ Windows (RTX 3050 6GB):</strong> ดาวน์โหลดตัวติดตั้ง <strong>LM Studio for Windows (x64)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> โปรแกรมจะเลือกใช้ NVIDIA CUDA 12 ให้โดยอัตโนมัติ
+        </p>
+
+        <p class="os-panel-mac mb-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
+          <strong>การดาวน์โหลดสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</strong> ดาวน์โหลด <strong>LM Studio for Mac (Apple Silicon)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> ซึ่งรันผ่าน Apple Metal และ MLX โดยตรง
+        </p>
+
+        <!-- Recommended Model & Parameters Specification Table -->
+        <div class="mb-6 overflow-x-auto border-y border-slate-200 dark:border-slate-800">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <caption class="sr-only">ตารางค่าพารามิเตอร์ที่แนะนำสำหรับตั้งค่า LM Studio</caption>
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
+                <th scope="col" class="py-3 px-4 font-semibold w-1/4">รายการตั้งค่า</th>
+                <th scope="col" class="py-3 px-4 font-semibold w-1/3">ค่าที่แนะนำในห้องอบรม</th>
+                <th scope="col" class="py-3 px-4 font-semibold">เหตุผลทางเทคนิค</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200/80 dark:divide-slate-800/80 text-slate-700 dark:text-slate-300">
+              <tr>
+                <th scope="row" class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                  1. โมเดลหลัก (3B)
+                </th>
+                <td class="py-3.5 px-4 font-mono font-semibold text-indigo-700 dark:text-indigo-300 align-top">
+                  Qwen2.5-3B-Instruct-GGUF
+                </td>
+                <td class="py-3.5 px-4 align-top leading-relaxed">
+                  เลือกไฟล์ระดับ <code>Q4_K_M</code> หรือ <code>Q8_0</code> (หรือใช้ <code>Llama-3.2-3B-Instruct-GGUF</code>) ใช้พื้นที่ VRAM ประมาณ <strong class="tabular-nums-ui">2.2 GB</strong>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                  2. Context Length
+                </th>
+                <td class="py-3.5 px-4 font-mono font-semibold text-emerald-700 dark:text-emerald-300 align-top tabular-nums-ui">
+                  2048 ถึง 4096 Tokens
+                </td>
+                <td class="py-3.5 px-4 align-top leading-relaxed">
+                  <strong>ไม่ควรตั้งเกิน 4096</strong> บนการ์ดจอ 6GB เพื่อกันพื้นที่ VRAM สำหรับ KV Cache ไว้ให้ ComfyUI ในช่วงบ่าย
+                </td>
+              </tr>
+              <tr>
+                <th scope="row" class="py-3.5 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                  3. GPU Offload
+                </th>
+                <td class="py-3.5 px-4 font-mono font-semibold text-slate-900 dark:text-white align-top tabular-nums-ui">
+                  Max (Module 2) / 60% (Module 4)
+                </td>
+                <td class="py-3.5 px-4 align-top leading-relaxed">
+                  ตอนรันคู่กับ ComfyUI บน RTX 3050 6GB ในช่วง Capstone สามารถลด GPU Offload ลงเหลือ 50% ถึง 70% เพื่อแบ่งงานให้ซีพียู Intel Core Ultra 7 265
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Test LM Studio API via curl -->
+        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+          <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+            <span class="font-medium">คำสั่งทดสอบสถานะ LM Studio Local Server (พอร์ต 1234)</span>
+            <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่ง curl ทดสอบ LM Studio" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+              <span>Copy</span>
+            </button>
+          </div>
+          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>curl http://localhost:1234/v1/models</code></pre>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           STEP 4: ComfyUI & SD 1.5 Model Setup
+           ========================================== -->
+      <section id="step-4" class="py-10">
+        <div class="mb-5">
+          <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
+            4. การติดตั้ง ComfyUI และการวางไฟล์โมเดล Stable Diffusion 1.5
+          </h2>
+          <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
+            ใช้โมเดล <strong>SD 1.5</strong> (เช่น <code class="text-indigo-700 dark:text-indigo-300 font-semibold">v1-5-pruned-emaonly.safetensors</code> หรือ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">DreamShaper_8_pruned.safetensors</code> ขนาดประมาณ 2GB) เรนเดอร์ภาพขนาด <code>512x512</code> เสร็จภายใน 2 ถึง 3 วินาที
+          </p>
+        </div>
+
+        <!-- Windows ComfyUI Instructions -->
+        <div class="os-panel-win space-y-4">
+          <div class="text-sm space-y-2 text-slate-700 dark:text-slate-300 max-w-[70ch]">
+            <h3 class="text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ Windows (ComfyUI Windows Portable):</h3>
+            <ol class="list-decimal list-outside pl-5 space-y-2 leading-relaxed">
+              <li>
+                ดาวน์โหลดไฟล์ <code>ComfyUI_windows_portable_nvidia.7z</code> จากหน้า <a href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">ComfyUI GitHub Releases</a> แล้วแตกไฟล์ด้วยโปรแกรม 7-Zip
+              </li>
+              <li>
+                นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
+                <code class="inline-block mt-1 text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code>
+              </li>
+              <li>
+                สำหรับการ์ดจอห้องแล็บ <strong>RTX 3050 6GB</strong> แนะนำให้เติมแฟล็ก <code class="text-indigo-700 dark:text-indigo-300 font-semibold">--lowvram</code> ในไฟล์ <code>run_nvidia_gpu.bat</code> เพื่อให้เปิดคู่กับ LM Studio ได้โดยการ์ดจอไม่เต็ม
+              </li>
+            </ol>
+          </div>
+
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">run_nvidia_gpu.bat (Windows RTX 3050 6GB: แนะนำเติม --lowvram สำหรับ Module 4)</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่ง run_nvidia_gpu.bat" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
 pause</code></pre>
-        </div>
-      </div>
-
-      <!-- macOS ComfyUI Instructions -->
-      <div class="os-panel-mac space-y-4">
-        <div class="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20 text-sm space-y-2 text-slate-700 dark:text-slate-300">
-          <div class="font-bold text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</div>
-          <ol class="list-decimal list-inside space-y-1.5">
-            <li><strong>วิธีที่ 1 (แอปสำเร็จรูป):</strong> ดาวน์โหลด <strong>ComfyUI Desktop for macOS (Apple Silicon)</strong> จาก <a href="https://www.comfy.org/download" target="_blank" class="text-indigo-500 underline">comfy.org/download</a></li>
-            <li><strong>วิธีที่ 2 (รันผ่าน Git และ Python):</strong> โคลนโปรเจกต์ ComfyUI แล้วรันผ่าน Apple Metal (<code>MPS</code>) ตามคำสั่งด้านล่าง</li>
-            <li>นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
-              <code class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400">ComfyUI/models/checkpoints/</code>
-            </li>
-          </ol>
-        </div>
-
-        <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-          <div class="flex items-center justify-between px-4 py-2 bg-slate-800/80 border-b border-slate-700/70 text-xs text-slate-300">
-            <span class="font-mono">Terminal (macOS Apple Silicon): การรัน ComfyUI ที่พอร์ต 8188</span>
-            <button onclick="copyCode(this)" class="copy-btn px-2.5 py-1 rounded bg-slate-700 hover:bg-indigo-600 text-white font-medium transition">Copy</button>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
+        </div>
+
+        <!-- macOS ComfyUI Instructions -->
+        <div class="os-panel-mac space-y-4">
+          <div class="text-sm space-y-2 text-slate-700 dark:text-slate-300 max-w-[70ch]">
+            <h3 class="text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</h3>
+            <ol class="list-decimal list-outside pl-5 space-y-2 leading-relaxed">
+              <li>
+                <strong>วิธีที่ 1 (แอปสำเร็จรูป):</strong> ดาวน์โหลด <strong>ComfyUI Desktop for macOS (Apple Silicon)</strong> จาก <a href="https://www.comfy.org/download" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">comfy.org/download</a>
+              </li>
+              <li>
+                <strong>วิธีที่ 2 (รันผ่าน Git และ Python):</strong> โคลนโปรเจกต์ ComfyUI แล้วรันผ่าน Apple Metal (<code>MPS</code>) ตามคำสั่งด้านล่าง
+              </li>
+              <li>
+                นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
+                <code class="inline-block mt-1 text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI/models/checkpoints/</code>
+              </li>
+            </ol>
+          </div>
+
+          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+              <span class="font-medium">Terminal (macOS Apple Silicon): การรัน ComfyUI ที่พอร์ต 8188</span>
+              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งรัน ComfyUI สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
 python main.py --force-fp16</code></pre>
-        </div>
-      </div>
-
-      <!-- Developer Mode Note (Both OS) -->
-      <div class="mt-4 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/20 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-        <strong>การเปิด Developer Mode ใน ComfyUI (สำหรับใช้ใน Module 4):</strong><br />
-        เมื่อเปิดหน้าเว็บ <code>http://127.0.0.1:8188</code> แล้ว ให้คลิกไอคอนรูปฟันเฟือง (Settings) แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จะมีปุ่ม <strong>Save (API Format)</strong> เพิ่มขึ้นมาสำหรับส่งออกไฟล์เวิร์กโฟลว์ JSON ไปใช้กับโค้ด Python
-      </div>
-    </section>
-
-    <!-- ==========================================
-         STEP 5: Interactive Pre-flight Checklist
-         ========================================== -->
-    <section id="step-5" class="rounded-2xl bg-white dark:bg-slate-900 border-2 border-emerald-500/30 p-6 sm:p-8 shadow-sm">
-      <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div class="flex items-start gap-4">
-          <div class="w-10 h-10 shrink-0 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
-            5
           </div>
+        </div>
+
+        <!-- Developer Mode Note (Both OS) -->
+        <p class="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
+          <strong class="text-slate-900 dark:text-white">การเปิด Developer Mode ใน ComfyUI (สำหรับใช้ใน Module 4):</strong>
+          เมื่อเปิดหน้าเว็บ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://127.0.0.1:8188</code> แล้ว ให้คลิกไอคอนรูปฟันเฟือง (Settings) แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จะมีปุ่ม <strong>Save (API Format)</strong> เพิ่มขึ้นมาสำหรับส่งออกไฟล์เวิร์กโฟลว์ JSON ไปใช้กับโค้ด Python
+        </p>
+      </section>
+
+      <!-- ==========================================
+           STEP 5: Interactive Pre-flight Checklist
+           ========================================== -->
+      <section id="step-5" class="py-10">
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
           <div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Pre-flight Checklist (รายการตรวจสอบความพร้อมก่อนเริ่มเรียน)</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              ติ๊กถูกในแต่ละข้อเมื่อคุณเตรียมเครื่องเสร็จแล้ว (เบราว์เซอร์จะจำสถานะที่คุณติ๊กไว้ให้อัตโนมัติ)
+            <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
+              5. Pre-flight Checklist (รายการตรวจสอบความพร้อมก่อนเริ่มเรียน)
+            </h2>
+            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[65ch]">
+              ติ๊กถูกในแต่ละข้อเมื่อคุณเตรียมเครื่องเสร็จแล้ว เบราว์เซอร์จะบันทึกสถานะที่คุณติ๊กไว้ให้อัตโนมัติ
             </p>
           </div>
+
+          <div class="flex items-center gap-2.5">
+            <span id="checklist-progress-badge" aria-live="polite" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 tabular-nums-ui">
+              สำเร็จแล้ว 0 / 6 ข้อ
+            </span>
+            <button type="button" onclick="resetChecklist()" class="text-xs font-medium px-3 py-1.5 min-h-[32px] rounded-lg bg-slate-200/70 hover:bg-slate-300/70 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 transition-colors">
+              ล้างค่า (Reset)
+            </button>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <span id="checklist-progress-badge" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-            สำเร็จแล้ว 0 / 6 ข้อ
-          </span>
-          <button onclick="resetChecklist()" class="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition">
-            ล้างค่า (Reset)
-          </button>
+        <!-- Semantic Progress Bar -->
+        <div class="mb-6">
+          <label for="checklist-progress-bar" class="sr-only">ความคืบหน้าการเตรียมเครื่องก่อนเริ่มเรียน</label>
+          <progress id="checklist-progress-bar" class="checklist-meter" max="6" value="0">0 จาก 6 ข้อ</progress>
         </div>
-      </div>
 
-      <!-- Progress Bar -->
-      <div class="w-full h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mb-6">
-        <div id="checklist-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
-      </div>
+        <!-- Interactive Checkboxes (Clean divided list, no nested card clutter) -->
+        <div id="checklist-container" class="divide-y divide-slate-200 dark:divide-slate-800 border-y border-slate-200 dark:border-slate-800">
+          <label for="chk-python-git" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-python-git" data-check-id="chk-python-git" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">1. ติดตั้ง Python (3.10+) และ Git เรียบร้อยแล้ว</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">รันคำสั่ง <code>python --version</code> (หรือ <code>python3 --version</code>) และ <code>git --version</code> ใน Terminal/PowerShell ได้</span>
+            </span>
+          </label>
 
-      <!-- Interactive Checkboxes -->
-      <div class="space-y-3" id="checklist-container">
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-python-git" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">1. ติดตั้ง Python (3.10+) และ Git เรียบร้อยแล้ว</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">รันคำสั่ง <code>python --version</code> (หรือ <code>python3 --version</code>) และ <code>git --version</code> ใน Terminal/PowerShell ได้</div>
-          </div>
-        </label>
+          <label for="chk-venv-reqs" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-venv-reqs" data-check-id="chk-venv-reqs" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">2. สร้าง Virtual Environment (<code>.venv</code>) และติดตั้ง <code>requirements.txt</code> สำเร็จ</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">ติดตั้ง <code>jupyterlab</code>, <code>requests</code>, <code>openai</code>, <code>pillow</code>, <code>pandas</code>, <code>websocket-client</code> และ <code>matplotlib</code> ครบถ้วน</span>
+            </span>
+          </label>
 
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-venv-reqs" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">2. สร้าง Virtual Environment (<code>.venv</code>) และติดตั้ง <code>requirements.txt</code> สำเร็จ</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">ติดตั้ง <code>jupyterlab</code>, <code>requests</code>, <code>openai</code>, <code>pillow</code>, <code>pandas</code>, <code>websocket-client</code> และ <code>matplotlib</code> ครบถ้วน</div>
-          </div>
-        </label>
+          <label for="chk-lmstudio-model" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-lmstudio-model" data-check-id="chk-lmstudio-model" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">3. ติดตั้ง LM Studio และดาวน์โหลดโมเดลขนาด 3B (<code>Q4_K_M</code>) เรียบร้อยแล้ว</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">มีไฟล์โมเดล <code>Qwen2.5-3B-Instruct-GGUF</code> หรือ <code>Llama-3.2-3B-Instruct-GGUF</code> (~2.2GB) และตั้งค่า Context Length = <code>2048</code></span>
+            </span>
+          </label>
 
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-lmstudio-model" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">3. ติดตั้ง LM Studio และดาวน์โหลดโมเดลขนาด 3B (<code>Q4_K_M</code>) เรียบร้อยแล้ว</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">มีไฟล์โมเดล <code>Qwen2.5-3B-Instruct-GGUF</code> หรือ <code>Llama-3.2-3B-Instruct-GGUF</code> (~2.2GB) และตั้งค่า Context Length = <code>2048</code></div>
-          </div>
-        </label>
+          <label for="chk-lmstudio-server" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-lmstudio-server" data-check-id="chk-lmstudio-server" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">4. ทดสอบเปิด Local Server ใน LM Studio ที่พอร์ต <code>1234</code> ได้สำเร็จ</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">เรียกดูข้อมูลที่ <code>http://localhost:1234/v1/models</code> ได้</span>
+            </span>
+          </label>
 
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-lmstudio-server" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">4. ทดสอบเปิด Local Server ใน LM Studio ที่พอร์ต <code>1234</code> ได้สำเร็จ</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">เรียกดูข้อมูลที่ <code>http://localhost:1234/v1/models</code> ได้</div>
-          </div>
-        </label>
+          <label for="chk-comfyui-sd15" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-comfyui-sd15" data-check-id="chk-comfyui-sd15" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">5. ติดตั้ง ComfyUI และวางโมเดล SD 1.5 ในโฟลเดอร์ <code>models/checkpoints/</code> แล้ว</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">มีไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> หรือ <code>DreamShaper_8_pruned.safetensors</code> และเข้าหน้าเว็บ <code>http://127.0.0.1:8188</code> ได้</span>
+            </span>
+          </label>
 
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-comfyui-sd15" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">5. ติดตั้ง ComfyUI และวางโมเดล SD 1.5 ในโฟลเดอร์ <code>models/checkpoints/</code> แล้ว</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">มีไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> หรือ <code>DreamShaper_8_pruned.safetensors</code> และเข้าหน้าเว็บ <code>http://127.0.0.1:8188</code> ได้</div>
-          </div>
-        </label>
-
-        <label class="flex items-start gap-3.5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 cursor-pointer hover:border-indigo-500/40 transition">
-          <input type="checkbox" data-check-id="chk-jupyter-nb01" class="mt-1 w-5 h-5 rounded accent-emerald-500 cursor-pointer" />
-          <div class="text-sm">
-            <div class="font-semibold text-slate-900 dark:text-white">6. เปิด <code>jupyter lab</code> และรันใบงาน <code>01_python_and_api_basics.ipynb</code> ผ่านครบทุก Cell</div>
-            <div class="text-xs text-slate-500 dark:text-slate-400">อ่านไฟล์บทความภาษาไทยได้ และตารางตรวจสอบสถานะเซิร์ฟเวอร์แสดงสถานะ Online ทั้งสองรายการ</div>
-          </div>
-        </label>
-      </div>
-    </section>
+          <label for="chk-jupyter-nb01" class="checklist-row flex items-start gap-3.5 py-4 px-3 cursor-pointer hover:bg-slate-100/80 dark:hover:bg-slate-900/60 transition-colors">
+            <input type="checkbox" id="chk-jupyter-nb01" data-check-id="chk-jupyter-nb01" class="visually-hidden-fallback mt-0.5 w-5 h-5 shrink-0 rounded cursor-pointer" />
+            <span class="text-sm block">
+              <span class="font-semibold text-slate-900 dark:text-white block">6. เปิด <code>jupyter lab</code> และรันใบงาน <code>01_python_and_api_basics.ipynb</code> ผ่านครบทุก Cell</span>
+              <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">อ่านไฟล์บทความภาษาไทยได้ และตารางตรวจสอบสถานะเซิร์ฟเวอร์แสดงสถานะ Online ทั้งสองรายการ</span>
+            </span>
+          </label>
+        </div>
+      </section>
+    </div>
 
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-slate-200 dark:border-slate-800 py-8 mt-12 text-center text-xs text-slate-500 dark:text-slate-400">
-    <div class="max-w-6xl mx-auto px-4">
-      <p class="font-semibold text-slate-700 dark:text-slate-300">
+  <footer class="border-t border-slate-200 dark:border-slate-800 py-8 mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
+    <div class="max-w-5xl mx-auto px-4">
+      <p class="font-semibold text-slate-800 dark:text-slate-200">
         โครงการอบรมเชิงปฏิบัติการ: การพัฒนาเวิร์กโฟลว์ปัญญาประดิษฐ์สำหรับสร้างข้อความและรูปภาพบนเครื่องคอมพิวเตอร์ส่วนบุคคล
       </p>
       <p class="mt-1">Mastering Local AI Stack (Jupyter Notebook × LM Studio × ComfyUI) • 6-Hour University Training Course</p>
@@ -578,34 +898,55 @@ python main.py --force-fp16</code></pre>
       const mainMac = document.getElementById('main-tab-mac');
       const navWin = document.getElementById('nav-btn-win');
       const navMac = document.getElementById('nav-btn-mac');
+      const indicator = document.getElementById('active-os-indicator');
 
-      if (validOS === 'windows') {
-        mainWin.className = 'flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all bg-indigo-600 text-white shadow-md shadow-indigo-500/25';
-        mainMac.className = 'flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800';
-        navWin.className = 'px-2.5 py-1 rounded-md font-semibold transition-all bg-indigo-600 text-white shadow-sm';
-        navMac.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+      const isWin = validOS === 'windows';
+      mainWin.setAttribute('aria-pressed', String(isWin));
+      mainMac.setAttribute('aria-pressed', String(!isWin));
+      navWin.setAttribute('aria-pressed', String(isWin));
+      navMac.setAttribute('aria-pressed', String(!isWin));
+
+      if (indicator) {
+        indicator.textContent = isWin
+          ? 'โหมดปัจจุบัน: Windows (PowerShell)'
+          : 'โหมดปัจจุบัน: macOS (Apple Silicon)';
+      }
+
+      if (isWin) {
+        mainWin.className = 'flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left bg-indigo-600 text-white shadow-sm';
+        mainMac.className = 'flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-800';
+        navWin.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-colors min-h-[28px] bg-indigo-600 text-white shadow-sm';
+        navMac.className = 'px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white';
       } else {
-        mainMac.className = 'flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all bg-indigo-600 text-white shadow-md shadow-indigo-500/25';
-        mainWin.className = 'flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-slate-600 dark:text-slate-400 hover:bg-white/60 dark:hover:bg-slate-800';
-        navMac.className = 'px-2.5 py-1 rounded-md font-semibold transition-all bg-indigo-600 text-white shadow-sm';
-        navWin.className = 'px-2.5 py-1 rounded-md font-medium transition-all text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white';
+        mainMac.className = 'flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left bg-indigo-600 text-white shadow-sm';
+        mainWin.className = 'flex items-center justify-between gap-3 py-3.5 px-4 rounded-xl font-semibold text-sm sm:text-base transition-all text-left bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200/80 dark:hover:bg-slate-800';
+        navMac.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-colors min-h-[28px] bg-indigo-600 text-white shadow-sm';
+        navWin.className = 'px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white';
       }
     }
 
     // 2. Dark / Light Mode Toggle (Default: Dark Mode)
     function applyTheme(theme) {
       const root = document.documentElement;
-      const icon = document.getElementById('theme-icon');
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
       const label = document.getElementById('theme-label');
+      const btn = document.getElementById('theme-toggle-btn');
 
       if (theme === 'light') {
         root.classList.remove('dark');
-        icon.textContent = 'Light';
-        label.textContent = 'Mode';
+        root.style.colorScheme = 'light';
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        label.textContent = 'Dark';
+        btn.setAttribute('aria-label', 'สลับเป็นโหมดมืด (Switch to Dark Mode)');
       } else {
         root.classList.add('dark');
-        icon.textContent = 'Dark';
-        label.textContent = 'Mode';
+        root.style.colorScheme = 'dark';
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+        label.textContent = 'Light';
+        btn.setAttribute('aria-label', 'สลับเป็นโหมดสว่าง (Switch to Light Mode)');
       }
       localStorage.setItem(STORAGE_KEYS.THEME, theme);
     }
@@ -622,12 +963,13 @@ python main.py --force-fp16</code></pre>
       if (!codeEl) return;
 
       navigator.clipboard.writeText(codeEl.innerText.trim()).then(() => {
-        const originalText = buttonEl.textContent;
-        buttonEl.textContent = 'Copied';
-        buttonEl.classList.add('bg-emerald-600');
+        const labelSpan = buttonEl.querySelector('span') || buttonEl;
+        const originalText = labelSpan.textContent;
+        labelSpan.textContent = 'Copied';
+        buttonEl.classList.add('bg-emerald-600', 'text-white');
         setTimeout(() => {
-          buttonEl.textContent = originalText;
-          buttonEl.classList.remove('bg-emerald-600');
+          labelSpan.textContent = originalText;
+          buttonEl.classList.remove('bg-emerald-600', 'text-white');
         }, 1600);
       });
     }
@@ -669,14 +1011,14 @@ python main.py --force-fp16</code></pre>
         if (cb.checked) checkedCount++;
       });
 
-      const pct = total > 0 ? Math.round((checkedCount / total) * 100) : 0;
       const badge = document.getElementById('checklist-progress-badge');
       const bar = document.getElementById('checklist-progress-bar');
 
       badge.textContent = checkedCount === total
         ? `พร้อมเริ่มอบรมครบ ${checkedCount} / ${total} ข้อ`
         : `สำเร็จแล้ว ${checkedCount} / ${total} ข้อ`;
-      bar.style.width = `${pct}%`;
+      bar.value = checkedCount;
+      bar.textContent = `${checkedCount} จาก ${total} ข้อ`;
     }
 
     function resetChecklist() {

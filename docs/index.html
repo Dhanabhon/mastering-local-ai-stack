@@ -1000,6 +1000,91 @@ python main.py --force-fp16</code></pre>
             </figcaption>
           </figure>
         </div>
+
+        <!-- Supplementary Section: ComfyUI Desktop vs Portable / CLI -->
+        <details class="mt-6 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-500/30 dark:border-amber-500/30 p-5 sm:p-6">
+          <summary class="cursor-pointer font-bold text-sm sm:text-base text-slate-900 dark:text-white select-none">
+            เนื้อหาเสริม: ต้องติดตั้ง ComfyUI Desktop หรือไม่? (และวิธีตั้งค่าหากมีติดตั้งอยู่ในเครื่องแล้ว)
+          </summary>
+
+          <div class="mt-4 pt-4 border-t border-amber-500/20 space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <p>
+              <strong class="text-slate-900 dark:text-white">สรุปสั้นๆ: ไม่จำเป็นต้องใช้ ComfyUI Desktop ในการอบรมนี้</strong> เพราะใบงานทั้งหมดออกแบบให้ใช้รุ่น <strong>Windows Portable (<code>.7z</code>)</strong> หรือ <strong>macOS CLI (<code>python main.py</code>)</strong> เป็นหลัก ซึ่งไม่ต้องติดตั้งลงระบบและใช้พอร์ต <code>8188</code> ตรงกับโค้ดในห้องเรียนทันที แต่หากคุณติดตั้งแอป <strong>ComfyUI Desktop (ตัวติดตั้ง <code>.exe</code> หรือ <code>.dmg</code>)</strong> ไว้ในเครื่องอยู่แล้ว สามารถใช้เรียนต่อได้โดยไม่ต้องลบลงใหม่ เพียงปรับตั้งค่าตามตารางด้านล่าง
+            </p>
+
+            <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90">
+              <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                <caption class="sr-only">ตารางเปรียบเทียบค่าเริ่มต้นระหว่าง ComfyUI Portable/CLI กับ ComfyUI Desktop</caption>
+                <thead>
+                  <tr class="bg-slate-100 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                    <th scope="col" class="py-3 px-4 font-semibold">หัวข้อที่แตกต่างกัน</th>
+                    <th scope="col" class="py-3 px-4 font-semibold">ComfyUI Portable / CLI (มาตรฐานในคลาส)</th>
+                    <th scope="col" class="py-3 px-4 font-semibold">ComfyUI Desktop App (ตัวเลือกเสริม)</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+                  <tr>
+                    <th scope="row" class="py-3 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                      1. หมายเลข Port เริ่มต้น (สำคัญที่สุด)
+                    </th>
+                    <td class="py-3 px-4 align-top">
+                      พอร์ต <code class="text-emerald-700 dark:text-emerald-400 font-bold">8188</code> (<code>http://127.0.0.1:8188</code>) ตรงกับโค้ดในใบงานทุกบททันที
+                    </td>
+                    <td class="py-3 px-4 align-top">
+                      มักตั้งค่าเริ่มต้นเป็นพอร์ต <code class="text-amber-700 dark:text-amber-400 font-bold">8000</code> (<code>http://127.0.0.1:8000</code>) หากไม่เปลี่ยนพอร์ต โค้ดเช็กสถานะในใบงานที่ 1 จะแจ้งว่า <code>Offline</code>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="py-3 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                      2. โฟลเดอร์สำหรับวางไฟล์โมเดล <code>.safetensors</code>
+                    </th>
+                    <td class="py-3 px-4 align-top">
+                      อยู่ในโฟลเดอร์โปรแกรมโดยตรงที่ <code>ComfyUI/models/checkpoints/</code>
+                    </td>
+                    <td class="py-3 px-4 align-top">
+                      แยกไปเก็บในโฟลเดอร์เอกสารของผู้ใช้ เช่น <code>Documents\ComfyUI\models\checkpoints\</code> (Windows) หรือ <code>~/Documents/ComfyUI/models/checkpoints/</code> (macOS)
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="py-3 px-4 font-semibold text-slate-900 dark:text-white align-top">
+                      3. การใส่แฟล็กคุม VRAM (<code>--lowvram</code>)
+                    </th>
+                    <td class="py-3 px-4 align-top">
+                      เติมท้ายคำสั่งในไฟล์ <code>run_nvidia_gpu.bat</code> ได้โดยตรง
+                    </td>
+                    <td class="py-3 px-4 align-top">
+                      ตั้งค่าผ่านเมนู <strong>Settings → Server-Config → Extra Arguments</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-bold text-slate-900 dark:text-white text-sm">
+                  วิธีที่ 1 (แนะนำ): เปลี่ยนพอร์ตใน ComfyUI Desktop ให้เป็น 8188
+                </h4>
+                <ol class="list-decimal pl-5 mt-2 space-y-1 text-xs sm:text-sm">
+                  <li>เปิดโปรแกรม <strong>ComfyUI Desktop</strong> แล้วคลิกไอคอนฟันเฟือง <strong>⚙️ Settings</strong></li>
+                  <li>เลือกเมนูหมวด <strong>Server-Config</strong></li>
+                  <li>เปลี่ยนช่อง <strong>Port</strong> จาก <code>8000</code> เป็น <code class="text-indigo-700 dark:text-indigo-300 font-bold">8188</code></li>
+                  <li>ปิดและเปิดโปรแกรม ComfyUI Desktop ใหม่ 1 ครั้ง เพื่อให้ใช้โค้ดในใบงานทุกบทได้ทันทีโดยไม่ต้องแก้โค้ด</li>
+                </ol>
+              </div>
+
+              <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-bold text-slate-900 dark:text-white text-sm">
+                  วิธีที่ 2: ใช้พอร์ต 8000 เดิม แล้วแก้ URL ใน Jupyter Notebook
+                </h4>
+                <p class="mt-2 text-xs sm:text-sm">
+                  หากไม่ต้องการเปลี่ยนตั้งค่าในโปรแกรม ComfyUI Desktop ให้แก้เลขพอร์ตของตัวแปรในเซลล์โค้ด Python ของใบงานที่ 1 และใบงานที่ 4 จาก <code>8188</code> เป็น <code>8000</code> ดังนี้:
+                </p>
+                <pre tabindex="0" class="mt-2 p-2.5 rounded-lg bg-slate-950 text-slate-100 text-xs overflow-x-auto"><code>COMFYUI_URL = "http://127.0.0.1:8000"</code></pre>
+              </div>
+            </div>
+          </div>
+        </details>
       </section>
 
       <!-- ==========================================

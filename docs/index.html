@@ -832,15 +832,81 @@ jupyter lab</code></pre>
             4. การติดตั้ง ComfyUI, ดาวน์โหลดโมเดล SD 1.5 และตั้งค่าโหมดนักพัฒนา
           </h2>
           <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
-            ใช้โมเดลตระกูล <strong>Stable Diffusion 1.5 (SD 1.5)</strong> นามสกุล <code>.safetensors</code> วางลงในโฟลเดอร์ <code>models/checkpoints/</code> เพื่อให้เรนเดอร์ภาพ <code>512x512</code> เสร็จภายใน 2–3 วินาทีบนการ์ดจอ 6GB
+            ติดตั้งโปรแกรม <strong>ComfyUI</strong> และนำโมเดลตระกูล <strong>Stable Diffusion 1.5 (SD 1.5)</strong> นามสกุล <code>.safetensors</code> ไปวางในโฟลเดอร์ <code>models/checkpoints/</code> เพื่อให้เรนเดอร์ภาพ <code>512x512</code> เสร็จภายใน 2 ถึง 3 วินาทีบนการ์ดจอ 6GB
           </p>
         </div>
 
-        <!-- Sub-step 4.1: Where to Download SD 1.5 Checkpoint & Exact Folder Placement -->
+        <!-- Sub-step 4.1: How to Download & Install ComfyUI Program (OS-aware) -->
         <div class="mt-6 mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-              ขั้นตอนที่ 4.1 — ดาวน์โหลดโมเดลหลัก SD 1.5 จากที่ไหน และนำไปวางไว้ที่โฟลเดอร์ใด?
+              ขั้นตอนที่ 4.1: ดาวน์โหลดและติดตั้งตัวโปรแกรม ComfyUI
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+              พอร์ตเริ่มต้น 8188
+            </span>
+          </div>
+
+          <!-- Windows Installation Instructions -->
+          <div class="os-panel-win space-y-4">
+            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong class="text-slate-900 dark:text-white">สำหรับ Windows (NVIDIA RTX 3050 6GB แนะนำรุ่น Windows Portable):</strong> รุ่น Portable มาพร้อม Python และ CUDA ในตัว ไม่ต้องกดติดตั้งลงระบบและไม่ต้องใช้สิทธิ์ Admin
+            </p>
+            <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                เข้าไปที่หน้า <a href="https://github.com/comfyanonymous/ComfyUI/releases/latest" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-semibold">ComfyUI GitHub Releases (Latest) ↗</a> แล้วเลื่อนลงมาที่หัวข้อ <strong>Assets</strong> ด้านล่างสุดของหน้า
+              </li>
+              <li>
+                คลิกดาวน์โหลดไฟล์ชื่อ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable_nvidia.7z</code> (ขนาดประมาณ 1.5 ถึง 1.8 GB)
+              </li>
+              <li>
+                คลิกขวาที่ไฟล์แล้วแตกไฟล์ด้วยโปรแกรม <a href="https://www.7-zip.org/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">7-Zip</a> ไปไว้ในไดรฟ์ที่มีพื้นที่ว่างอย่างน้อย 10 GB (เช่น <code>C:\AI\ComfyUI_windows_portable\</code> หรือ <code>D:\ComfyUI_windows_portable\</code>)
+              </li>
+              <li>
+                ภายในโฟลเดอร์ที่แตกออกมาจะพบไฟล์ <code>run_nvidia_gpu.bat</code> สำหรับดับเบิลคลิกเปิดโปรแกรม และโฟลเดอร์ <code>ComfyUI\models\checkpoints\</code> สำหรับวางไฟล์โมเดลในขั้นตอนถัดไป
+              </li>
+            </ol>
+          </div>
+
+          <!-- macOS Installation Instructions -->
+          <div class="os-panel-mac space-y-4">
+            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong class="text-slate-900 dark:text-white">สำหรับ macOS (Apple Silicon M1 / M2 / M3 / M4):</strong> แนะนำให้ติดตั้งผ่าน Git และ Python Virtual Environment เพื่อให้โปรแกรมรันบน Apple Metal (<code>MPS</code>) ที่พอร์ต <code>8188</code> ตรงกับโค้ดในใบงานทุกบททันที
+            </p>
+            <ol class="list-decimal list-outside pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                เปิดโปรแกรม <strong>Terminal</strong> แล้วรันคำสั่งด้านล่างทีละบรรทัดเพื่อโคลนโปรเจกต์ ComfyUI และติดตั้งไลบรารี PyTorch สำหรับชิปตระกูล M:
+              </li>
+            </ol>
+
+            <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+              <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+                <span class="font-medium">Terminal (macOS Apple Silicon): คำสั่งติดตั้ง ComfyUI</span>
+                <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งติดตั้ง ComfyUI สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                  <span>Copy</span>
+                </button>
+              </div>
+              <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># 1. โคลนซอร์สโค้ด ComfyUI ลงในเครื่อง
+git clone https://github.com/comfyanonymous/ComfyUI.git
+cd ComfyUI
+
+# 2. สร้างและเปิดใช้งาน Virtual Environment สำหรับ ComfyUI
+python3 -m venv .venv
+source .venv/bin/activate
+
+# 3. ติดตั้ง PyTorch (รองรับ Apple Silicon MPS) และไลบรารีที่จำเป็น
+pip install --upgrade pip
+pip install torch torchvision torchaudio
+pip install -r requirements.txt</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sub-step 4.2: Where to Download SD 1.5 Checkpoint & Exact Folder Placement -->
+        <div class="mt-6 mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 4.2: ดาวน์โหลดโมเดลหลัก SD 1.5 จากที่ไหน และนำไปวางไว้ที่โฟลเดอร์ใด?
             </h3>
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
               นามสกุล .safetensors เท่านั้น
@@ -954,11 +1020,11 @@ python main.py --force-fp16</code></pre>
           </div>
         </div>
 
-        <!-- Sub-step 4.2: ComfyUI Web Interface & Enable Dev Mode Options Walkthrough -->
+        <!-- Sub-step 4.3: ComfyUI Web Interface & Enable Dev Mode Options Walkthrough -->
         <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-              ขั้นตอนที่ 4.2 — วิธีเลือกโมเดลในหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และเปิดโหมด API
+              ขั้นตอนที่ 4.3: วิธีเลือกโมเดลในหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และเปิดโหมด API
             </h3>
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
               Enable Dev mode Options

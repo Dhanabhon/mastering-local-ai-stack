@@ -678,11 +678,17 @@ display(df_action)</code></pre>
               <input type="checkbox" id="lab-m3-s3" data-lab-id="lab-m3-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
               <div class="min-w-0 flex-1">
                 <label for="lab-m3-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
-                  Lab 3.3 — เปิด Developer Mode และส่งออกไฟล์ JSON สำหรับ API (<code>Workflow → Export (API)</code>)
+                  Lab 3.3 — เปิดโหมดนักพัฒนาเพื่อแปลงกราฟโหนดเป็นไฟล์ JSON สำหรับสั่งงานด้วย Python (<code>Workflow → Export (API)</code>)
                 </label>
                 <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
-                  คลิกไอคอนรูปเฟือง <strong>⚙️ Settings</strong> (มุมซ้ายล่างหรือขวาบนของ ComfyUI) ค้นหาคำว่า <code>Dev Mode</code> แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จากนั้นไปที่เมนูมุมซ้ายบนเลือก <strong><code>Workflow → Export (API)</code></strong> (หรือปุ่ม <code>Save (API Format)</code> ใน UI รุ่นเก่า) แล้วเปิดเปรียบเทียบกับไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab
+                  <strong>ทำไมต้องทำขั้นตอนนี้?</strong> ในบทที่ 4 เราต้องการให้โค้ด Python สั่ง ComfyUI วาดรูปอัตโนมัติโดยไม่ต้องสลับหน้าจอมากดปุ่ม <code>▶ Run</code> เอง แต่โค้ด Python ไม่สามารถอ่านไฟล์กราฟปกติ (<code>Workflow → Export</code> ที่เก็บแค่พิกัดกล่องและสีบนหน้าจอ) ได้ เราจึงต้องส่งออกเป็นไฟล์ <strong>API Format</strong> ที่เก็บเฉพาะคำสั่งของแต่ละโหนดล้วนๆ
                 </p>
+                <ol class="mt-2.5 text-xs sm:text-sm space-y-1.5 text-tomera-muted dark:text-tomera-dim list-decimal pl-5">
+                  <li>คลิกไอคอนรูปเฟือง <strong>⚙️ Settings</strong> (มุมซ้ายล่างหรือขวาบนของหน้าเว็บ ComfyUI)</li>
+                  <li>พิมพ์ค้นหาคำว่า <code>Dev Mode</code> ในช่องค้นหาตั้งค่า แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จากนั้นกดปิดหน้าต่าง Settings</li>
+                  <li>คลิกเมนูมุมซ้ายบน <strong><code>Workflow → Export (API)</code></strong> (หรือปุ่ม <code>Save (API Format)</code> ใน UI รุ่นเก่า) ตั้งชื่อไฟล์แล้วกดยืนยัน เบราว์เซอร์จะดาวน์โหลดไฟล์ <code>.json</code> ลงมาในเครื่องของคุณ</li>
+                  <li><em>หมายเหตุ:</em> ในคลังโปรเจกต์ของเราได้เตรียมไฟล์ที่กด <code>Export (API)</code> แบบเดียวกันนี้ไว้ให้พร้อมใช้งานแล้วที่ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> (คุณจึงไม่ต้องเสียเวลาย้ายไฟล์จากโฟลเดอร์ Downloads ด้วยตัวเอง)</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -693,11 +699,36 @@ display(df_action)</code></pre>
               <input type="checkbox" id="lab-m3-s4" data-lab-id="lab-m3-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
               <div class="min-w-0 flex-1">
                 <label for="lab-m3-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
-                  Lab 3.4 — ระบุตำแหน่งคีย์ JSON ของ Node <code>"6"</code> (Prompt) และ Node <code>"3"</code> (Seed)
+                  Lab 3.4 — เปิดดูข้างในไฟล์ <code>sd15_txt2img_api.json</code> เพื่อหาตำแหน่งคีย์ที่เราจะใช้ Python เข้าไปแก้ค่า
                 </label>
                 <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
-                  เปิดไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab เพื่อดูโครงสร้าง Dictionary ที่เราจะเขียนโค้ด Python เข้าไปแทนที่ค่าในบทถัดไป:
-                  <code>workflow["6"]["inputs"]["text"]</code> และ <code>workflow["3"]["inputs"]["seed"]</code>
+                  หลังจากรู้วิธี Export (API) แล้ว ขั้นตอนนี้คือการ <strong>"เปิดดูไส้ในของไฟล์ JSON"</strong> เพื่อดูว่ากล่องโหนดทั้ง 7 กล่องบนหน้าเว็บ ComfyUI ถูกแปลงเป็นหมายเลขโหนดอะไรบ้าง เวลาเขียนโค้ด Python ใน Module 4 จะได้อ้างอิงชื่อคีย์ได้ถูกต้อง:
+                </p>
+                <ol class="mt-2.5 text-xs sm:text-sm space-y-1.5 text-tomera-muted dark:text-tomera-dim list-decimal pl-5">
+                  <li>สลับกลับมาที่หน้าต่าง <strong>JupyterLab</strong> ด้านซ้ายมือ ให้ดับเบิลคลิกเข้าโฟลเดอร์ <code>03-comfyui-workflows/</code></li>
+                  <li><strong>คลิกขวา</strong> ที่ไฟล์ <code>sd15_txt2img_api.json</code> แล้วเลือก <strong><code>Open With → Editor</code></strong> (เพื่อเปิดดูเนื้อหาไฟล์เป็นข้อความโค้ด JSON)</li>
+                  <li>สังเกตโครงสร้างภายในไฟล์ จะเห็นว่าแต่ละกล่องโหนดถูกแทนที่ด้วยหมายเลขคีย์ <code>"3"</code> ถึง <code>"9"</code> โดยจุดสำคัญที่เราจะใช้ Python เข้าไปแก้ในบทถัดไปมี <strong>3 จุด</strong> ดังนี้:</li>
+                </ol>
+
+                <div class="mt-3 rounded-xl overflow-hidden bg-tomera-codebg border border-tomera-codeborder">
+                  <div class="px-3.5 py-2 bg-black/30 border-b border-tomera-codeborder text-xs text-tomera-dim font-mono flex items-center justify-between">
+                    <span>เปรียบเทียบโครงสร้างในไฟล์ sd15_txt2img_api.json กับโค้ด Python ที่ใช้แก้ค่า</span>
+                  </div>
+                  <pre tabindex="0" class="p-3.5 text-xs text-slate-100 overflow-x-auto leading-relaxed"><code># 1) โหนด "6" คือกล่อง Positive Prompt (บรรทัดที่ 52 ในไฟล์ JSON):
+#    "6": { "inputs": { "text": "masterpiece, best quality...", "clip": ["4", 1] } }
+workflow["6"]["inputs"]["text"] = "คำสั่งวาดภาพภาษาอังกฤษที่ได้จาก LM Studio"
+
+# 2) โหนด "7" คือกล่อง Negative Prompt (บรรทัดที่ 65 ในไฟล์ JSON):
+#    "7": { "inputs": { "text": "text, watermark, blurry...", "clip": ["4", 1] } }
+workflow["7"]["inputs"]["text"] = "text, watermark, blurry, low quality"
+
+# 3) โหนด "3" คือกล่อง KSampler (บรรทัดที่ 2 ในไฟล์ JSON):
+#    "3": { "inputs": { "seed": 156680208700286, "steps": 20, "cfg": 7.0, ... } }
+workflow["3"]["inputs"]["seed"] = 42</code></pre>
+                </div>
+
+                <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-2.5">
+                  เมื่อหาโหนด <code>"6"</code>, <code>"7"</code> และ <code>"3"</code> ในไฟล์เจอครบแล้ว ให้ติ๊กถูกที่ข้อนี้ แล้วไปเริ่มเขียนโค้ดสั่งรันอัตโนมัติใน <strong>Module 4</strong> ต่อได้เลย!
                 </p>
               </div>
             </div>

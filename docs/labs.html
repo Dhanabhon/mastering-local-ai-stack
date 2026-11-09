@@ -699,20 +699,20 @@ display(df_action)</code></pre>
               <input type="checkbox" id="lab-m3-s4" data-lab-id="lab-m3-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
               <div class="min-w-0 flex-1">
                 <label for="lab-m3-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
-                  Lab 3.4 — เปิดดูข้างในไฟล์ <code>sd15_txt2img_api.json</code> เพื่อหาตำแหน่งคีย์ที่เราจะใช้ Python เข้าไปแก้ค่า
+                  Lab 3.4 — เปิดดูข้างในไฟล์ <code>sd15_txt2img_api.json</code> เพื่อหาตำแหน่งคีย์ (ไม่ต้องแก้ไฟล์ JSON โดยตรง)
                 </label>
                 <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
-                  หลังจากรู้วิธี Export (API) แล้ว ขั้นตอนนี้คือการ <strong>"เปิดดูไส้ในของไฟล์ JSON"</strong> เพื่อดูว่ากล่องโหนดทั้ง 7 กล่องบนหน้าเว็บ ComfyUI ถูกแปลงเป็นหมายเลขโหนดอะไรบ้าง เวลาเขียนโค้ด Python ใน Module 4 จะได้อ้างอิงชื่อคีย์ได้ถูกต้อง:
+                  หลังจากรู้วิธี Export (API) แล้ว ขั้นตอนนี้คือการ <strong>"เปิดดูไส้ในของไฟล์ JSON เฉยๆ (ไม่ต้องพิมพ์แก้ในไฟล์ JSON)"</strong> เพื่อดูว่ากล่องโหนดทั้ง 7 กล่องบนหน้าเว็บ ComfyUI ถูกแปลงเป็นหมายเลขโหนดอะไรบ้าง เวลาโค้ด Python ใน Module 4 โหลดไฟล์นี้ไปใช้งาน จะได้อ้างอิงชื่อคีย์ได้ถูกต้อง:
                 </p>
                 <ol class="mt-2.5 text-xs sm:text-sm space-y-1.5 text-tomera-muted dark:text-tomera-dim list-decimal pl-5">
                   <li>สลับกลับมาที่หน้าต่าง <strong>JupyterLab</strong> ด้านซ้ายมือ ให้ดับเบิลคลิกเข้าโฟลเดอร์ <code>03-comfyui-workflows/</code></li>
                   <li><strong>คลิกขวา</strong> ที่ไฟล์ <code>sd15_txt2img_api.json</code> แล้วเลือก <strong><code>Open With → Editor</code></strong> (เพื่อเปิดดูเนื้อหาไฟล์เป็นข้อความโค้ด JSON)</li>
-                  <li>สังเกตโครงสร้างภายในไฟล์ จะเห็นว่าแต่ละกล่องโหนดถูกแทนที่ด้วยหมายเลขคีย์ <code>"3"</code> ถึง <code>"9"</code> โดยจุดสำคัญที่เราจะใช้ Python เข้าไปแก้ในบทถัดไปมี <strong>3 จุด</strong> ดังนี้:</li>
+                  <li>สังเกตโครงสร้างภายในไฟล์ จะเห็นว่าแต่ละกล่องโหนดถูกแทนที่ด้วยหมายเลขคีย์ <code>"3"</code> ถึง <code>"9"</code> โดยจุดสำคัญที่โค้ด Python ใน <strong>Lab 4.1–4.4</strong> จะดึงไปแก้ไขค่าในหน่วยความจำโดยอัตโนมัติมี <strong>3 จุด</strong> ดังนี้:</li>
                 </ol>
 
                 <div class="code-container mt-3 rounded-xl overflow-hidden bg-tomera-ink border border-tomera-darkcard">
                   <div class="flex items-center justify-between px-4 py-2 bg-tomera-dark border-b border-tomera-darkcard text-xs text-tomera-dim font-mono">
-                    <span>เปรียบเทียบโครงสร้างในไฟล์ sd15_txt2img_api.json กับโค้ด Python ที่ใช้แก้ค่า</span>
+                    <span>ตัวอย่างโค้ด Python ใน Module 4 ที่จะโหลดไฟล์ JSON ไปแก้ค่าให้อัตโนมัติ (ไม่ต้องก๊อปปี้ไปวางในไฟล์ .json)</span>
                     <button type="button" data-copy-btn aria-label="Copy ตัวอย่างการอ้างอิงคีย์โหนด JSON" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-sans font-medium transition-colors">
                       <span>Copy</span>
                     </button>
@@ -748,7 +748,7 @@ workflow["3"]["inputs"]["seed"] = 42</code></pre>
                 </div>
 
                 <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-2.5">
-                  เมื่อหาโหนด <code>"6"</code>, <code>"7"</code> และ <code>"3"</code> ในไฟล์เจอครบแล้ว ให้ติ๊กถูกที่ข้อนี้ แล้วไปเริ่มเขียนโค้ดสั่งรันอัตโนมัติใน <strong>Module 4</strong> ต่อได้เลย!
+                  ⚠️ <strong>ข้อควรระวัง:</strong> ในขั้นตอนนี้เราแค่เปิดไฟล์ <code>sd15_txt2img_api.json</code> ขึ้นมาดูตำแหน่งโหนด <code>"6"</code>, <code>"7"</code> และ <code>"3"</code> เฉยๆ <strong>ห้ามก๊อปปี้โค้ด Python ด้านบนไปวางทับในไฟล์ <code>.json</code> เด็ดขาด</strong> (เพราะจะทำให้โครงสร้าง JSON พัง) เมื่อดูตำแหน่งโหนดเข้าใจแล้ว ให้ปิดไฟล์ JSON ติ๊กถูกที่ข้อนี้ แล้ว<strong>ไปต่อที่ Lab 4.1</strong> (เปิดไฟล์ <code>04-capstone-pipeline/04_end_to_end_ai_pipeline.ipynb</code>) ได้เลย!
                 </p>
               </div>
             </div>

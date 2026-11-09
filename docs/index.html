@@ -963,14 +963,14 @@ pip install -r requirements.txt</code></pre>
               <strong class="text-slate-900 dark:text-white">กดดาวน์โหลดเฉพาะไฟล์นามสกุล <code>.safetensors</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> คลิกปุ่ม <strong>Download</strong> ข้างไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (<strong>ข้อควรระวัง:</strong> ข้ามไฟล์นามสกุล <code>.ckpt</code> เพราะเป็นฟอร์แมตเก่า)
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">ย้ายไฟล์ไปวางในโฟลเดอร์ <code>models/checkpoints/</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong>
+              <strong class="text-slate-900 dark:text-white">ย้ายไฟล์ที่ดาวน์โหลดเสร็จแล้วไปวางในโฟลเดอร์ <code>models/checkpoints/</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong>
               <ul class="list-disc pl-5 mt-1 space-y-1">
-                <li><strong>Windows:</strong> วางไฟล์ไว้ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code></li>
-                <li><strong>macOS:</strong> วางไฟล์ไว้ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI/models/checkpoints/</code></li>
+                <li><strong>Windows:</strong> เปิดเข้าไปในโฟลเดอร์ที่แตกไฟล์ไว้ตามลำดับ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code> แล้วนำไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> มาวางในโฟลเดอร์นี้ (วางไว้ข้างไฟล์ <code>put_checkpoints_here.txt</code>)</li>
+                <li><strong>macOS:</strong> นำไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> ไปวางไว้ในโฟลเดอร์ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI/models/checkpoints/</code></li>
               </ul>
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">การเปิดรันเซิร์ฟเวอร์ ComfyUI ที่พอร์ต <code>8188</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> สำหรับการ์ดจอห้องแล็บ <strong>RTX 3050 6GB</strong> แนะนำให้เติมแฟล็ก <code>--lowvram</code> ในไฟล์ <code>run_nvidia_gpu.bat</code> ตามตัวอย่างด้านล่าง
+              <strong class="text-slate-900 dark:text-white">เมื่อวางไฟล์โมเดลเสร็จแล้ว ให้ทำต่อในขั้นตอนที่ 4.3 ด้านล่าง (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> เพื่อถอยกลับมาที่โฟลเดอร์หลัก แก้ไขไฟล์ <code>run_nvidia_gpu.bat</code> และเปิดรันเซิร์ฟเวอร์ ComfyUI ที่พอร์ต <code>8188</code>
             </li>
           </ol>
 
@@ -984,54 +984,115 @@ pip install -r requirements.txt</code></pre>
               loading="lazy"
               class="ui-screenshot-img cursor-zoom-in"
               data-zoom-src="./images/comfyui-model-folder.png"
-              data-zoom-caption="ขั้นตอนที่ 4.1: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/"
+              data-zoom-caption="ขั้นตอนที่ 4.2: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/"
             />
             <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
               <span><strong>ภาพที่ 4.1:</strong> ตำแหน่งกดดาวน์โหลดไฟล์ <code>.safetensors</code> บน Hugging Face และพาธโฟลเดอร์ <code>ComfyUI/models/checkpoints/</code></span>
-              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-model-folder.png" data-zoom-caption="ขั้นตอนที่ 4.1: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/">
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-model-folder.png" data-zoom-caption="ขั้นตอนที่ 4.2: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/">
                 🔍 คลิกขยายภาพเต็มจอ
               </button>
             </figcaption>
           </figure>
         </div>
 
-        <!-- Windows ComfyUI Launch Script -->
-        <div class="os-panel-win space-y-4 mb-8">
-          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
-              <span class="font-medium">run_nvidia_gpu.bat (Windows RTX 3050 6GB: แนะนำเติม --lowvram สำหรับ Module 4)</span>
-              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่ง run_nvidia_gpu.bat" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
-                <span>Copy</span>
-              </button>
-            </div>
-            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
+        <!-- Sub-step 4.3: Step-by-step Server Launch from checkpoints folder to localhost:8188 -->
+        <div class="mt-6 mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 4.3: วิธีตั้งค่าและเปิดรันเซิร์ฟเวอร์ ComfyUI ครั้งแรก (หลังจากวางไฟล์โมเดลเสร็จแล้ว)
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+              http://127.0.0.1:8188
+            </span>
+          </div>
+
+          <!-- Windows Detailed Step-by-Step Launch -->
+          <div class="os-panel-win space-y-4">
+            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              หลังจากที่คุณวางไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> ลงในโฟลเดอร์ <code>ComfyUI\models\checkpoints\</code> เรียบร้อยแล้ว ให้ทำตามลำดับดังนี้:
+            </p>
+            <ol class="list-decimal list-outside pl-5 space-y-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                <strong class="text-slate-900 dark:text-white">ถอยกลับออกมาที่โฟลเดอร์หลัก <code>ComfyUI_windows_portable\</code>:</strong>
+                ในหน้าต่าง File Explorer ให้กดปุ่มย้อนกลับ (หรือคลิกที่แถบชื่อโฟลเดอร์ด้านบน) ถอยออกมา 3 ขั้น จาก <code>checkpoints</code> → <code>models</code> → <code>ComfyUI</code> จนกลับมาอยู่ที่โฟลเดอร์นอกสุดชื่อ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\</code> ซึ่งในหน้านี้คุณจะเห็นไฟล์ชื่อ <code class="text-emerald-700 dark:text-emerald-400 font-semibold">run_nvidia_gpu.bat</code>
+              </li>
+              <li>
+                <strong class="text-slate-900 dark:text-white">คลิกขวาที่ไฟล์ <code>run_nvidia_gpu.bat</code> เพื่อเติมคำสั่ง <code>--lowvram</code> (สำหรับการ์ดจอ RTX 3050 6GB):</strong>
+                <ul class="list-disc pl-5 mt-1 space-y-1">
+                  <li><strong>คลิกขวา</strong> ที่ไฟล์ <code>run_nvidia_gpu.bat</code> แล้วเลือก <strong>Edit in Notepad</strong> (หรือ <strong>แก้ไขในสมุดบันทึก</strong> / <strong>Open with → Notepad</strong>) <span class="text-rose-600 dark:text-rose-400 font-medium">(อย่าเพิ่งดับเบิลคลิก เพราะการดับเบิลคลิกคือการสั่งรันโปรแกรมทันที)</span></li>
+                  <li>ในหน้าต่าง Notepad ที่เปิดขึ้นมา ให้เคาะเว้นวรรคต่อท้ายคำว่า <code>--windows-standalone-build</code> แล้วพิมพ์ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">--lowvram</code> เพิ่มเข้าไป (หรือกดปุ่ม <strong>Copy</strong> จากกล่องด้านล่างไปวางทับทั้งหมด)</li>
+                  <li>กดปุ่ม <strong><code>Ctrl + S</code></strong> เพื่อบันทึกไฟล์ แล้วกดกากบาทปิดหน้าต่าง Notepad ได้เลย</li>
+                </ul>
+              </li>
+            </ol>
+
+            <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+              <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+                <span class="font-medium">เนื้อหาภายในไฟล์ run_nvidia_gpu.bat หลังจากเติม --lowvram เรียบร้อยแล้ว</span>
+                <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่ง run_nvidia_gpu.bat" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                  <span>Copy</span>
+                </button>
+              </div>
+              <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
 pause</code></pre>
-          </div>
-        </div>
-
-        <!-- macOS ComfyUI Launch Script -->
-        <div class="os-panel-mac space-y-4 mb-8">
-          <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
-            <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
-              <span class="font-medium">Terminal (macOS Apple Silicon): การรัน ComfyUI ที่พอร์ต 8188</span>
-              <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งรัน ComfyUI สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
-                <span>Copy</span>
-              </button>
             </div>
-            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
+
+            <ol start="3" class="list-decimal list-outside pl-5 space-y-3 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                <strong class="text-slate-900 dark:text-white">ดับเบิลคลิกไฟล์ <code>run_nvidia_gpu.bat</code> เพื่อเปิดเซิร์ฟเวอร์ ComfyUI:</strong>
+                <ul class="list-disc pl-5 mt-1 space-y-1">
+                  <li>เมื่อดับเบิลคลิกแล้ว จะมี <strong>หน้าต่างจอดำ (Command Prompt)</strong> เด้งขึ้นมาเพื่อโหลด PyTorch และการตั้งค่าการ์ดจอ ให้รอประมาณ 5 ถึง 15 วินาที</li>
+                  <li>สังเกตบรรทัดสุดท้ายในหน้าต่างจอดำ เมื่อขึ้นข้อความว่า <code class="text-emerald-700 dark:text-emerald-400 font-semibold">To see the GUI go to: http://127.0.0.1:8188</code> เว็บเบราว์เซอร์จะเปิดหน้าเว็บ ComfyUI ขึ้นมาให้อัตโนมัติ (หากเบราว์เซอร์ไม่เด้งขึ้นมาเอง ให้เปิด Chrome หรือ Edge แล้วพิมพ์ <a href="http://127.0.0.1:8188" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-semibold">http://127.0.0.1:8188</a>)</li>
+                  <li><strong class="text-rose-600 dark:text-rose-400">ข้อควรระวังสำคัญ:</strong> <strong>ห้ามกดกากบาทปิดหน้าต่างจอดำ (Command Prompt)</strong> ตลอดเวลาที่ใช้งาน ComfyUI เพราะหน้าต่างจอดำคือตัวเซิร์ฟเวอร์เบื้องหลัง ให้พับย่อ (Minimize) ลงไว้ที่แถบด้านล่างแทน</li>
+                </ul>
+              </li>
+            </ol>
+          </div>
+
+          <!-- macOS Detailed Step-by-Step Launch -->
+          <div class="os-panel-mac space-y-4">
+            <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              หลังจากที่คุณวางไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> ลงในโฟลเดอร์ <code>ComfyUI/models/checkpoints/</code> เรียบร้อยแล้ว ให้ทำตามลำดับดังนี้:
+            </p>
+            <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                กลับมาที่โปรแกรม <strong>Terminal</strong> ที่อยู่ในโฟลเดอร์ <code>ComfyUI</code> (และเปิดใช้งาน <code>(.venv)</code> อยู่) จากนั้นรันคำสั่งด้านล่างเพื่อเปิดเซิร์ฟเวอร์:
+              </li>
+            </ol>
+
+            <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
+              <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
+                <span class="font-medium">Terminal (macOS Apple Silicon): การรัน ComfyUI ที่พอร์ต 8188</span>
+                <button type="button" onclick="copyCode(this)" aria-label="คัดลอกคำสั่งรัน ComfyUI สำหรับ macOS" class="copy-btn inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-800 hover:bg-indigo-600 text-slate-100 hover:text-white font-medium transition-colors">
+                  <span>Copy</span>
+                </button>
+              </div>
+              <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
 python main.py --force-fp16</code></pre>
+            </div>
+
+            <ol start="2" class="list-decimal list-outside pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+              <li>
+                รอจนหน้าต่าง Terminal แสดงข้อความบรรทัดสุดท้ายว่า <code class="text-emerald-700 dark:text-emerald-400 font-semibold">To see the GUI go to: http://127.0.0.1:8188</code> แล้วเปิดเว็บเบราว์เซอร์ไปที่ <a href="http://127.0.0.1:8188" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-semibold">http://127.0.0.1:8188</a> (ห้ามปิดหน้าต่าง Terminal ตลอดเวลาที่ใช้งาน)
+              </li>
+            </ol>
           </div>
         </div>
 
-        <!-- Sub-step 4.3: ComfyUI Web Interface & Enable Dev Mode Options Walkthrough -->
+        <!-- Sub-step 4.4: ComfyUI Web Interface & Enable Dev Mode Options Walkthrough -->
         <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-              ขั้นตอนที่ 4.3: วิธีเลือกโมเดลในหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และเปิดโหมด API
+              ขั้นตอนที่ 4.4: วิธีเลือกโมเดลในหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และเปิดโหมด API
             </h3>
             <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
               Enable Dev mode Options
             </span>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-500/25 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <strong class="text-slate-900 dark:text-white">กรณีเปิดเข้า <code>http://127.0.0.1:8188</code> ครั้งแรกแล้วเจอหน้าต่าง Templates หรือพื้นที่ว่างเปล่า:</strong>
+            ให้คลิกเลือกเทมเพลตพื้นฐาน <strong>Image Generation → Default (Text to Image)</strong> หรือคลิกเมนูมุมซ้ายบน <strong>Workflow → Open (<code>Ctrl + O</code>)</strong> แล้วเลือกไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> จากในโฟลเดอร์โปรเจกต์ของเรามาเปิด เพื่อให้แสดงกราฟโหนดมาตรฐานบนหน้าจอ
           </div>
 
           <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -1039,13 +1100,13 @@ python main.py --force-fp16</code></pre>
               <strong class="text-slate-900 dark:text-white">ตรวจสอบโหนด <code>Load Checkpoint</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> เมื่อเปิดเบราว์เซอร์ไปที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://127.0.0.1:8188</code> ให้คลิกที่ช่อง <code>ckpt_name</code> ในกล่องโหนด <strong>Load Checkpoint</strong> แล้วเลือกไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (หากเพิ่งวางไฟล์ขณะเปิดโปรแกรมอยู่ ให้กดปุ่ม <code>R</code> บนคีย์บอร์ดเพื่อ Refresh รายชื่อโมเดล)
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">กดปุ่ม <code>Queue Prompt</code> เพื่อทดสอบวาดภาพแรก (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> ตรวจสอบว่าการ์ดจอสามารถเรนเดอร์ภาพ <code>512x512</code> ออกมาได้ภายใน 2–3 วินาทีโดยไม่มีข้อความแจ้งเตือนสีแดง
+              <strong class="text-slate-900 dark:text-white">กดปุ่ม <code>Queue Prompt</code> (หรือปุ่ม <code>Run</code>) เพื่อทดสอบวาดภาพแรก (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> ตรวจสอบว่าการ์ดจอสามารถเรนเดอร์ภาพ <code>512x512</code> ออกมาได้ภายใน 2 ถึง 3 วินาทีโดยไม่มีข้อความแจ้งเตือนสีแดง
             </li>
             <li>
               <strong class="text-slate-900 dark:text-white">คลิกไอคอนฟันเฟือง ⚙️ Settings แล้วเปิด <code>Enable Dev mode Options</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> เปิดหน้าต่างตั้งค่าของ ComfyUI แล้วสับสวิตช์ <strong>Enable Dev mode Options</strong> ให้เป็นสีเขียว
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">สังเกตปุ่ม <code>Save (API Format)</code> ที่ปรากฏขึ้นมา (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> ปุ่มนี้จะใช้ในช่วงบ่าย (Module 3 และ 4) สำหรับส่งออกกราฟโหนดเป็นไฟล์ JSON ให้โค้ด Python สั่งรันอัตโนมัติ
+              <strong class="text-slate-900 dark:text-white">สังเกตปุ่ม <code>Save (API Format)</code> (หรือเมนู <code>Workflow → Export (API)</code>) ที่ปรากฏขึ้นมา (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> ปุ่มนี้จะใช้ในช่วงบ่าย (Module 3 และ 4) สำหรับส่งออกกราฟโหนดเป็นไฟล์ JSON ให้โค้ด Python สั่งรันอัตโนมัติ
             </li>
           </ol>
 
@@ -1059,11 +1120,11 @@ python main.py --force-fp16</code></pre>
               loading="lazy"
               class="ui-screenshot-img cursor-zoom-in"
               data-zoom-src="./images/comfyui-webui-devmode.png"
-              data-zoom-caption="ขั้นตอนที่ 4.2: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options"
+              data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options"
             />
             <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
               <span><strong>ภาพที่ 4.2:</strong> หน้าจอเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) แสดงตำแหน่งเลือกโมเดลและการเปิดปุ่ม <code>Save (API Format)</code></span>
-              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-webui-devmode.png" data-zoom-caption="ขั้นตอนที่ 4.2: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options">
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-webui-devmode.png" data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options">
                 🔍 คลิกขยายภาพเต็มจอ
               </button>
             </figcaption>

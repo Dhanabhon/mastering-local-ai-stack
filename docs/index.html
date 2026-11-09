@@ -850,20 +850,23 @@ jupyter lab</code></pre>
           <!-- Windows Installation Instructions -->
           <div class="os-panel-win space-y-4">
             <p class="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              <strong class="text-slate-900 dark:text-white">สำหรับ Windows (NVIDIA RTX 3050 6GB แนะนำรุ่น Windows Portable):</strong> รุ่น Portable มาพร้อม Python และ CUDA ในตัว ไม่ต้องกดติดตั้งลงระบบและไม่ต้องใช้สิทธิ์ Admin
+              <strong class="text-slate-900 dark:text-white">สำหรับ Windows (CPU Intel Core Ultra 7 265 + NVIDIA RTX 3050 6GB แนะนำรุ่น Windows Portable):</strong> รุ่น Portable มาพร้อม Python และ CUDA ในตัว ไม่ต้องกดติดตั้งลงระบบและไม่ต้องใช้สิทธิ์ Admin
             </p>
             <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
               <li>
                 เข้าไปที่หน้า <a href="https://github.com/comfyanonymous/ComfyUI/releases/latest" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-semibold">ComfyUI GitHub Releases (Latest) ↗</a> แล้วเลื่อนลงมาที่หัวข้อ <strong>Assets</strong> ด้านล่างสุดของหน้า
               </li>
               <li>
-                คลิกดาวน์โหลดไฟล์ชื่อ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable_nvidia.7z</code> (ขนาดประมาณ 1.5 ถึง 1.8 GB)
+                คลิกดาวน์โหลดไฟล์ชื่อ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable_nvidia_cu126.7z</code> (หรือ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable_nvidia.7z</code> ขนาดประมาณ 1.5 ถึง 1.8 GB)
+                <span class="block mt-1 text-xs text-slate-600 dark:text-slate-400">
+                  <strong>ความหมายของชื่อไฟล์:</strong> คำว่า <code>nvidia_cu126</code> หมายถึงชุดไลบรารี <strong>NVIDIA CUDA 12.6</strong> สำหรับสั่งงานการ์ดจอแยก NVIDIA (เช่น RTX 3050 6GB) โดยตรง ซึ่งใช้งานร่วมกับเครื่องที่ใช้ซีพียู <strong>Intel Core Ultra</strong>, Intel Core i หรือ AMD Ryzen ได้ทั้งหมด
+                </span>
               </li>
               <li>
                 คลิกขวาที่ไฟล์แล้วแตกไฟล์ด้วยโปรแกรม <a href="https://www.7-zip.org/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">7-Zip</a> ไปไว้ในไดรฟ์ที่มีพื้นที่ว่างอย่างน้อย 10 GB (เช่น <code>C:\AI\ComfyUI_windows_portable\</code> หรือ <code>D:\ComfyUI_windows_portable\</code>)
               </li>
               <li>
-                ภายในโฟลเดอร์ที่แตกออกมาจะพบไฟล์ <code>run_nvidia_gpu.bat</code> สำหรับดับเบิลคลิกเปิดโปรแกรม และโฟลเดอร์ <code>ComfyUI\models\checkpoints\</code> สำหรับวางไฟล์โมเดลในขั้นตอนถัดไป
+                เมื่อแตกไฟล์เสร็จ ในโฟลเดอร์จะมีไฟล์รัน 2 ตัวคือ <code class="text-emerald-700 dark:text-emerald-400 font-semibold">run_nvidia_gpu.bat</code> และ <code>run_cpu.bat</code> <strong>ให้ใช้ไฟล์ <code>run_nvidia_gpu.bat</code> เสมอ</strong> เพื่อสั่งให้การ์ดจอ RTX 3050 เป็นตัววาดภาพ (ห้ามกด <code>run_cpu.bat</code> เพราะจะไปใช้ซีพียูวาดภาพแทน ซึ่งช้ากว่าการ์ดจอมาก)
               </li>
             </ol>
           </div>

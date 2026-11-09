@@ -730,6 +730,23 @@ workflow["7"]["inputs"]["text"] = "text, watermark, blurry, low quality"
 workflow["3"]["inputs"]["seed"] = 42</code></pre>
                 </div>
 
+                <div class="mt-3 p-3.5 rounded-xl bg-tomera-soft/80 dark:bg-tomera-dark border border-tomera-line dark:border-tomera-darkcard text-xs sm:text-sm space-y-1.5 text-tomera-ink dark:text-tomera-paper">
+                  <div class="font-bold text-tomera-deep dark:text-tomera-bright">
+                    ทำไมต้องปรับค่า <code>seed</code> ในโหนด <code>"3"</code>? ค่า <code>seed</code> คืออะไรและส่งผลอย่างไร?
+                  </div>
+                  <ul class="list-disc pl-5 space-y-1 text-xs sm:text-sm text-tomera-muted dark:text-tomera-dim leading-relaxed">
+                    <li>
+                      <strong class="text-tomera-ink dark:text-tomera-paper">ค่า <code>seed</code> คืออะไร:</strong> เวลา Stable Diffusion วาดรูป โมเดลจะเริ่มจากการสร้าง <em>"ภาพคลื่นสัญญาณรบกวนแบบสุ่ม" (Random Noise เหมือนภาพซ่าๆ บนจอทีวี)</em> แล้วค่อยๆ เกลาให้กลายเป็นภาพที่คมชัด ค่า <code>seed</code> คือ <strong>"รหัสตัวเลขตั้งต้น"</strong> ที่ใช้กำหนดหน้าตาของคลื่นรบกวนเริ่มต้นนั้น
+                    </li>
+                    <li>
+                      <strong class="text-tomera-ink dark:text-tomera-paper">ส่งผลต่อภาพอย่างไร:</strong> หากใช้ Prompt เดิม + ตั้งค่าเดิม + <strong>เลข <code>seed</code> เดิม</strong> โมเดลจะวาดภาพออกมา <strong>หน้าตาเหมือนเดิมเป๊ะ 100% ทุกพิกเซล</strong> แต่ถ้าเปลี่ยนเลข <code>seed</code> เป็นค่าใหม่ แม้จะใช้ Prompt เดียวกัน ก็จะได้ภาพที่มีมุมกล้อง ท่าทาง หรือการจัดวางองค์ประกอบแบบใหม่
+                    </li>
+                    <li>
+                      <strong class="text-tomera-ink dark:text-tomera-paper">ทำไมสั่งผ่าน Python API ต้องกำหนดค่า <code>seed</code> เอง:</strong> เวลาเรากดปุ่ม <code>▶ Run</code> บนหน้าเว็บ ComfyUI หน้าเว็บจะสุ่มเลข <code>seed</code> ใหม่ให้ทุกครั้งอัตโนมัติ แต่เวลาส่งไฟล์ JSON ผ่านโค้ด Python เข้า API (<code>POST /prompt</code>) <strong>ComfyUI จะไม่สุ่มเลข <code>seed</code> ให้เอง</strong> และหากส่งเลข <code>seed</code> เดิมซ้ำไปพร้อม Prompt เดิม ระบบ Cache ของ ComfyUI จะข้ามการวาดใหม่แล้วส่งรูปเดิมกลับมาทันที เราจึงต้องใช้ Python สุ่มเลขใหม่ (<code>random.randint(...)</code>) เมื่ออยากได้ภาพใหม่ หรือล็อกเลขคงที่ (เช่น <code>42</code>) เมื่ออยากทดสอบเทียบ Prompt
+                    </li>
+                  </ul>
+                </div>
+
                 <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-2.5">
                   เมื่อหาโหนด <code>"6"</code>, <code>"7"</code> และ <code>"3"</code> ในไฟล์เจอครบแล้ว ให้ติ๊กถูกที่ข้อนี้ แล้วไปเริ่มเขียนโค้ดสั่งรันอัตโนมัติใน <strong>Module 4</strong> ต่อได้เลย!
                 </p>

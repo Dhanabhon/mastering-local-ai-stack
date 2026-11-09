@@ -11,12 +11,19 @@
      - พิมพ์โจทย์ภาษาไทยหรืออังกฤษ (เลือกเปิด/ปิดให้ **LM Studio** ช่วยขยายเป็น English Prompt ได้)
      - ปรับพารามิเตอร์โหนด ComfyUI ได้ครบจากหน้าเว็บ: **โมเดล Checkpoint (ดึงรายชื่อไฟล์ `.safetensors` จาก ComfyUI อัตโนมัติ)**, **สัดส่วนภาพ Aspect Ratio (`1:1`, `16:9`, `9:16`, `2:3`)**, **Steps**, **CFG Scale**, **Seed (`สุ่มใหม่` หรือ `ล็อกค่าคงที่`)**, และ **Negative Prompt**
    - 🎬 **Generate Video (รองรับ 2 รูปแบบ):**
-     - **รูปแบบที่ 1 (`AI Motion Clip` • ใช้โมเดล SD 1.5 เดิม รันผ่าน 100% บนการ์ดจอ 6GB VRAM):** ให้ LM Studio วางแผนคีย์เฟรมต่อเนื่อง แล้วสั่ง ComfyUI วาดคีย์เฟรมด้วย Seed ที่สอดคล้องกัน จากนั้นประมวลผล Smooth Crossfade & Cinema Ken Burns Zoom ออกมาเป็นไฟล์วิดีโอแอนิเมชันทั้ง `.webp` และ `.gif` (24 เฟรม, 12 FPS)
+     - **รูปแบบที่ 1 (`Ken Burns Slideshow` • ใช้โมเดล SD 1.5 เดิม เหมาะกับการ์ดจอ 6GB VRAM แต่ไม่ใช่ AI Video):** สั่ง ComfyUI วาดภาพนิ่ง 2 ภาพด้วย Seed เดียวกัน แล้วใช้ Pillow ทำ Crossfade และซูมออกมาเป็น `.webp` และ `.gif` (24 เฟรม, 12 FPS) การเคลื่อนไหวเกิดจากการตัดต่อ ไม่ได้เกิดจากโมเดล
      - **รูปแบบที่ 2 (`Custom ComfyUI Video JSON` • สำหรับ AnimateDiff / Wan2.1 / LTX-Video):** รองรับการนำไฟล์ `.json` ที่กด `Workflow → Export (API)` จาก ComfyUI มาวางในหน้าเว็บ (หรือใช้ไฟล์แม่แบบ `workflows/sd15_animatediff_api.json` ที่เตรียมไว้ให้) เพื่อสั่งเรนเดอร์วิดีโอผ่านหน้าเว็บได้โดยตรง
+       - แม่แบบ AnimateDiff ต้องติดตั้ง Custom Node `ComfyUI-AnimateDiff-Evolved` และวาง Motion Model `mm_sd_v15_v2.ckpt` ใน `ComfyUI/models/animatediff_models/` ก่อน
 2. **ไม่ต้องติดตั้งไลบรารีเพิ่ม (Zero Extra Dependencies):**
    - ใช้เฉพาะไลบรารีมาตรฐานใน `.venv` ของคอร์ส (`requests`, `openai`, `Pillow`, `pandas`)
 3. **บันทึกไฟล์ผลลัพธ์และประวัติอัตโนมัติ:**
    - ทุกครั้งที่กดสร้าง ไฟล์ภาพนิ่งหรือวิดีโอแอนิเมชันจะถูกบันทึกไว้ใน `06-custom-media-studio/outputs/` พร้อมบันทึกรายละเอียด Prompt และเลข Seed ลงตาราง `generation_history.csv`
+
+---
+
+## ก่อนเริ่ม
+
+เปิด ComfyUI และวางไฟล์ Checkpoint ใน `ComfyUI/models/checkpoints/` ให้เรียบร้อย หากขาดส่วนใด หน้าเว็บจะแจ้งสาเหตุและวิธีแก้ โดยไม่สร้างภาพแทนให้ ถ้าเปิดตัวเลือกให้ LM Studio ช่วยแปล ต้องเปิด Local Server ที่พอร์ต `1234` ด้วย
 
 ---
 

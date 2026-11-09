@@ -55,3 +55,9 @@ ComfyUI_windows_portable/
 .env
 .env.*
 node_modules/
+
+# AI assistant & diagram tool working files
+.archify/
+.remember/
+.claude/settings.local.json
+.claude/launch.json

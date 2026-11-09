@@ -12,9 +12,9 @@ Local AI Media Studio — Custom Image & Video Web App (Showcase #2)
    - ดึงรายชื่อไฟล์ Checkpoint (.safetensors) ที่มีอยู่ในโฟลเดอร์ ComfyUI มาให้เลือกอัตโนมัติ
 
 2) โหมด Generate Video (เลือกได้ 2 รูปแบบ):
-   - รูปแบบที่ 1 (SD 1.5 AI Motion Clip — รันได้ทันทีบน RTX 3050 6GB ไม่ต้องโหลดโมเดลวิดีโอเพิ่ม):
-     ให้ LM Studio วางแผนคีย์เฟรมต่อเนื่อง แล้วสั่ง ComfyUI เรนเดอร์คีย์เฟรมด้วย Seed เดียวกัน
-     พร้อมทำ Smooth Crossfade & Cinema Pan/Zoom ออกมาเป็นไฟล์วิดีโอแอนิเมชัน (.webp และ .gif)
+   - รูปแบบที่ 1 (Ken Burns Slideshow — รันได้ทันทีบน RTX 3050 6GB แต่ไม่ใช่ AI video):
+     สั่ง ComfyUI วาดภาพนิ่ง 2 ภาพด้วย Seed เดียวกัน แล้วใช้ Pillow ทำ Crossfade และ Pan/Zoom
+     ออกมาเป็นไฟล์แอนิเมชัน (.webp และ .gif) การเคลื่อนไหวเกิดจากการตัดต่อ ไม่ได้เกิดจากโมเดล
    - รูปแบบที่ 2 (Custom ComfyUI Video API JSON — สำหรับ AnimateDiff / Wan2.1 / LTX-Video):
      รองรับการเลือกไฟล์ workflows/sd15_animatediff_api.json หรือวางเนื้อหาไฟล์ Export (API) .json
      จาก ComfyUI เพื่อสั่งเรนเดอร์วิดีโอผ่านหน้าเว็บได้โดยตรง
@@ -33,10 +33,10 @@ import io
 import json
 import os
 import random
+import re
 import sys
 import time
-import urllib.parse
-import urllib.request
+import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any
@@ -65,10 +65,20 @@ def _maybe_reexec_in_venv() -> None:
 _maybe_reexec_in_venv()
 
 try:
-    from PIL import Image, ImageDraw
-    HAS_PIL = True
+    from PIL import Image
 except ImportError:
-    HAS_PIL = False
+    sys.exit("ไม่พบ Pillow กรุณาเปิดใช้งาน .venv แล้วรัน: pip install -r requirements.txt")
+
+sys.path.insert(0, str(ROOT_DIR))
+from comfy_client import (  # noqa: E402
+    COMFYUI_BASE_URL,
+    StudioError,
+    http_get_json,
+    http_post_json,
+    list_checkpoints,
+    pick_checkpoint,
+    queue_and_fetch_comfy_media,
+)
 
 # ---------------------------------------------------------------------------
 # Paths & Endpoints
@@ -79,31 +89,8 @@ OUTPUT_DIR = STUDIO_DIR / "outputs"
 HISTORY_CSV_PATH = OUTPUT_DIR / "generation_history.csv"
 
 LM_STUDIO_BASE_URL = "http://localhost:1234/v1"
-COMFYUI_BASE_URL = "http://127.0.0.1:8188"
+THAI_TEXT_PATTERN = re.compile(r"[\u0E00-\u0E7F]")
 
-
-def _http_get_json(url: str, timeout: float = 3.0) -> dict[str, Any]:
-    req = urllib.request.Request(url, method="GET")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _http_post_json(url: str, payload: dict[str, Any], timeout: float = 15.0) -> dict[str, Any]:
-    body = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _http_get_bytes(url: str, timeout: float = 15.0) -> bytes:
-    req = urllib.request.Request(url, method="GET")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
 
 ASPECT_RATIOS: dict[str, tuple[int, int, str]] = {
     "1:1": (512, 512, "512×512 (1:1 Square)"),
@@ -154,7 +141,7 @@ def inspect_environment() -> dict[str, Any]:
     }
 
     try:
-        data_json = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
+        data_json = http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
         data = data_json.get("data", [])
         models = [m.get("id", "") for m in data if m.get("id")]
         status["lm_studio_online"] = True
@@ -163,20 +150,9 @@ def inspect_environment() -> dict[str, Any]:
         pass
 
     try:
-        _http_get_json(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
+        http_get_json(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
         status["comfyui_online"] = True
-        obj_json = _http_get_json(
-            f"{COMFYUI_BASE_URL}/object_info/CheckpointLoaderSimple", timeout=3.0
-        )
-        ckpt_list = (
-            obj_json
-            .get("CheckpointLoaderSimple", {})
-            .get("input", {})
-            .get("required", {})
-            .get("ckpt_name", [[]])[0]
-        )
-        if isinstance(ckpt_list, list) and len(ckpt_list) > 0:
-            status["checkpoints"] = ckpt_list
+        status["checkpoints"] = list_checkpoints() or status["checkpoints"]
     except Exception:
         pass
 
@@ -186,11 +162,17 @@ def inspect_environment() -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Step 1: LM Studio Prompt Enhancement (Image & Video Keyframes)
 # ---------------------------------------------------------------------------
+LLM_UNAVAILABLE_MESSAGE = (
+    "LM Studio ไม่ตอบกลับ กรุณาเปิด Local Server ที่พอร์ต 1234 "
+    "หรือปิดตัวเลือกให้ LM Studio ช่วยแปล แล้วพิมพ์ Prompt เป็นภาษาอังกฤษ"
+)
+
+
 def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = False) -> str:
-    """ใช้ LM Studio แปลงโจทย์ภาษาไทยหรืออังกฤษให้เป็น English SD Prompt ที่สมบูรณ์ (ผ่าน Standard Library)"""
+    """ใช้ LM Studio แปลงโจทย์ภาษาไทยหรืออังกฤษให้เป็น English SD Prompt ถ้าไม่สำเร็จจะ raise StudioError"""
     style_cfg = STYLE_SUFFIXES.get(style_key, STYLE_SUFFIXES["photorealistic"])
     try:
-        models_res = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=3.0)
+        models_res = http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=3.0)
         models_data = models_res.get("data", [])
         model_id = models_data[0].get("id", "local-model") if models_data else "local-model"
 
@@ -205,7 +187,7 @@ def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = F
             f"(40-65 words). {motion_hint}"
             "Output ONLY the raw English prompt without quotes or explanations."
         )
-        chat_res = _http_post_json(
+        chat_res = http_post_json(
             f"{LM_STUDIO_BASE_URL}/chat/completions",
             {
                 "model": model_id,
@@ -216,7 +198,7 @@ def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = F
                 "temperature": 0.65,
                 "max_tokens": 160,
             },
-            timeout=20.0,
+            timeout=60.0,  # ครั้งแรก LM Studio อาจต้องโหลดโมเดลก่อนตอบ
         )
         base_en = (
             chat_res.get("choices", [{}])[0]
@@ -228,10 +210,10 @@ def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = F
         )
         if base_en:
             return f"{base_en}, {style_cfg['positive']}"
-    except Exception:
-        pass
+    except (OSError, ValueError, IndexError) as exc:
+        raise StudioError(LLM_UNAVAILABLE_MESSAGE) from exc
 
-    return f"{user_prompt}, {style_cfg['positive']}"
+    raise StudioError(LLM_UNAVAILABLE_MESSAGE)
 
 
 def generate_motion_keyframe_prompts(user_prompt: str, style_key: str, num_keyframes: int = 2) -> list[str]:
@@ -307,89 +289,14 @@ def inject_workflow_params(
     return wf
 
 
-def queue_and_fetch_comfy_media(workflow: dict[str, Any], timeout_sec: int = 150) -> tuple[bytes, str]:
-    """ส่ง JSON Workflow เข้าคิว ComfyUI และดึงไบต์รูปภาพหรือวิดีโอที่เรนเดอร์เสร็จแล้วกลับมา"""
-    res_json = _http_post_json(f"{COMFYUI_BASE_URL}/prompt", {"prompt": workflow}, timeout=10.0)
-    prompt_id = res_json["prompt_id"]
-
-    t0 = time.time()
-    while time.time() - t0 < timeout_sec:
-        hist_data = _http_get_json(f"{COMFYUI_BASE_URL}/history/{prompt_id}", timeout=5.0)
-        if prompt_id in hist_data:
-            outputs = hist_data[prompt_id].get("outputs", {})
-            for _, node_out in outputs.items():
-                for media_key in ("images", "gifs", "videos"):
-                    if media_key in node_out and len(node_out[media_key]) > 0:
-                        item = node_out[media_key][0]
-                        filename = item["filename"]
-                        ext = Path(filename).suffix.lower() or ".png"
-                        query = urllib.parse.urlencode(
-                            {
-                                "filename": filename,
-                                "subfolder": item.get("subfolder", ""),
-                                "type": item.get("type", "output"),
-                            }
-                        )
-                        media_bytes = _http_get_bytes(f"{COMFYUI_BASE_URL}/view?{query}", timeout=15.0)
-                        return media_bytes, ext
-        time.sleep(0.75)
-
-    raise TimeoutError(f"ComfyUI ใช้เวลาเรนเดอร์เกิน {timeout_sec} วินาที")
-
-
-def create_fallback_svg_bytes(width: int, height: int, prompt_text: str, seed: int, is_video: bool = False) -> bytes:
-    """สร้างภาพ SVG แบบเคลื่อนไหว/ภาพนิ่งโดยใช้เฉพาะ Python Standard Library กรณีไม่มี Pillow หรือไม่ได้เปิด ComfyUI"""
-    anim_tag = (
-        '<animateTransform attributeName="transform" type="rotate" from="0 256 256" to="360 256 256" dur="6s" repeatCount="indefinite"/>'
-        if is_video
-        else ""
-    )
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
-      <defs>
-        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#101820"/>
-          <stop offset="60%" stop-color="#1f3a3d"/>
-          <stop offset="100%" stop-color="#2e7d5b"/>
-        </linearGradient>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#g)"/>
-      <circle cx="{width // 2}" cy="{height // 2}" r="{min(width, height) // 4}" fill="none" stroke="#69b98e" stroke-width="4" stroke-dasharray="14 8">
-        {anim_tag}
-      </circle>
-      <text x="20" y="34" fill="#f7f6f2" font-family="monospace" font-size="13">PREVIEW MODE (ComfyUI Offline) | Seed: {seed}</text>
-      <text x="20" y="{height - 24}" fill="#d1fae5" font-family="sans-serif" font-size="13">{prompt_text[:60]}</text>
-    </svg>"""
-    return svg.encode("utf-8")
-
-
-def create_fallback_canvas(width: int, height: int, prompt_text: str, seed: int, frame_idx: int = 0) -> Any:
-    """สร้างภาพจำลองกรณีไม่ได้เปิด ComfyUI เพื่อให้ทดสอบระบบ UI และการสร้างไฟล์วิดีโอได้เสมอ"""
-    img = Image.new("RGB", (width, height), (16, 20, 28))
-    draw = ImageDraw.Draw(img)
-    shift = frame_idx * 6
-    for y in range(0, height, 4):
-        r = min(255, max(15, int(24 + (y / height) * 60 + (shift % 40))))
-        g = min(255, max(20, int(90 + (y / height) * 85)))
-        b = min(255, max(40, int(110 + (1 - y / height) * 90)))
-        draw.line([(0, y), (width, y)], fill=(r, g, b), width=4)
-
-    cx = width // 2 + int(shift * 1.5) - 18
-    cy = height // 2
-    radius = min(width, height) // 5
-    draw.ellipse([cx - radius, cy - radius, cx + radius, cy + radius], outline=(247, 246, 242), width=3)
-    draw.text((20, 20), f"PREVIEW MODE (ComfyUI Offline) | Seed: {seed}", fill=(247, 246, 242))
-    draw.text((20, height - 36), prompt_text[:65], fill=(220, 235, 230))
-    return img
-
-
 # ---------------------------------------------------------------------------
-# Step 3: Video Synthesis (SD 1.5 AI Motion Clip — 6GB VRAM Safe)
+# Step 3: Ken Burns Slideshow (ภาพนิ่ง 2 ภาพ + Crossfade/Zoom ไม่ใช่ AI Video)
 # ---------------------------------------------------------------------------
 def build_animated_motion_clip(
     keyframes: list[Any], total_frames: int = 24
 ) -> tuple[bytes, bytes]:
     """
-    สร้างแอนิเมชัน 24 เฟรม (12 FPS) จากภาพคีย์เฟรมด้วยเอฟเฟกต์ Cinema Ken Burns Zoom + Crossfade
+    สร้างสไลด์โชว์ 24 เฟรม (12 FPS) จากภาพนิ่งด้วยเอฟเฟกต์ Ken Burns Zoom + Crossfade
     คืนค่าเป็น (webp_bytes, gif_bytes)
     """
     base_w, base_h = keyframes[0].size
@@ -490,7 +397,15 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
         seed = random.randint(100_000_000, 999_999_999_999)
 
     timestamp = int(time.time())
-    used_fallback = False
+    video_engine = str(params.get("video_engine", "sd15_motion"))
+    custom_json_str = str(params.get("custom_workflow_json", "")).strip()
+
+    if not use_llm and THAI_TEXT_PATTERN.search(user_prompt):
+        raise StudioError("โมเดล Stable Diffusion อ่านภาษาไทยไม่ได้ กรุณาเปิดตัวเลือกให้ LM Studio ช่วยแปล หรือพิมพ์เป็นภาษาอังกฤษ")
+
+    # Workflow ที่ผู้เรียนวางเองอาจไม่ใช้ Checkpoint (เช่น Wan2.1) จึงให้ ComfyUI ตรวจเอง
+    if not (mode == "video" and video_engine == "comfy_video_api" and custom_json_str):
+        ckpt_name = pick_checkpoint(ckpt_name)
 
     if mode == "image":
         final_prompt = (
@@ -502,22 +417,8 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
         wf = inject_workflow_params(
             base_wf, final_prompt, negative_prompt, seed, steps, cfg, sampler_name, width, height, ckpt_name
         )
-
-        try:
-            img_bytes, ext = queue_and_fetch_comfy_media(wf)
-            mime = "image/webp" if ext == ".webp" else "image/png"
-        except Exception:
-            used_fallback = True
-            if HAS_PIL:
-                ext = ".png"
-                mime = "image/png"
-                buf = io.BytesIO()
-                create_fallback_canvas(width, height, final_prompt, seed).save(buf, format="PNG")
-                img_bytes = buf.getvalue()
-            else:
-                ext = ".svg"
-                mime = "image/svg+xml"
-                img_bytes = create_fallback_svg_bytes(width, height, final_prompt, seed, is_video=False)
+        img_bytes, ext = queue_and_fetch_comfy_media(wf)
+        mime = "image/webp" if ext == ".webp" else "image/png"
 
         out_name = f"image_{timestamp}_seed{seed}{ext}"
         out_path = OUTPUT_DIR / out_name
@@ -538,53 +439,30 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
             "filename": out_name,
             "SavedPath": str(out_path.relative_to(ROOT_DIR)),
             "data_uri": b64_data,
-            "used_fallback": used_fallback,
             "elapsed_sec": round(time.time() - t_start, 2),
         }
 
     else:
-        # โหมด Video Studio
-        video_engine = str(params.get("video_engine", "sd15_motion"))
-        custom_json_str = str(params.get("custom_workflow_json", "")).strip()
-
-        if video_engine == "comfy_video_api" or not HAS_PIL:
+        if video_engine == "comfy_video_api":
             final_prompt = (
                 enhance_prompt_with_llm(user_prompt, style_key, is_video=True)
                 if use_llm
                 else f"{user_prompt}, {style_defaults['positive']}"
             )
-            if custom_json_str:
-                raw_wf = json.loads(custom_json_str)
-            else:
-                raw_wf = json.loads(VIDEO_WORKFLOW_PATH.read_text(encoding="utf-8"))
+            try:
+                raw_wf = json.loads(custom_json_str or VIDEO_WORKFLOW_PATH.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                raise StudioError("JSON ของ Workflow ไม่ถูกต้อง กรุณา Export (API) จาก ComfyUI ใหม่") from exc
 
             wf = inject_workflow_params(
                 raw_wf, final_prompt, negative_prompt, seed, steps, cfg, sampler_name, width, height, ckpt_name
             )
-            try:
-                media_bytes, ext = queue_and_fetch_comfy_media(wf, timeout_sec=240)
-                out_name = f"video_{timestamp}_seed{seed}{ext}"
-                out_path = OUTPUT_DIR / out_name
-                out_path.write_bytes(media_bytes)
-                mime = "image/gif" if ext == ".gif" else "image/webp"
-                b64_data = f"data:{mime};base64,{base64.b64encode(media_bytes).decode('ascii')}"
-            except Exception:
-                used_fallback = True
-                if HAS_PIL:
-                    kf1 = create_fallback_canvas(width, height, final_prompt, seed, 0)
-                    kf2 = create_fallback_canvas(width, height, final_prompt, seed, 4)
-                    webp_bytes, gif_bytes = build_animated_motion_clip([kf1, kf2], total_frames=24)
-                    out_name = f"video_{timestamp}_seed{seed}.webp"
-                    out_path = OUTPUT_DIR / out_name
-                    out_path.write_bytes(webp_bytes)
-                    (OUTPUT_DIR / f"video_{timestamp}_seed{seed}.gif").write_bytes(gif_bytes)
-                    b64_data = f"data:image/webp;base64,{base64.b64encode(webp_bytes).decode('ascii')}"
-                else:
-                    svg_bytes = create_fallback_svg_bytes(width, height, final_prompt, seed, is_video=True)
-                    out_name = f"video_{timestamp}_seed{seed}.svg"
-                    out_path = OUTPUT_DIR / out_name
-                    out_path.write_bytes(svg_bytes)
-                    b64_data = f"data:image/svg+xml;base64,{base64.b64encode(svg_bytes).decode('ascii')}"
+            media_bytes, ext = queue_and_fetch_comfy_media(wf, timeout_sec=240)
+            out_name = f"video_{timestamp}_seed{seed}{ext}"
+            out_path = OUTPUT_DIR / out_name
+            out_path.write_bytes(media_bytes)
+            mime = "image/gif" if ext == ".gif" else "image/webp"
+            b64_data = f"data:{mime};base64,{base64.b64encode(media_bytes).decode('ascii')}"
         else:
             kf_prompts = (
                 generate_motion_keyframe_prompts(user_prompt, style_key, num_keyframes=2)
@@ -598,16 +476,13 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
             base_wf = json.loads(IMAGE_WORKFLOW_PATH.read_text(encoding="utf-8"))
             keyframes: list[Any] = []
 
-            for idx, kf_p in enumerate(kf_prompts):
+            for kf_p in kf_prompts:
+                # Seed เดียวกันช่วยให้องค์ประกอบภาพสองภาพใกล้กัน Crossfade จึงไม่ซ้อนกันมั่ว
                 wf = inject_workflow_params(
-                    base_wf, kf_p, negative_prompt, seed + idx, steps, cfg, sampler_name, width, height, ckpt_name
+                    base_wf, kf_p, negative_prompt, seed, steps, cfg, sampler_name, width, height, ckpt_name
                 )
-                try:
-                    raw_bytes, _ = queue_and_fetch_comfy_media(wf)
-                    keyframes.append(Image.open(io.BytesIO(raw_bytes)).convert("RGB"))
-                except Exception:
-                    used_fallback = True
-                    keyframes.append(create_fallback_canvas(width, height, kf_p, seed, idx * 4))
+                raw_bytes, _ = queue_and_fetch_comfy_media(wf)
+                keyframes.append(Image.open(io.BytesIO(raw_bytes)).convert("RGB"))
 
             webp_bytes, gif_bytes = build_animated_motion_clip(keyframes, total_frames=24)
             out_name = f"motion_{timestamp}_seed{seed}.webp"
@@ -631,7 +506,6 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
             "filename": out_name,
             "SavedPath": str(out_path.relative_to(ROOT_DIR)),
             "data_uri": b64_data,
-            "used_fallback": used_fallback,
             "elapsed_sec": round(time.time() - t_start, 2),
         }
 
@@ -1030,11 +904,11 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
           <div class="form-group">
             <label class="radio-card" for="vengine-motion" style="margin-bottom: 0.5rem;">
               <input type="radio" id="vengine-motion" name="video_engine" value="sd15_motion" checked />
-              <span>⚡ AI Motion Clip (ใช้ SD 1.5 ตัวเดิม • รันผ่าน 100% บน VRAM 6GB)</span>
+              <span>🎞️ Ken Burns Slideshow (ภาพนิ่ง 2 ภาพ + ซูม/Crossfade • ไม่ใช่ AI Video)</span>
             </label>
             <label class="radio-card" for="vengine-comfy">
               <input type="radio" id="vengine-comfy" name="video_engine" value="comfy_video_api" />
-              <span>🧩 Custom ComfyUI Video JSON (สำหรับ AnimateDiff / Wan2.1)</span>
+              <span>🧩 AI Video ผ่าน ComfyUI (AnimateDiff หรือ JSON ของ Wan2.1)</span>
             </label>
           </div>
 
@@ -1093,6 +967,16 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
               <label class="field-label" for="cfg-range">CFG Scale: <span id="cfg-val">7.0</span></label>
               <input type="range" id="cfg-range" name="cfg" min="3.0" max="12.0" step="0.5" value="7.0" />
             </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="sampler-select">Sampler (Node "3" KSampler):</label>
+            <select id="sampler-select" name="sampler_name">
+              <option value="euler">euler (เร็ว ค่าเริ่มต้น)</option>
+              <option value="euler_ancestral">euler_ancestral (ดีเทลแปลกใหม่)</option>
+              <option value="dpmpp_2m">dpmpp_2m (คมชัด)</option>
+              <option value="dpmpp_2m_sde">dpmpp_2m_sde (ดีเทลสูง ช้ากว่า)</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -1235,7 +1119,7 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
           lmText.textContent = 'LM Studio: ' + modelName;
         } else {
           lmDot.className = 'status-dot offline';
-          lmText.textContent = 'LM Studio: Offline (ใช้ Prompt ตรงๆ)';
+          lmText.textContent = 'LM Studio: Offline (ต้องพิมพ์ Prompt อังกฤษเอง)';
         }
 
         const comfyDot = document.getElementById('comfy-dot');
@@ -1255,7 +1139,7 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
           }
         } else {
           comfyDot.className = 'status-dot offline';
-          comfyText.textContent = 'ComfyUI: Offline (Preview Mode)';
+          comfyText.textContent = 'ComfyUI: Offline (ต้องเปิดก่อนสร้างสื่อ)';
         }
       } catch (err) {
         console.error(err);
@@ -1276,6 +1160,7 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
         video_engine: formData.get('video_engine') || 'sd15_motion',
         custom_workflow_json: formData.get('custom_workflow_json') || '',
         ckpt_name: formData.get('ckpt_name'),
+        sampler_name: formData.get('sampler_name'),
         aspect_ratio: formData.get('aspect_ratio'),
         steps: Number(formData.get('steps')),
         cfg: Number(formData.get('cfg')),
@@ -1291,6 +1176,7 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
           body: JSON.stringify(payload),
         });
         const result = await res.json();
+        if (!res.ok) throw new Error(result.error);
 
         document.getElementById('empty-state').classList.add('hidden');
         const imgEl = document.getElementById('result-img');
@@ -1299,9 +1185,10 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
 
         const metaBox = document.getElementById('result-meta');
         metaBox.classList.remove('hidden');
-        document.getElementById('meta-status').textContent = result.used_fallback
-          ? 'โหมดจำลองภาพ (ไม่ได้เปิด ComfyUI จึงสร้างภาพ Preview ให้แทน)'
-          : (result.mode === 'video' ? 'สร้างวิดีโอแอนิเมชันสำเร็จ (Animated WebP + GIF)' : 'เรนเดอร์ภาพนิ่งจาก ComfyUI สำเร็จ');
+        const videoStatus = payload.video_engine === 'sd15_motion'
+          ? 'สร้าง Ken Burns Slideshow สำเร็จ (ภาพนิ่ง 2 ภาพ ไม่ใช่ AI Video)'
+          : 'เรนเดอร์วิดีโอจาก ComfyUI สำเร็จ';
+        document.getElementById('meta-status').textContent = result.mode === 'video' ? videoStatus : 'เรนเดอร์ภาพนิ่งจาก ComfyUI สำเร็จ';
         document.getElementById('meta-file').textContent = result.SavedPath;
         document.getElementById('meta-seed').textContent = result.seed;
         document.getElementById('meta-time').textContent = result.elapsed_sec;
@@ -1310,7 +1197,7 @@ STUDIO_UI_HTML = """<!DOCTYPE html>
         lastGeneratedSeed = result.seed;
         reuseSeedBtn.style.display = 'inline-flex';
       } catch (err) {
-        alert('เกิดข้อผิดพลาดในการสร้างสื่อ: ' + err.message);
+        alert('สร้างสื่อไม่สำเร็จ: ' + err.message);
       } finally {
         generateBtn.disabled = false;
         generateBtn.textContent = '🚀 สั่งสร้างสื่อด้วย Local AI (Generate Now)';
@@ -1352,9 +1239,15 @@ class MediaStudioRequestHandler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", "0"))
             raw_body = self.rfile.read(length).decode("utf-8")
             params = json.loads(raw_body) if raw_body else {}
-            result = execute_studio_job(params)
+            try:
+                result, status_code = execute_studio_job(params), 200
+            except StudioError as exc:
+                result, status_code = {"error": str(exc)}, 503
+            except Exception as exc:
+                traceback.print_exc()
+                result, status_code = {"error": f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {exc}"}, 500
             body = json.dumps(result, ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
+            self.send_response(status_code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
@@ -1379,7 +1272,10 @@ def main() -> None:
 
     if args.cli_mode:
         print(f"กำลังรันโหมด CLI ({args.cli_mode}) สำหรับโจทย์: {args.prompt}")
-        res = execute_studio_job({"mode": args.cli_mode, "prompt": args.prompt})
+        try:
+            res = execute_studio_job({"mode": args.cli_mode, "prompt": args.prompt})
+        except StudioError as exc:
+            sys.exit(f"สร้างไม่สำเร็จ: {exc}")
         print(f"บันทึกไฟล์สำเร็จที่: {res['SavedPath']} (Seed: {res['seed']}, เวลา: {res['elapsed_sec']}s)")
         return
 

@@ -4,6 +4,7 @@ AdCraft AI — Product Video Ad Studio (Showcase #3)
 ==================================================
 เว็บแอปสร้างวิดีโอโฆษณาสินค้า (Product Commercial Video Generator)
 โดยรับอินพุตเป็น "ภาพสินค้า 1–3 มุมมอง" + "ชุดตัวอย่าง Prompt โฆษณาสำเร็จรูป (6 Presets)"
+ขั้นตอนภาพ: Txt2Img สร้างฉากว่าง -> วางสินค้าลงฉาก -> Img2Img (denoise ต่ำ) กลมกลืนแสงและขอบภาพ
 ทำงานครอบ LM Studio (:1234) และ ComfyUI (:8188) บน Environment (.venv) เดิมของคอร์ส
 
 ทำไมจึงออกแบบให้รับภาพสินค้า 1–3 ภาพ (3-Shot Commercial Formula)?
@@ -21,17 +22,14 @@ from __future__ import annotations
 
 import argparse
 import base64
-import copy
 import csv
 import io
 import json
-import math
 import os
 import random
 import sys
 import time
-import urllib.parse
-import urllib.request
+import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any
@@ -60,10 +58,20 @@ def _maybe_reexec_in_venv() -> None:
 _maybe_reexec_in_venv()
 
 try:
-    from PIL import Image, ImageDraw, ImageEnhance
-    HAS_PIL = True
+    from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 except ImportError:
-    HAS_PIL = False
+    sys.exit("ไม่พบ Pillow กรุณาเปิดใช้งาน .venv แล้วรัน: pip install -r requirements.txt")
+
+sys.path.insert(0, str(ROOT_DIR))
+from comfy_client import (  # noqa: E402
+    COMFYUI_BASE_URL,
+    StudioError,
+    http_get_json,
+    http_post_json,
+    pick_checkpoint,
+    queue_and_fetch_comfy_media,
+    upload_image,
+)
 
 # ---------------------------------------------------------------------------
 # Paths & Endpoints
@@ -74,31 +82,24 @@ OUTPUT_DIR = STUDIO_DIR / "outputs"
 HISTORY_CSV_PATH = OUTPUT_DIR / "ad_campaigns_history.csv"
 
 LM_STUDIO_BASE_URL = "http://localhost:1234/v1"
-COMFYUI_BASE_URL = "http://127.0.0.1:8188"
+DEFAULT_CHECKPOINT = "v1-5-pruned-emaonly.safetensors"
+HARMONIZE_PROMPT_SUFFIX = "commercial product photograph, product standing in the scene, matching light, natural contact shadow"
+BACKDROP_NEGATIVE_PROMPT = (
+    "text, watermark, blurry, low quality, human hands, ugly, cluttered, "
+    "product, bottle, package, box, can, jar, shoe, watch, headphones"
+)
 
+# ฟอนต์เริ่มต้นของ Pillow ไม่มีอักษรไทย ถ้าไม่เลือกฟอนต์เองข้อความจะกลายเป็นกล่องสี่เหลี่ยม
+THAI_FONT_CANDIDATES = (
+    "C:/Windows/Fonts/LeelawUI.ttf",
+    "C:/Windows/Fonts/tahoma.ttf",
+    "/System/Library/Fonts/Thonburi.ttc",
+    "/System/Library/Fonts/Supplemental/Thonburi.ttc",
+    "/System/Library/Fonts/Supplemental/Ayuthaya.ttf",
+    "/usr/share/fonts/truetype/noto/NotoSansThai-Regular.ttf",
+    "/usr/share/fonts/truetype/tlwg/Garuda.ttf",
+)
 
-def _http_get_json(url: str, timeout: float = 3.0) -> dict[str, Any]:
-    req = urllib.request.Request(url, method="GET")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _http_post_json(url: str, payload: dict[str, Any], timeout: float = 15.0) -> dict[str, Any]:
-    body = json.dumps(payload).encode("utf-8")
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
-
-
-def _http_get_bytes(url: str, timeout: float = 15.0) -> bytes:
-    req = urllib.request.Request(url, method="GET")
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
 
 # ---------------------------------------------------------------------------
 # 6 Ready-to-Use Commercial Prompt Presets
@@ -110,9 +111,9 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "สกัดเย็นนาน 18 ชั่วโมง หอมเมล็ดกาแฟอาราบิก้าแท้ สดชื่นไม่มีน้ำตาล",
         "cta_badge": "สั่งซื้อวันนี้ ลดทันที 20%",
         "scene_prompt": (
-            "commercial product photography of a sleek cold brew coffee bottle on wet dark slate stone, "
-            "splashing water droplets, crushed ice cubes, warm morning golden hour sunbeams through cafe window, "
-            "cinematic rim lighting, shallow depth of field, 8kadvertising shot"
+            "empty wet dark slate stone surface, water droplets and crushed ice at the edges, "
+            "warm morning golden hour sunbeams through cafe window, "
+            "blurred bokeh background, shallow depth of field, commercial advertising backdrop"
         ),
         "accent_hex": "#D97706",
     },
@@ -122,8 +123,8 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "เซรั่มเข้มข้นจากสารสกัดธรรมชาติ ฟื้นฟูผิวโกลว์ใสชุ่มชื้นใน 7 วัน",
         "cta_badge": "ทดลองขนาดพกพาเพียง 390.-",
         "scene_prompt": (
-            "high-end cosmetic product photography on rippling crystal clear water surface, white botanical orchids, "
-            "soft champagne gold caustic light reflections, luxury spa podium, macro studio lighting, photorealistic"
+            "empty rippling crystal clear water surface, white orchid petals at the edges, "
+            "soft champagne gold caustic light reflections, luxury spa podium, macro studio lighting, photorealistic backdrop"
         ),
         "accent_hex": "#2E7D5B",
     },
@@ -133,8 +134,8 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "ตัดเสียงรบกวนอัจฉริยะด้วย AI เบสแน่น คมชัดทุกมิติ แบตอึด 36 ชั่วโมง",
         "cta_badge": "ผ่อน 0% นาน 10 เดือน",
         "scene_prompt": (
-            "futuristic commercial product shot on matte carbon fiber pedestal, neon cyan and emerald laser light streaks, "
-            "floating holographic soundwaves, dark studio atmosphere, crisp rim lighting, octane render style"
+            "empty matte carbon fiber pedestal, neon cyan and emerald laser light streaks in the background, "
+            "dark studio atmosphere, crisp rim lighting, clean advertising backdrop"
         ),
         "accent_hex": "#0284C7",
     },
@@ -144,8 +145,8 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "พื้นโฟมคาร์บอนเด้งรับแรงกระแทก น้ำหนักเบา ดีไซน์สตรีทลุยได้ทุกวัน",
         "cta_badge": "คอลเลกชันใหม่จำนวนจำกัด",
         "scene_prompt": (
-            "dynamic commercial sneaker photography floating above wet urban asphalt street at night, "
-            "glowing orange embers and mist, neon city bokeh reflections, dramatic low-angle hero lighting"
+            "empty wet urban asphalt street at night, glowing orange embers and mist, "
+            "neon city bokeh reflections, dramatic low-angle lighting, advertising backdrop"
         ),
         "accent_hex": "#E11D48",
     },
@@ -155,8 +156,8 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "อบสดใหม่ทุกเช้าด้วยเนยแท้ฝรั่งเศส กรอบนอกนุ่มใน หอมกรุ่นจากเตา",
         "cta_badge": "ส่งด่วนถึงบ้านภายใน 1 ชม.",
         "scene_prompt": (
-            "mouth-watering food commercial photography on rustic warm oak wood table, golden flaky crumbs, "
-            "soft rising steam, morning sunlight through linen curtain, cozy artisanal bakery ambiance, 50mm lens"
+            "empty rustic warm oak wood table, golden crumbs at the edges, "
+            "soft rising steam, morning sunlight through linen curtain, cozy artisanal bakery ambiance, 50mm lens backdrop"
         ),
         "accent_hex": "#B45309",
     },
@@ -166,8 +167,8 @@ AD_PROMPT_PRESETS: dict[str, dict[str, str]] = {
         "selling_point": "ตัวเรือนไทเทเนียมเกรดการบิน กระจกแซฟไฟร์กันรอย กันน้ำลึก 100 เมตร",
         "cta_badge": "รับประกันศูนย์ไทย 5 ปีเต็ม",
         "scene_prompt": (
-            "ultra-luxury timepiece product photography resting on black volcanic basalt rock, "
-            "dramatic silver studio spotlight, subtle mist, razor-sharp metallic reflections, magazine ad quality"
+            "empty black volcanic basalt rock surface, "
+            "dramatic silver studio spotlight, subtle mist, dark magazine advertising backdrop"
         ),
         "accent_hex": "#4F46E5",
     },
@@ -190,7 +191,7 @@ def inspect_servers() -> dict[str, Any]:
         "comfyui_online": False,
     }
     try:
-        r = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
+        r = http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
         data = r.get("data", [])
         info["lm_studio_online"] = True
         info["lm_model"] = data[0].get("id", "Local LLM") if data else "Ready"
@@ -198,7 +199,7 @@ def inspect_servers() -> dict[str, Any]:
         pass
 
     try:
-        _http_get_json(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
+        http_get_json(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
         info["comfyui_online"] = True
     except Exception:
         pass
@@ -221,10 +222,11 @@ def generate_ad_copy_with_llm(
         "benefit_line": selling_point[:55],
         "cta_line": cta_badge,
         "sd_backdrop_prompt": f"{scene_prompt}, masterpiece, best quality, commercial studio lighting",
+        "copy_source": "template",
     }
 
     try:
-        models_res = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=3.0)
+        models_res = http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=3.0)
         models_data = models_res.get("data", [])
         model_id = models_data[0].get("id", "local-model") if models_data else "local-model"
 
@@ -234,7 +236,8 @@ def generate_ad_copy_with_llm(
             '{"hook_line": "short punchy Thai hook (max 35 chars)", '
             '"benefit_line": "concise Thai key benefit (max 45 chars)", '
             '"cta_line": "short Thai call to action (max 30 chars)", '
-            '"sd_backdrop_prompt": "refined English Stable Diffusion 1.5 studio background prompt (45 words)"}'
+            '"sd_backdrop_prompt": "refined English Stable Diffusion 1.5 prompt for an EMPTY studio background (45 words). '
+            'Describe only surfaces, light and atmosphere. Never mention the product or any object in the center."}'
         )
         user_msg = (
             f"Product: {product_name}\n"
@@ -242,7 +245,7 @@ def generate_ad_copy_with_llm(
             f"CTA: {cta_badge}\n"
             f"Visual Concept: {scene_prompt}"
         )
-        res = _http_post_json(
+        res = http_post_json(
             f"{LM_STUDIO_BASE_URL}/chat/completions",
             {
                 "model": model_id,
@@ -253,7 +256,7 @@ def generate_ad_copy_with_llm(
                 "temperature": 0.5,
                 "max_tokens": 220,
             },
-            timeout=20.0,
+            timeout=60.0,  # ครั้งแรก LM Studio อาจต้องโหลดโมเดลก่อนตอบ
         )
         text = (res.get("choices", [{}])[0].get("message", {}).get("content", "") or "").strip()
         if "```" in text:
@@ -264,23 +267,45 @@ def generate_ad_copy_with_llm(
             "benefit_line": str(parsed.get("benefit_line") or fallback_plan["benefit_line"])[:55],
             "cta_line": str(parsed.get("cta_line") or fallback_plan["cta_line"])[:36],
             "sd_backdrop_prompt": str(parsed.get("sd_backdrop_prompt") or fallback_plan["sd_backdrop_prompt"]),
+            "copy_source": "llm",
         }
-    except Exception:
-        return fallback_plan
+    except (OSError, ValueError, IndexError):
+        return fallback_plan  # คำโปรยแม่แบบมาจากข้อมูลที่ผู้เรียนกรอกจริง และหน้าเว็บจะแจ้งว่าใช้แม่แบบ
 
 
 # ---------------------------------------------------------------------------
 # Step 2: Decode Uploaded Product Images (1 to 3 Shots) or Generate Sample
 # ---------------------------------------------------------------------------
 def decode_data_uri_image(data_uri: str) -> Any:
-    if not HAS_PIL or not data_uri or "," not in data_uri:
-        return None
     try:
         raw_b64 = data_uri.split(",", 1)[1]
-        img_bytes = base64.b64decode(raw_b64)
-        return Image.open(io.BytesIO(img_bytes)).convert("RGBA")
-    except Exception:
-        return None
+        return Image.open(io.BytesIO(base64.b64decode(raw_b64))).convert("RGBA")
+    except (ValueError, IndexError, OSError) as exc:
+        raise StudioError("อ่านไฟล์ภาพสินค้าไม่ได้ กรุณาใช้ไฟล์ PNG หรือ JPG") from exc
+
+
+def remove_plain_background(image: Any) -> Any:
+    """ลบพื้นหลังสีเรียบโดยเทสีจากมุมภาพ ภาพที่โปร่งใสอยู่แล้วจะคืนค่าเดิม"""
+    # shortcut: ใช้ได้กับภาพพื้นหลังเรียบเท่านั้น ถ้าต้องรองรับพื้นหลังซับซ้อนให้เปลี่ยนไปใช้ rembg
+    if image.getchannel("A").getextrema()[0] < 250:
+        return image
+
+    resized = image.copy()
+    resized.thumbnail((1024, 1024), Image.Resampling.LANCZOS)
+    marker = (255, 0, 255)
+    painted = resized.convert("RGB")
+    right, bottom = painted.width - 1, painted.height - 1
+    for corner in ((0, 0), (right, 0), (0, bottom), (right, bottom)):
+        ImageDraw.floodfill(painted, corner, marker, thresh=30)
+
+    difference = ImageChops.difference(painted, Image.new("RGB", painted.size, marker)).convert("L")
+    alpha = difference.point(lambda value: 255 if value else 0)
+    box = alpha.getbbox()
+    if box is None:
+        return image  # สินค้าสีเดียวกับพื้นหลังทั้งภาพ แยกไม่ได้
+
+    resized.putalpha(alpha.filter(ImageFilter.GaussianBlur(1)))
+    return resized.crop(box)
 
 
 def create_sample_product_packshot(product_name: str, accent_hex: str, shot_index: int = 0) -> Any:
@@ -310,79 +335,85 @@ def create_sample_product_packshot(product_name: str, accent_hex: str, shot_inde
 
 
 # ---------------------------------------------------------------------------
-# Step 3: Render Studio Backdrop via ComfyUI (:8188) or Rich Studio Fallback
+# Step 3: Render Empty Backdrop -> Place Product -> Harmonize with Img2Img
 # ---------------------------------------------------------------------------
-def render_studio_backdrop(prompt_en: str, width: int, height: int, seed: int, accent_hex: str) -> tuple[Any, bool]:
-    """สั่ง ComfyUI เรนเดอร์ฉากหลังสตูดิโอความละเอียดตามสัดส่วนโฆษณา หรือสร้างฉากสตูดิโอจำลองหากออฟไลน์"""
-    try:
-        wf = json.loads(TXT2IMG_WORKFLOW_PATH.read_text(encoding="utf-8"))
-        wf["6"]["inputs"]["text"] = prompt_en
-        wf["7"]["inputs"]["text"] = "text, watermark, blurry, low quality, human hands, ugly, cluttered"
-        wf["5"]["inputs"]["width"] = int(width)
-        wf["5"]["inputs"]["height"] = int(height)
-        wf["3"]["inputs"]["seed"] = int(seed)
-        wf["3"]["inputs"]["steps"] = 18
-        wf["3"]["inputs"]["cfg"] = 7.0
+def render_studio_backdrop(prompt_en: str, width: int, height: int, seed: int, ckpt_name: str) -> Any:
+    """สั่ง ComfyUI วาดฉากว่างตามสัดส่วนโฆษณา"""
+    wf = json.loads(TXT2IMG_WORKFLOW_PATH.read_text(encoding="utf-8"))
+    wf["4"]["inputs"]["ckpt_name"] = ckpt_name
+    wf["6"]["inputs"]["text"] = prompt_en
+    wf["7"]["inputs"]["text"] = BACKDROP_NEGATIVE_PROMPT
+    wf["5"]["inputs"]["width"] = int(width)
+    wf["5"]["inputs"]["height"] = int(height)
+    wf["3"]["inputs"]["seed"] = int(seed)
+    wf["3"]["inputs"]["steps"] = 18
+    wf["3"]["inputs"]["cfg"] = 7.0
+    raw_bytes, _ = queue_and_fetch_comfy_media(wf)
+    return Image.open(io.BytesIO(raw_bytes)).convert("RGB")
 
-        res = _http_post_json(f"{COMFYUI_BASE_URL}/prompt", {"prompt": wf}, timeout=8.0)
-        prompt_id = res["prompt_id"]
 
-        t0 = time.time()
-        while time.time() - t0 < 120:
-            hist = _http_get_json(f"{COMFYUI_BASE_URL}/history/{prompt_id}", timeout=4.0)
-            if prompt_id in hist:
-                outputs = hist[prompt_id].get("outputs", {})
-                for _, nout in outputs.items():
-                    if "images" in nout and nout["images"]:
-                        img_meta = nout["images"][0]
-                        q = urllib.parse.urlencode(
-                            {
-                                "filename": img_meta["filename"],
-                                "subfolder": img_meta.get("subfolder", ""),
-                                "type": img_meta.get("type", "output"),
-                            }
-                        )
-                        v_bytes = _http_get_bytes(f"{COMFYUI_BASE_URL}/view?{q}", timeout=10.0)
-                        return Image.open(io.BytesIO(v_bytes)).convert("RGB"), False
-            time.sleep(0.75)
-    except Exception:
-        pass
+def compose_shot(backdrop: Any, shot: Any) -> Any:
+    """วางภาพสินค้ากลางฉาก เหนือแถบข้อความด้านล่าง"""
+    width, height = backdrop.size
+    product = shot.copy()
+    box = int(min(width, height) * 0.66)
+    product.thumbnail((box, box), Image.Resampling.LANCZOS)
+    composed = backdrop.convert("RGBA")
+    composed.alpha_composite(product, dest=((width - product.width) // 2, int(height * 0.44) - product.height // 2))
+    return composed.convert("RGB")
 
-    hex_clean = accent_hex.lstrip("#")
-    ar = int(hex_clean[0:2], 16) if len(hex_clean) == 6 else 46
-    ag = int(hex_clean[2:4], 16) if len(hex_clean) == 6 else 125
-    ab = int(hex_clean[4:6], 16) if len(hex_clean) == 6 else 91
 
-    bg = Image.new("RGB", (width, height), (14, 18, 24))
-    draw = ImageDraw.Draw(bg)
-    for y in range(0, height, 3):
-        ratio = y / max(1, height)
-        r = int(14 + ratio * (ar * 0.45))
-        g = int(18 + ratio * (ag * 0.45))
-        b = int(24 + ratio * (ab * 0.45))
-        draw.line([(0, y), (width, y)], fill=(min(255, r), min(255, g), min(255, b)), width=3)
+def harmonize_shot(composite: Any, prompt_en: str, seed: int, ckpt_name: str, shot_index: int) -> Any:
+    """ใช้ Img2Img denoise ต่ำให้แสงและขอบของสินค้ากลมกลืนกับฉาก"""
+    buffer = io.BytesIO()
+    composite.save(buffer, format="PNG")
+    wf = json.loads(IMG2IMG_WORKFLOW_PATH.read_text(encoding="utf-8"))
+    wf["1"]["inputs"]["ckpt_name"] = ckpt_name
+    wf["2"]["inputs"]["image"] = upload_image(buffer.getvalue(), f"adcraft_shot_{shot_index}.png")
+    wf["3"]["inputs"]["seed"] = int(seed)
+    wf["6"]["inputs"]["text"] = f"{prompt_en}, {HARMONIZE_PROMPT_SUFFIX}"
+    raw_bytes, _ = queue_and_fetch_comfy_media(wf)
+    return Image.open(io.BytesIO(raw_bytes)).convert("RGB")
 
-    podium_top = int(height * 0.68)
-    draw.ellipse(
-        [int(width * 0.12), podium_top - 22, int(width * 0.88), podium_top + 38],
-        fill=(min(255, ar // 2 + 25), min(255, ag // 2 + 25), min(255, ab // 2 + 25)),
-        outline=(255, 255, 255),
-    )
-    return bg, True
+
+def expand_to_three_shots(product_shots: list[Any]) -> list[Any]:
+    """เติมภาพให้ครบ 3 ฉาก โดยดัดแปลงมุมจากภาพแรกเมื่อผู้เรียนส่งมาไม่ครบ"""
+    shots = list(product_shots[:3])
+    if len(shots) < 2:
+        shots.append(product_shots[0].rotate(-5, resample=Image.Resampling.BICUBIC, expand=False))
+    if len(shots) < 3:
+        shots.append(ImageEnhance.Brightness(product_shots[0]).enhance(1.06))
+    return shots
+
+
+def find_thai_font() -> str:
+    for candidate in THAI_FONT_CANDIDATES:
+        if Path(candidate).exists():
+            return candidate
+    raise StudioError("ไม่พบฟอนต์ภาษาไทยในเครื่อง บน Linux ให้ติดตั้งด้วย: sudo apt install fonts-thai-tlwg")
+
+
+def fit_font(text: str, font_path: str, max_width: int, size: int) -> Any:
+    """ลดขนาดฟอนต์จนข้อความอยู่ในความกว้างที่กำหนด"""
+    font = ImageFont.truetype(font_path, size)
+    while size > 10 and font.getlength(text) > max_width:
+        size -= 1
+        font = ImageFont.truetype(font_path, size)
+    return font
 
 
 # ---------------------------------------------------------------------------
 # Step 4: Synthesize 36-Frame Commercial Video Ad (.webp & .gif)
 # ---------------------------------------------------------------------------
 def build_product_ad_video(
-    backdrop: Any,
-    product_shots: list[Any],
+    scenes: list[Any],
     product_name: str,
     ad_copy: dict[str, str],
     accent_hex: str,
+    font_path: str,
     total_frames: int = 36,
 ) -> tuple[bytes, bytes]:
-    width, height = backdrop.size
+    width, height = scenes[0].size
     frames: list[Any] = []
 
     hex_clean = accent_hex.lstrip("#")
@@ -390,54 +421,28 @@ def build_product_ad_video(
     ag = int(hex_clean[2:4], 16) if len(hex_clean) == 6 else 125
     ab = int(hex_clean[4:6], 16) if len(hex_clean) == 6 else 91
 
-    shots: list[Any] = []
-    for idx in range(3):
-        if idx < len(product_shots):
-            shots.append(product_shots[idx])
-        else:
-            base_shot = product_shots[0].copy()
-            if idx == 1:
-                base_shot = base_shot.rotate(-5, resample=Image.Resampling.BICUBIC, expand=False)
-            elif idx == 2:
-                base_shot = ImageEnhance.Brightness(base_shot).enhance(1.06)
-            shots.append(base_shot)
+    text_width = width - 56
+    act_lines = [ad_copy["hook_line"], ad_copy["benefit_line"], ad_copy["cta_line"]]
+    act_fonts = [fit_font(line, font_path, text_width, 20) for line in act_lines]
+    title_font = fit_font(product_name, font_path, text_width, 15)
+    cta_font = fit_font(ad_copy["cta_line"], font_path, text_width, 15)
 
     for f_idx in range(total_frames):
         act_idx = min(2, f_idx // (total_frames // 3))
         local_t = (f_idx % (total_frames // 3)) / max(1, (total_frames // 3) - 1)
 
-        bg_zoom = 1.0 + 0.08 * (f_idx / total_frames)
-        cw, ch = int(width / bg_zoom), int(height / bg_zoom)
+        zoom = 1.0 + 0.08 * local_t
+        cw, ch = int(width / zoom), int(height / zoom)
         left = (width - cw) // 2
         top = (height - ch) // 2
-        frame_bg = backdrop.crop((left, top, left + cw, top + ch)).resize(
+        frame_bg = scenes[act_idx].crop((left, top, left + cw, top + ch)).resize(
             (width, height), Image.Resampling.LANCZOS
         ).convert("RGBA")
 
-        overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
-        odraw = ImageDraw.Draw(overlay)
-        for p in range(8):
-            angle = (p * 45 + f_idx * 10) * (math.pi / 180.0)
-            px = int(width * 0.5 + math.cos(angle) * (width * 0.34))
-            py = int(height * 0.42 + math.sin(angle * 1.3) * (height * 0.22))
-            rad = 6 + (p % 4) * 3
-            odraw.ellipse([px - rad, py - rad, px + rad, py + rad], fill=(ar, ag, ab, 95))
-
-        active_shot = shots[act_idx]
-        target_box = int(min(width, height) * (0.58 + 0.08 * local_t))
-        prod_resized = active_shot.copy()
-        prod_resized.thumbnail((target_box, target_box), Image.Resampling.LANCZOS)
-
-        pw, ph = prod_resized.size
-        px_pos = (width - pw) // 2 + int(math.sin(local_t * math.pi) * 8 * (1 if act_idx == 1 else 0))
-        py_pos = int(height * 0.44) - (ph // 2)
-
-        composed = Image.alpha_composite(frame_bg, overlay)
-        composed.alpha_composite(prod_resized, dest=(max(0, px_pos), max(0, py_pos)))
-
+        composed = frame_bg
         hud = ImageDraw.Draw(composed)
         hud.rounded_rectangle([14, 14, width - 14, 48], radius=10, fill=(16, 19, 23, 205))
-        hud.text((26, 24), f"ADCRAFT STUDIO • {product_name[:28]}", fill=(247, 246, 242, 255))
+        hud.text((26, 21), product_name, font=title_font, fill=(247, 246, 242, 255))
 
         banner_top = height - 96
         hud.rounded_rectangle(
@@ -447,14 +452,14 @@ def build_product_ad_video(
             outline=(ar, ag, ab, 255),
             width=2,
         )
-
-        act_labels = [
-            f"SCENE 1 (HOOK): {ad_copy['hook_line']}",
-            f"SCENE 2 (DETAIL): {ad_copy['benefit_line']}",
-            f"SCENE 3 (OFFER): {ad_copy['cta_line']}",
-        ]
-        hud.text((28, banner_top + 16), act_labels[act_idx], fill=(255, 255, 255, 255))
-        hud.text((28, banner_top + 46), ad_copy["cta_line"], fill=(min(255, ar + 60), min(255, ag + 60), min(255, ab + 60), 255))
+        hud.text((28, banner_top + 12), act_lines[act_idx], font=act_fonts[act_idx], fill=(255, 255, 255, 255))
+        if act_idx < 2:
+            hud.text(
+                (28, banner_top + 46),
+                ad_copy["cta_line"],
+                font=cta_font,
+                fill=(min(255, ar + 60), min(255, ag + 60), min(255, ab + 60), 255),
+            )
 
         frames.append(composed.convert("RGB"))
 
@@ -521,63 +526,37 @@ def execute_product_ad_job(payload: dict[str, Any]) -> dict[str, Any]:
     raw_seed = str(payload.get("seed_value", "")).strip()
     seed = int(raw_seed) if raw_seed.isdigit() else random.randint(100_000, 999_999)
 
+    font_path = find_thai_font()
+    ckpt_name = pick_checkpoint(DEFAULT_CHECKPOINT)
+
     ad_copy = generate_ad_copy_with_llm(product_name, selling_point, cta_badge, scene_prompt)
     ts = int(time.time())
 
-    if HAS_PIL:
-        uploaded_uris = payload.get("product_images", [])
-        decoded_shots: list[Any] = []
-        if isinstance(uploaded_uris, list):
-            for uri in uploaded_uris[:3]:
-                img = decode_data_uri_image(str(uri))
-                if img is not None:
-                    decoded_shots.append(img)
+    uploaded_uris = payload.get("product_images", [])
+    decoded_shots = [decode_data_uri_image(str(uri)) for uri in uploaded_uris[:3]] if isinstance(uploaded_uris, list) else []
+    uploaded_count = len(decoded_shots)
+    if uploaded_count == 0:
+        decoded_shots = [create_sample_product_packshot(product_name, preset["accent_hex"], i) for i in range(3)]
 
-        uploaded_count = len(decoded_shots)
-        if uploaded_count == 0:
-            decoded_shots = [
-                create_sample_product_packshot(product_name, preset["accent_hex"], i) for i in range(3)
-            ]
+    backdrop_prompt = ad_copy["sd_backdrop_prompt"]
+    backdrop_img = render_studio_backdrop(backdrop_prompt, width, height, seed, ckpt_name)
+    shots = expand_to_three_shots([remove_plain_background(shot) for shot in decoded_shots])
+    scenes = [
+        harmonize_shot(compose_shot(backdrop_img, shot), backdrop_prompt, seed + idx, ckpt_name, idx)
+        for idx, shot in enumerate(shots)
+    ]
 
-        backdrop_img, used_fallback = render_studio_backdrop(
-            ad_copy["sd_backdrop_prompt"], width, height, seed, preset["accent_hex"]
-        )
+    webp_bytes, gif_bytes = build_product_ad_video(
+        scenes, product_name, ad_copy, preset["accent_hex"], font_path, total_frames=36
+    )
 
-        webp_bytes, gif_bytes = build_product_ad_video(
-            backdrop_img,
-            decoded_shots,
-            product_name,
-            ad_copy,
-            preset["accent_hex"],
-            total_frames=36,
-        )
-
-        webp_name = f"product_ad_{ts}_seed{seed}.webp"
-        gif_name = f"product_ad_{ts}_seed{seed}.gif"
-        webp_path = OUTPUT_DIR / webp_name
-        gif_path = OUTPUT_DIR / gif_name
-        webp_path.write_bytes(webp_bytes)
-        gif_path.write_bytes(gif_bytes)
-        video_data_uri = f"data:image/webp;base64,{base64.b64encode(webp_bytes).decode('ascii')}"
-    else:
-        uploaded_count = 0
-        used_fallback = True
-        svg_str = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
-          <rect width="100%" height="100%" fill="#101317"/>
-          <rect x="24" y="80" width="{width - 48}" height="{height - 200}" rx="20" fill="{preset['accent_hex']}" opacity="0.85">
-            <animate attributeName="opacity" values="0.65;0.95;0.65" dur="2.5s" repeatCount="indefinite"/>
-          </rect>
-          <text x="32" y="46" fill="#ffffff" font-family="sans-serif" font-size="15" font-weight="bold">{product_name}</text>
-          <text x="32" y="{height - 70}" fill="#ffffff" font-family="sans-serif" font-size="13">{ad_copy['hook_line']}</text>
-          <text x="32" y="{height - 40}" fill="#69b98e" font-family="sans-serif" font-size="13">{ad_copy['cta_line']}</text>
-        </svg>"""
-        svg_bytes = svg_str.encode("utf-8")
-        webp_name = f"product_ad_{ts}_seed{seed}.svg"
-        gif_name = webp_name
-        webp_path = OUTPUT_DIR / webp_name
-        gif_path = webp_path
-        webp_path.write_bytes(svg_bytes)
-        video_data_uri = f"data:image/svg+xml;base64,{base64.b64encode(svg_bytes).decode('ascii')}"
+    webp_name = f"product_ad_{ts}_seed{seed}.webp"
+    gif_name = f"product_ad_{ts}_seed{seed}.gif"
+    webp_path = OUTPUT_DIR / webp_name
+    gif_path = OUTPUT_DIR / gif_name
+    webp_path.write_bytes(webp_bytes)
+    gif_path.write_bytes(gif_bytes)
+    video_data_uri = f"data:image/webp;base64,{base64.b64encode(webp_bytes).decode('ascii')}"
 
     _append_ad_history_csv(
         {
@@ -602,7 +581,6 @@ def execute_product_ad_job(payload: dict[str, Any]) -> dict[str, Any]:
         "ad_copy": ad_copy,
         "saved_webp": str(webp_path.relative_to(ROOT_DIR)),
         "saved_gif": str(gif_path.relative_to(ROOT_DIR)),
-        "used_fallback": used_fallback,
         "elapsed_sec": round(time.time() - t0, 2),
         "video_data_uri": video_data_uri,
     }
@@ -909,7 +887,7 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
         <fieldset>
           <legend>1. โยนภาพสินค้าเข้าสู่ระบบ (แนะนำ 1–3 ภาพตามสูตรโฆษณา 3 ฉาก)</legend>
           <span class="hint" style="margin-bottom: 0.65rem;">
-            <strong>ทำไมต้อง 3 ภาพ?</strong> โฆษณาวิดีโอสั้นที่ได้ผลดีที่สุดจะแบ่งเป็น <strong>ฉากที่ 1 มุมตรงเปิดเรื่อง (Hook)</strong>, <strong>ฉากที่ 2 มุมเจาะดีเทล (Detail)</strong>, และ <strong>ฉากที่ 3 ภาพปิดการขาย (Offer)</strong> — <em>หากอัปโหลดแค่ 1 ภาพ (หรือเว้นว่างไว้เพื่อใช้ภาพตัวอย่าง) ระบบจะสร้างมุมกล้องทั้ง 3 ฉากให้อัตโนมัติ!</em>
+            <strong>ใช้ PNG โปร่งใสหรือภาพพื้นหลังสีเรียบ</strong> ระบบจึงจะตัดพื้นหลังได้สะอาด <strong>ทำไมต้อง 3 ภาพ?</strong> โฆษณาวิดีโอสั้นที่ได้ผลดีที่สุดจะแบ่งเป็น <strong>ฉากที่ 1 มุมตรงเปิดเรื่อง (Hook)</strong>, <strong>ฉากที่ 2 มุมเจาะดีเทล (Detail)</strong>, และ <strong>ฉากที่ 3 ภาพปิดการขาย (Offer)</strong> — <em>หากอัปโหลดแค่ 1 ภาพ (หรือเว้นว่างไว้เพื่อใช้ภาพตัวอย่าง) ระบบจะสร้างมุมกล้องทั้ง 3 ฉากให้อัตโนมัติ!</em>
           </span>
 
           <div class="upload-slots">
@@ -961,8 +939,8 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
           </div>
 
           <div class="form-group">
-            <label class="field-label" for="scene-prompt">Prompt ฉากหลังสตูดิโอสำหรับส่งให้ ComfyUI (แก้ไขปรับแต่งได้):</label>
-            <textarea id="scene-prompt" name="scene_prompt" required>commercial product photography of a sleek cold brew coffee bottle on wet dark slate stone, splashing water droplets, crushed ice cubes, warm morning golden hour sunbeams through cafe window, cinematic rim lighting, shallow depth of field, 8k advertising shot</textarea>
+            <label class="field-label" for="scene-prompt">Prompt ฉากหลังสำหรับส่งให้ ComfyUI (บรรยายเฉพาะฉากว่าง ไม่ต้องใส่ตัวสินค้า):</label>
+            <textarea id="scene-prompt" name="scene_prompt" required>empty wet dark slate stone surface, water droplets and crushed ice at the edges, warm morning golden hour sunbeams through cafe window, blurred bokeh background, shallow depth of field, commercial advertising backdrop</textarea>
           </div>
         </fieldset>
 
@@ -1030,6 +1008,7 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
             • <strong>เวลาประมวลผล:</strong> <span id="out-time"></span> วินาที
           </div>
           <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.65rem 0;" />
+          <div id="out-copy-note" class="hint hidden">LM Studio ไม่ตอบกลับ คำโปรยนี้จึงมาจากข้อมูลที่กรอกไว้ ไม่ได้แต่งโดย AI</div>
           <div><strong>ฉากที่ 1 (Hook):</strong> <span id="out-hook"></span></div>
           <div><strong>ฉากที่ 2 (Benefit):</strong> <span id="out-benefit"></span></div>
           <div><strong>ฉากที่ 3 (Offer CTA):</strong> <span id="out-cta"></span></div>
@@ -1076,8 +1055,8 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
         const res = await fetch('/api/status');
         const st = await res.json();
         const badge = document.getElementById('server-status');
-        const lmTxt = st.lm_studio_online ? 'LM Studio: Online' : 'LM Studio: Fallback Copy';
-        const cfTxt = st.comfyui_online ? 'ComfyUI: Online' : 'ComfyUI: Studio Preview';
+        const lmTxt = st.lm_studio_online ? 'LM Studio: Online' : 'LM Studio: Offline (ใช้คำโปรยแม่แบบ)';
+        const cfTxt = st.comfyui_online ? 'ComfyUI: Online' : 'ComfyUI: Offline (ต้องเปิดก่อนสร้าง)';
         badge.textContent = lmTxt + ' • ' + cfTxt;
       }} catch (e) {{
         console.error(e);
@@ -1111,6 +1090,7 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
           body: JSON.stringify(payload),
         }});
         const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
 
         document.getElementById('empty-ad-msg').classList.add('hidden');
         const vidImg = document.getElementById('ad-video-output');
@@ -1124,11 +1104,12 @@ AD_STUDIO_HTML = f"""<!DOCTYPE html>
         document.getElementById('out-photos').textContent = data.uploaded_photos_count || '3 (ภาพสินค้าจำลอง)';
         document.getElementById('out-seed').textContent = data.seed;
         document.getElementById('out-time').textContent = data.elapsed_sec;
+        document.getElementById('out-copy-note').classList.toggle('hidden', data.ad_copy.copy_source === 'llm');
         document.getElementById('out-hook').textContent = data.ad_copy.hook_line;
         document.getElementById('out-benefit').textContent = data.ad_copy.benefit_line;
         document.getElementById('out-cta').textContent = data.ad_copy.cta_line;
       }} catch (err) {{
-        alert('เกิดข้อผิดพลาด: ' + err.message);
+        alert('สร้างวิดีโอไม่สำเร็จ: ' + err.message);
       }} finally {{
         submitBtn.disabled = false;
         submitBtn.textContent = '🎬 สร้างวิดีโอโฆษณาสินค้า (Generate Product Video Ad)';
@@ -1169,9 +1150,15 @@ class ProductAdStudioHandler(BaseHTTPRequestHandler):
             length = int(self.headers.get("Content-Length", "0"))
             raw = self.rfile.read(length).decode("utf-8")
             payload = json.loads(raw) if raw else {}
-            result = execute_product_ad_job(payload)
+            try:
+                result, status_code = execute_product_ad_job(payload), 200
+            except StudioError as exc:
+                result, status_code = {"error": str(exc)}, 503
+            except Exception as exc:
+                traceback.print_exc()
+                result, status_code = {"error": f"เกิดข้อผิดพลาดที่ไม่คาดคิด: {exc}"}, 500
             body = json.dumps(result, ensure_ascii=False).encode("utf-8")
-            self.send_response(200)
+            self.send_response(status_code)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
@@ -1195,7 +1182,10 @@ def main() -> None:
 
     if args.cli_preset:
         print(f"กำลังสร้างวิดีโอโฆษณาสินค้าสำหรับชุดตัวอย่าง: {args.cli_preset} ...")
-        res = execute_product_ad_job({"preset_key": args.cli_preset})
+        try:
+            res = execute_product_ad_job({"preset_key": args.cli_preset})
+        except StudioError as exc:
+            sys.exit(f"สร้างไม่สำเร็จ: {exc}")
         print(f"บันทึกไฟล์วิดีโอโฆษณาสำเร็จ: {res['saved_webp']} และ {res['saved_gif']} ({res['elapsed_sec']}s)")
         return
 

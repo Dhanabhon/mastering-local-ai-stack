@@ -357,8 +357,14 @@
         </div>
       </div>
 
-      <!-- Quick Controls: OS Pill (All Viewports) + Dark/Light Mode Toggle -->
+      <!-- Quick Controls: Lab Guide Link + Showcase Link + OS Pill (All Viewports) + Dark/Light Mode Toggle -->
       <div class="flex items-center gap-2 shrink-0">
+        <a href="./labs.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors">
+          <span>ใบงาน Lab 6 ชม. →</span>
+        </a>
+        <a href="./showcase.html" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold border border-emerald-700/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
+          <span>✨ Showcase Demo</span>
+        </a>
         <div role="group" aria-label="เลือกระบบปฏิบัติการ" class="flex items-center text-xs bg-slate-200/70 dark:bg-slate-900 p-1 rounded-lg">
           <button type="button" onclick="setOS('windows')" id="nav-btn-win" aria-pressed="true" class="px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px]">
             <span class="sm:hidden">Windows</span>
@@ -1333,6 +1339,21 @@ python main.py --force-fp16</code></pre>
               <span class="text-xs text-slate-600 dark:text-slate-300 mt-0.5 block">อ่านไฟล์บทความภาษาไทยได้ และตารางตรวจสอบสถานะเซิร์ฟเวอร์แสดงสถานะ Online ทั้งสองรายการ</span>
             </span>
           </label>
+        </div>
+
+        <!-- Next Step CTA: Proceed to 6-Hour Lab Guide -->
+        <div class="mt-8 p-5 sm:p-6 rounded-xl border border-emerald-600/30 bg-emerald-50/70 dark:bg-emerald-950/30 dark:border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">Ready for the Workshop</p>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white mt-0.5">เตรียมเครื่องครบทั้ง 6 ข้อเรียบร้อยแล้วใช่ไหม?</h3>
+            <p class="text-xs sm:text-sm text-slate-600 dark:text-slate-300 mt-1">
+              เข้าสู่หน้าใบงานปฏิบัติการ 6 ชั่วโมง (Module 1–4) พร้อมขั้นตอนทีละสเต็ปและโจทย์ Bonus Challenges สำหรับผู้ที่ทำเสร็จก่อนเวลา
+            </p>
+          </div>
+          <a href="./labs.html" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-colors">
+            <span>เริ่มทำใบงาน Lab 6 ชั่วโมง</span>
+            <span aria-hidden="true">→</span>
+          </a>
         </div>
       </section>
     </div>

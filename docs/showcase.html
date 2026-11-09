@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>CineLocal Studio (Showcase Demo) | Mastering Local AI Stack 2026</title>
+  <meta name="description" content="โปรเจกต์ตัวอย่างต่อยอดหลังจบคลาส: เว็บแอปสร้าง Storyboard 3 ฉากพร้อมบทบรรยายไทยและคำสั่งวาดภาพ SD 1.5 ด้วย Python, LM Studio และ ComfyUI" />
+
+  <!-- Preconnect & Google Fonts: Google Sans Thai + JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <!-- Prevent Flash of Wrong Theme -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('local_ai_workshop_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <style>
+    /* ==========================================================================
+       Tomera AI Design System & Modern Web Guidance Tokens
+       ========================================================================== */
+    :root {
+      color-scheme: light dark;
+      --ink: #101317;
+      --paper: #f7f6f2;
+      --surface: #ffffff;
+      --soft: #ebebe5;
+      --line: #d9dcd3;
+      --muted: #61665f;
+      --brand: #2e7d5b;
+      --brand-deep: #256b4e;
+      --brand-bright: #69b98e;
+      --brand-tint: rgba(46, 125, 91, 0.11);
+      --dark-canvas: #181d19;
+      --dark-surface: #1f2621;
+      --dark-elevated: #262f29;
+      --dim: #acb3a8;
+      --amber: #b45309;
+      --amber-bg: rgba(245, 158, 11, 0.13);
+      --code-bg: #121714;
+      --code-border: #2a342d;
+      --code-text: #eef2ed;
+      --shadow-sm: 0 2px 8px rgba(16, 19, 23, 0.05);
+      --shadow-md: 0 12px 32px rgba(16, 19, 23, 0.08);
+      accent-color: var(--brand);
+    }
+
+    html.dark {
+      --ink: #f7f6f2;
+      --paper: #181d19;
+      --surface: #1f2621;
+      --soft: #262f29;
+      --line: #323d35;
+      --muted: #acb3a8;
+      --brand: #69b98e;
+      --brand-deep: #2e7d5b;
+      --brand-bright: #78c99e;
+      --brand-tint: rgba(105, 185, 142, 0.14);
+      --amber: #fbbf24;
+      --amber-bg: rgba(245, 158, 11, 0.16);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.42);
+      accent-color: var(--brand-bright);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Google Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, pre, kbd, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-ligatures: none;
+    }
+
+    /* Accessibility: Skip Link */
+    .skip-link {
+      position: fixed;
+      top: 0.75rem;
+      left: 0.75rem;
+      z-index: 200;
+      padding: 0.6rem 1rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      text-decoration: none;
+      transform: translateY(-150%);
+      transition: transform 0.2s ease;
+    }
+    .skip-link:focus {
+      transform: translateY(0);
+      outline: 2px solid var(--brand-bright);
+      outline-offset: 2px;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    /* Sticky Top Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: color-mix(in srgb, var(--paper) 90%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      flex-wrap: wrap;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand-badge {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.6rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .pill-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.14rem 0.55rem;
+      border-radius: 999px;
+      background: var(--brand-tint);
+      color: var(--brand);
+      border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.42rem 0.8rem;
+      border-radius: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      font-family: inherit;
+      text-decoration: none;
+      color: var(--ink);
+      background: var(--soft);
+      border: 1px solid var(--line);
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-ghost:hover {
+      border-color: var(--brand);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.2rem;
+      border-radius: 0.65rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: inherit;
+      color: #ffffff;
+      background: var(--brand-deep);
+      border: 1px solid var(--brand-deep);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+    .btn-primary:hover {
+      background: #1d583f;
+    }
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Hero Banner */
+    .hero {
+      padding: 2.25rem 0 1.75rem;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--brand) 7%, var(--paper)) 0%, var(--paper) 100%);
+    }
+    .hero-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--brand);
+      background: var(--brand-tint);
+      padding: 0.28rem 0.75rem;
+      border-radius: 999px;
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      line-height: 1.22;
+      letter-spacing: -0.02em;
+      margin: 0 0 0.6rem 0;
+    }
+    .hero-lead {
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 70ch;
+      margin: 0;
+    }
+
+    /* Module Connection Ribbon */
+    .module-ribbon {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.4rem;
+    }
+    .ribbon-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .ribbon-step {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--brand);
+    }
+    .ribbon-title {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .ribbon-desc {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    /* Studio Layout */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+      padding: 1.75rem 0 3rem;
+    }
+    .studio-grid > * {
+      min-width: 0;
+      max-width: 100%;
+    }
+    @media (min-width: 1024px) {
+      .studio-grid {
+        grid-template-columns: 350px minmax(0, 1fr);
+        align-items: start;
+      }
+    }
+
+    /* Director Control Panel (Left Column) */
+    .director-panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    @media (min-width: 1024px) {
+      .director-panel {
+        position: sticky;
+        top: 4.5rem;
+      }
+    }
+    .panel-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      margin: 0 0 0.3rem 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+    .panel-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0 0 1.1rem 0;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+      color: var(--ink);
+    }
+
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .preset-chip {
+      font-size: 0.74rem;
+      font-weight: 600;
+      font-family: inherit;
+      padding: 0.32rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--ink);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .preset-chip:hover,
+    .preset-chip[aria-pressed="true"] {
+      background: var(--brand-tint);
+      border-color: var(--brand);
+      color: var(--brand);
+    }
+
+    .story-textarea {
+      width: 100%;
+      min-height: 86px;
+      padding: 0.7rem 0.85rem;
+      border-radius: 0.65rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      resize: vertical;
+      margin-bottom: 1rem;
+    }
+    .story-textarea:focus {
+      outline: 2px solid var(--brand);
+      border-color: transparent;
+    }
+
+    .style-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .style-btn {
+      text-align: left;
+      padding: 0.55rem 0.7rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      cursor: pointer;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+    }
+    .style-btn[aria-pressed="true"] {
+      border-color: var(--brand);
+      background: var(--brand-tint);
+    }
+    .style-btn-name {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .style-btn-meta {
+      display: block;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    /* Engine Mode Switch */
+    .engine-box {
+      padding: 0.75rem;
+      border-radius: 0.7rem;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      margin-bottom: 1rem;
+    }
+    .engine-Segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      background: var(--paper);
+      padding: 0.25rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--line);
+    }
+    .engine-opt {
+      padding: 0.4rem 0.5rem;
+      border-radius: 0.38rem;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .engine-opt[aria-pressed="true"] {
+      background: var(--brand-deep);
+      color: #ffffff;
+    }
+    .engine-status {
+      font-size: 0.73rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+    }
+
+    /* Live Telemetry & Node Pipeline Card */
+    .telemetry-bar {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .telemetry-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.9rem;
+    }
+    .vram-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      background: var(--soft);
+      border: 1px solid var(--line);
+    }
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 999px;
+      background: var(--brand);
+    }
+    .status-dot.active {
+      background: #10b981;
+      @media (prefers-reduced-motion: no-preference) {
+        animation: pulseGlow 1.2s ease-in-out infinite;
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.65; }
+    }
+
+    /* Node Graph Pipeline Strip */
+    .node-strip {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    @media (min-width: 640px) {
+      .node-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1120px) {
+      .node-strip {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+      }
+    }
+    .node-box {
+      min-width: 0;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .node-box[data-state="active"] {
+      border-color: var(--brand);
+      background: var(--brand-tint);
+      @media (prefers-reduced-motion: no-preference) {
+        transform: translateY(-2px);
+      }
+    }
+    .node-box[data-state="done"] {
+      border-color: color-mix(in srgb, var(--brand) 55%, var(--line));
+    }
+    .node-id {
+      font-size: 0.65rem;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.25rem;
+      white-space: nowrap;
+    }
+    .node-name {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 0.15rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .node-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Pitch Summary Header Card */
+    .pitch-header-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.35rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .pitch-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.6rem;
+    }
+    .palette-row {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .swatch {
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 0.35rem;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    /* 3-Scene Storyboard Grid */
+    .scenes-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1rem;
+    }
+    @media (min-width: 720px) {
+      .scenes-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    .scene-card {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 0.95rem;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .scene-card:hover {
+      border-color: var(--brand);
+    }
+    .scene-visual {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #101412;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .scene-visual svg,
+    .scene-visual img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .scene-badge-top {
+      position: absolute;
+      top: 0.55rem;
+      left: 0.55rem;
+      right: 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      pointer-events: none;
+    }
+    .scene-chip {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(16, 19, 23, 0.82);
+      color: #f7f6f2;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 72%;
+    }
+    .scene-chip-num {
+      flex-shrink: 0;
+      background: rgba(46, 125, 91, 0.9);
+      color: #ffffff;
+    }
+    .scene-body {
+      padding: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 0;
+    }
+    .scene-title {
+      font-size: 0.92rem;
+      line-height: 1.35;
+      font-weight: 700;
+      margin: 0;
+      color: var(--ink);
+    }
+    .scene-narration {
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: var(--muted);
+      margin: 0;
+    }
+    .scene-prompt-box {
+      margin-top: auto;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.55rem;
+      background: var(--soft);
+      border: 1px solid var(--line);
+      font-size: 0.7rem;
+      min-width: 0;
+    }
+    .scene-prompt-label {
+      font-weight: 700;
+      color: var(--brand);
+      display: flex;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.2rem;
+    }
+    .scene-prompt-text {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    /* Under the Hood Inspector Tabs */
+    .inspector-card {
+      min-width: 0;
+      max-width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-top: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .tab-bar {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .tab-btn {
+      padding: 0.42rem 0.85rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--muted);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .tab-btn[aria-selected="true"] {
+      background: var(--brand-deep);
+      color: #ffffff;
+      border-color: var(--brand-deep);
+    }
+
+    .code-wrap {
+      min-width: 0;
+      max-width: 100%;
+      border-radius: 0.7rem;
+      overflow: hidden;
+      border: 1px solid var(--code-border);
+      background: var(--code-bg);
+    }
+    .code-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.45rem 0.85rem;
+      background: #1a211c;
+      border-bottom: 1px solid var(--code-border);
+      color: #acb3a8;
+      font-size: 0.74rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    pre.code-pre {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      max-height: 340px;
+      color: var(--code-text);
+      font-size: 0.76rem;
+      line-height: 1.58;
+    }
+    pre.code-pre:focus {
+      outline: 2px solid var(--brand-bright);
+      outline-offset: -2px;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 0.38rem;
+      border: 1px solid #354239;
+      background: #242e27;
+      color: #eef2ed;
+      font-size: 0.72rem;
+      font-family: 'Google Sans Thai', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background: var(--brand-deep);
+    }
+
+    /* Native Modal Dialog (Modern Web Guidance Dialog Rule 1) */
+    dialog.x-ray-dialog {
+      max-width: 820px;
+      width: calc(100% - 2rem);
+      border-radius: 1rem;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      padding: 0;
+      box-shadow: var(--shadow-md);
+    }
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+    dialog::backdrop {
+      background: rgba(10, 14, 12, 0.68);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
+    .dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.15rem 1.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+    .dialog-body {
+      padding: 1.35rem;
+      max-height: 75vh;
+      overflow-y: auto;
+    }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <a href="#main-heading" class="skip-link">ข้ามไปยังเนื้อหาหลัก (Skip to main content)</a>
+
+  <!-- Sticky Header -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-group">
+        <div class="brand-badge" aria-hidden="true">AI</div>
+        <div>
+          <div class="brand-title">
+            <span>CineLocal Studio</span>
+            <span class="pill-tag">Showcase Project ต่อยอดหลังจบคลาส</span>
+          </div>
+          <p class="brand-sub">AI Storyboard &amp; Pitch Deck Director • Python × LM Studio × ComfyUI</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a href="./index.html" class="btn-ghost">← คู่มือเตรียมเครื่อง</a>
+        <a href="./labs.html" class="btn-ghost">ใบงาน Lab 6 ชม.</a>
+        <button type="button" id="open-xray-btn" class="btn-ghost">
+          <span>แกะรอยโค้ดต่อยอด (X-Ray)</span>
+        </button>
+        <button type="button" id="theme-toggle-btn" class="btn-ghost" aria-label="สลับโหมดสี">
+          <span id="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">
+            <span>โปรเจกต์ต่อยอดหลังจบคลาส 6 ชั่วโมง • โค้ดต้นแบบพร้อมรัน</span>
+          </div>
+          <h1 id="main-heading" tabindex="-1">
+            เขียนไอเดียภาษาไทย 1 บรรทัด ให้ AI แยกเป็น Storyboard 3 ฉากพร้อมเรนเดอร์ภาพ
+          </h1>
+          <p class="hero-lead">
+            เว็บแอปตัวนี้นำโค้ดจากทั้ง <strong>4 โมดูลในห้องเรียน</strong> มาต่อกันเป็นระบบสร้าง Storyboard ที่ทำงานบนเครื่องของคุณเองทั้งหมด กดทดลองรันในโหมดจำลองบนหน้านี้ได้เลย หรือเปิด LM Studio คู่กับ ComfyUI แล้วรันไฟล์ <code>05-bonus-showcase/app.py</code> เพื่อสั่งโมเดลจริง
+          </p>
+        </div>
+      </div>
+
+      <!-- How Modules 1-4 Connect -->
+      <div class="module-ribbon" aria-label="การเชื่อมโยงความรู้จากทั้ง 4 โมดูล">
+        <div class="ribbon-card">
+          <span class="ribbon-step">ต่อยอดจาก Module 1</span>
+          <span class="ribbon-title">Health Check &amp; HTML Export</span>
+          <span class="ribbon-desc">เช็กพอร์ต 1234 และ 8188 ด้วย <code>requests</code> แล้วรวบรวมผลลัพธ์ออกเป็นไฟล์ HTML Pitch Deck</span>
+        </div>
+        <div class="ribbon-card">
+          <span class="ribbon-step">ต่อยอดจาก Module 2</span>
+          <span class="ribbon-title">LM Studio JSON Director</span>
+          <span class="ribbon-desc">สั่งโมเดล 3B (Q4_K_M) แปลงโจทย์ภาษาไทยเป็น JSON 3 ฉาก กำหนดมุมกล้อง โทนสี และ SD Prompt</span>
+        </div>
+        <div class="ribbon-card">
+          <span class="ribbon-step">ต่อยอดจาก Module 3</span>
+          <span class="ribbon-title">ComfyUI API Graph Mutation</span>
+          <span class="ribbon-desc">เขียนค่าทับโหนด <code>"6"</code>, <code>"7"</code> และ <code>"3"</code> ในไฟล์ <code>sd15_txt2img_api.json</code> ทีละฉากด้วย Python</span>
+        </div>
+        <div class="ribbon-card">
+          <span class="ribbon-step">ต่อยอดจาก Module 4</span>
+          <span class="ribbon-title">Sequential 6GB VRAM Queue</span>
+          <span class="ribbon-desc">ส่งคิวเรนเดอร์เข้า <code>/prompt</code> ทีละรูปแล้วดึงไฟล์จาก <code>/view</code> กิน VRAM รวมประมาณ 4.2 GB</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Interactive Studio -->
+  <main class="container">
+    <div class="studio-grid">
+
+      <!-- Left Column: Director Controls -->
+      <aside class="director-panel" aria-label="แผงควบคุมผู้กำกับ AI">
+        <h2 class="panel-title">
+          <span>1. ตั้งโจทย์ Storyboard</span>
+          <span class="pill-tag">Director Console</span>
+        </h2>
+        <p class="panel-sub">กดเลือกโจทย์ตัวอย่างด้านล่าง หรือพิมพ์แนวคิดภาษาไทยของคุณลงในช่องข้อความ</p>
+
+        <span class="field-label">เลือกโจทย์ตัวอย่าง (Instant Presets):</span>
+        <div class="preset-chips" role="group" aria-label="โจทย์ตัวอย่าง">
+          <button type="button" class="preset-chip" data-preset="bangkok2088" aria-pressed="true">ตลาดน้ำไซเบอร์กรุงเทพ 2088</button>
+          <button type="button" class="preset-chip" data-preset="maehongson" aria-pressed="false">กาแฟดริปทะเลหมอกแม่ฮ่องสอน</button>
+          <button type="button" class="preset-chip" data-preset="himmapan" aria-pressed="false">โดรนสำรวจป่าหิมพานต์</button>
+          <button type="button" class="preset-chip" data-preset="cybercat" aria-pressed="false">แมวส้มนักสืบห้องเซิร์ฟเวอร์</button>
+        </div>
+
+        <label for="story-input" class="field-label">แนวคิดหลักภาษาไทย (Thai Story / Campaign Idea):</label>
+        <textarea id="story-input" class="story-textarea">ตลาดน้ำอัจฉริยะในกรุงเทพปี 2088 ที่เรือหางยาวขับเคลื่อนด้วยพลังงานแม่เหล็กไฟฟ้าและมีหุ่นยนต์บาริสต้าชงชาไทยโบราณริมคลองเรืองแสง</textarea>
+
+        <span class="field-label">สไตล์ภาพและเลนส์ผู้กำกับ (Visual Style Preset):</span>
+        <div class="style-grid" role="group" aria-label="เลือกสไตล์ภาพ">
+          <button type="button" class="style-btn" data-style="cyberpunk" aria-pressed="true">
+            <span class="style-btn-name">Cyberpunk Neon</span>
+            <span class="style-btn-meta">CFG 7.5 • 35mm Anamorphic</span>
+          </button>
+          <button type="button" class="style-btn" data-style="cinematic" aria-pressed="false">
+            <span class="style-btn-name">Golden Hour Film</span>
+            <span class="style-btn-meta">CFG 7.0 • Kodak Portra 50mm</span>
+          </button>
+          <button type="button" class="style-btn" data-style="watercolor" aria-pressed="false">
+            <span class="style-btn-name">Ghibli Anime Art</span>
+            <span class="style-btn-meta">CFG 6.5 • Painted Concept</span>
+          </button>
+          <button type="button" class="style-btn" data-style="isometric" aria-pressed="false">
+            <span class="style-btn-name">Isometric 3D Box</span>
+            <span class="style-btn-meta">CFG 8.0 • Octane Tilt-Shift</span>
+          </button>
+        </div>
+
+        <!-- Execution Mode Toggle -->
+        <div class="engine-box">
+          <span class="field-label" style="margin-bottom:0.35rem;">โหมดการรันไปป์ไลน์ (Execution Engine):</span>
+          <div class="engine-Segmented" role="group" aria-label="โหมดการประมวลผล">
+            <button type="button" class="engine-opt" id="mode-sim-btn" data-mode="simulation" aria-pressed="true">
+              Instant Demo (จำลอง)
+            </button>
+            <button type="button" class="engine-opt" id="mode-live-btn" data-mode="live" aria-pressed="false">
+              Live API (:1234/:8188)
+            </button>
+          </div>
+          <div class="engine-status" id="engine-status-text">
+            <span>จำลองผลลัพธ์ทันที (ไม่ต้องเปิดเซิร์ฟเวอร์)</span>
+            <span class="font-mono" style="white-space:nowrap;">VRAM ~4.2GB</span>
+          </div>
+        </div>
+
+        <button type="button" id="generate-btn" class="btn-primary" style="width:100%;">
+          <span id="generate-btn-label">เดินเครื่องสร้าง Storyboard 3 ฉาก →</span>
+        </button>
+
+        <div style="display:flex; gap:0.5rem; margin-top:0.65rem;">
+          <button type="button" id="export-html-btn" class="btn-ghost" style="flex:1; justify-content:center;">
+            Export Pitch Deck (.html)
+          </button>
+          <button type="button" id="export-json-btn" class="btn-ghost" style="flex:1; justify-content:center;">
+            Download JSON
+          </button>
+        </div>
+      </aside>
+
+      <!-- Right Column: Live Node Telemetry + 3-Scene Storyboard Output -->
+      <section aria-label="ผลลัพธ์ Storyboard และการทำงานของระบบ">
+
+        <!-- Live Node Pipeline & VRAM Telemetry -->
+        <div class="telemetry-bar">
+          <div class="telemetry-header">
+            <div style="display:flex; align-items:center; gap:0.55rem;">
+              <span class="status-dot" id="pipeline-dot"></span>
+              <strong style="font-size:0.88rem;" id="pipeline-stage-text">สถานะไปป์ไลน์: พร้อมรันเวิร์กโฟลว์ (Idle / Ready)</strong>
+            </div>
+            <div class="vram-pill">
+              <span>RTX 3050 6GB Budget:</span>
+              <strong class="font-mono" id="vram-readout" style="color:var(--brand);">4.2 GB / 6.0 GB (Safe)</strong>
+            </div>
+          </div>
+
+          <div class="node-strip" id="node-strip" aria-label="สถานะโหนดใน ComfyUI และ LM Studio">
+            <div class="node-box" data-node="llm" data-state="done">
+              <div class="node-id"><span>LM Studio</span><span>:1234</span></div>
+              <div class="node-name">Qwen2.5-3B JSON</div>
+              <div class="node-sub" id="status-llm">3 Scenes Extracted</div>
+            </div>
+            <div class="node-box" data-node="4" data-state="done">
+              <div class="node-id"><span>Node "4"</span><span>SD 1.5</span></div>
+              <div class="node-name">Load Checkpoint</div>
+              <div class="node-sub">2.0 GB VRAM</div>
+            </div>
+            <div class="node-box" data-node="6" data-state="done">
+              <div class="node-id"><span>Node 6-7</span><span>CLIP</span></div>
+              <div class="node-name">CLIP Text Encode</div>
+              <div class="node-sub" id="status-clip">Pos + Neg Vectors</div>
+            </div>
+            <div class="node-box" data-node="5" data-state="done">
+              <div class="node-id"><span>Node "5"</span><span>Latent</span></div>
+              <div class="node-name">Empty Latent 512²</div>
+              <div class="node-sub">batch_size = 1</div>
+            </div>
+            <div class="node-box" data-node="3" data-state="done">
+              <div class="node-id"><span>Node "3"</span><span>euler</span></div>
+              <div class="node-name">KSampler (20 steps)</div>
+              <div class="node-sub" id="status-ksampler">Denoise 1.00</div>
+            </div>
+            <div class="node-box" data-node="8" data-state="done">
+              <div class="node-id"><span>Node 8-9</span><span>VAE</span></div>
+              <div class="node-name">VAE Decode &amp; View</div>
+              <div class="node-sub" id="status-vae">3/3 Rendered</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pitch Deck Header Card -->
+        <div class="pitch-header-card">
+          <div class="pitch-meta-row">
+            <div>
+              <span class="pill-tag" id="pitch-genre-badge">Sci-Fi Street Culture • 3-Scene Storyboard</span>
+              <h2 id="pitch-title-th" style="font-size:1.35rem; margin:0.35rem 0 0.1rem 0;">คลองบางกอก 2088: ตลาดน้ำเรือแม่เหล็กไฟฟ้า</h2>
+              <p id="pitch-title-en" class="font-mono" style="font-size:0.78rem; color:var(--muted); margin:0;">KHLONG BANGKOK 2088: MAGLEV FLOATING MARKET</p>
+            </div>
+            <div>
+              <span style="font-size:0.72rem; font-weight:700; color:var(--muted); display:block; margin-bottom:0.3rem;">AI Color Palette:</span>
+              <div class="palette-row" id="pitch-palette"></div>
+            </div>
+          </div>
+          <p id="pitch-logline" style="font-size:0.9rem; margin:0.55rem 0 0 0; color:var(--ink); padding-top:0.55rem; border-top:1px solid var(--line);">
+            ตลาดน้ำริมคลองกรุงเทพฯ ในปี 2088 ที่เรือหางยาวเปลี่ยนมาใช้รางแม่เหล็กไฟฟ้าเหนือผิวน้ำ โดยมีหุ่นยนต์ทองเหลืองคอยชงชาไทยเย็นขายให้คนเดินตลาดช่วงหัวค่ำ
+          </p>
+        </div>
+
+        <!-- 3-Scene Storyboard Cards -->
+        <div class="scenes-grid" id="scenes-container"></div>
+
+        <!-- Under the Hood Code & JSON Inspector -->
+        <div class="inspector-card">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:0.75rem; flex-wrap:wrap; margin-bottom:0.75rem;">
+            <div>
+              <h3 style="margin:0; font-size:1.02rem;">ดูข้อมูลเบื้องหลัง: JSON จาก LM Studio และโค้ด Python ที่ส่งเข้า ComfyUI</h3>
+              <p style="margin:0.15rem 0 0 0; font-size:0.8rem; color:var(--muted);">เปิดดูโครงสร้าง JSON ที่โมเดลภาษาส่งกลับมา ค่าพารามิเตอร์ในโหนด ComfyUI และโค้ด Python ที่ใช้รันจริง</p>
+            </div>
+          </div>
+
+          <div class="tab-bar" role="tablist" aria-label="ดูข้อมูลเบื้องหลัง">
+            <button type="button" class="tab-btn" role="tab" id="tab-json-btn" aria-selected="true" aria-controls="panel-json">
+              1. LM Studio JSON Output (ต่อยอด Module 2)
+            </button>
+            <button type="button" class="tab-btn" role="tab" id="tab-comfy-btn" aria-selected="false" aria-controls="panel-comfy">
+              2. ComfyUI Mutated Node Payload (ต่อยอด Module 3)
+            </button>
+            <button type="button" class="tab-btn" role="tab" id="tab-python-btn" aria-selected="false" aria-controls="panel-python">
+              3. โค้ด Python เต็มรูปแบบ (05-bonus-showcase/app.py)
+            </button>
+          </div>
+
+          <div id="panel-json" role="tabpanel" aria-labelledby="tab-json-btn">
+            <div class="code-wrap">
+              <div class="code-bar">
+                <span>LM Studio Structured Response (http://localhost:1234/v1/chat/completions)</span>
+                <button type="button" class="copy-btn" data-copy-target="inspector-json-code" aria-label="Copy LM Studio JSON Output">Copy JSON</button>
+              </div>
+              <pre class="code-pre" tabindex="0"><code id="inspector-json-code"></code></pre>
+            </div>
+          </div>
+
+          <div id="panel-comfy" role="tabpanel" aria-labelledby="tab-comfy-btn" hidden>
+            <div class="code-wrap">
+              <div class="code-bar">
+                <span>ComfyUI API Graph Mutation (POST http://127.0.0.1:8188/prompt)</span>
+                <button type="button" class="copy-btn" data-copy-target="inspector-comfy-code" aria-label="Copy ComfyUI API Payload">Copy Payload</button>
+              </div>
+              <pre class="code-pre" tabindex="0"><code id="inspector-comfy-code"></code></pre>
+            </div>
+          </div>
+
+          <div id="panel-python" role="tabpanel" aria-labelledby="tab-python-btn" hidden>
+            <div class="code-wrap">
+              <div class="code-bar">
+                <span>Python Self-Study Pipeline (รันได้ทันทีด้วย python 05-bonus-showcase/app.py)</span>
+                <button type="button" class="copy-btn" data-copy-target="inspector-python-code" aria-label="Copy Python Storyboard Pipeline code">Copy Python</button>
+              </div>
+              <pre class="code-pre" tabindex="0"><code id="inspector-python-code">import json, time, urllib.request
+from openai import OpenAI
+import requests
+
+# 1. ต่อยอดจาก Module 2: สั่ง LM Studio แตกไอเดียภาษาไทย 1 บรรทัดเป็น Storyboard 3 ฉาก (JSON)
+llm = OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")
+
+DIRECTOR_SYSTEM_PROMPT = """You are an AI Film &amp; Storyboard Director.
+Given a Thai concept, return ONLY valid JSON with:
+{
+  "project_title_th": "...",
+  "project_title_en": "...",
+  "logline_th": "...",
+  "color_palette": ["#hex1", "#hex2", "#hex3", "#hex4"],
+  "scenes": [
+    {
+      "scene_number": 1,
+      "title_th": "...",
+      "camera_angle": "Wide Establishing Shot, 24mm lens",
+      "narration_th": "...",
+      "sd_positive_prompt": "detailed English prompt for Stable Diffusion 1.5...",
+      "sd_negative_prompt": "blurry, watermark, text, deformed, low quality"
+    }
+  ]
+} (Always generate exactly 3 scenes)."""
+
+def direct_storyboard(thai_idea: str, style_keywords: str) -> dict:
+    res = llm.chat.completions.create(
+        model="local-model",
+        messages=[
+            {"role": "system", "content": DIRECTOR_SYSTEM_PROMPT},
+            {"role": "user", "content": f"แนวคิด: {thai_idea}\nสไตล์ภาพ: {style_keywords}"}
+        ],
+        temperature=0.45,
+        max_tokens=900
+    )
+    raw = res.choices[0].message.content.strip()
+    return json.loads(raw[raw.find("{"):raw.rfind("}")+1])
+
+# 2. ต่อยอดจาก Module 3 &amp; 4: วนลูปส่งแต่ละฉากเข้า ComfyUI API (512x512, RTX 3050 6GB Safe)
+def render_scene_comfyui(workflow_template: dict, scene: dict, seed: int) -> bytes:
+    wf = json.loads(json.dumps(workflow_template))
+    wf["6"]["inputs"]["text"] = scene["sd_positive_prompt"]
+    wf["7"]["inputs"]["text"] = scene["sd_negative_prompt"]
+    wf["3"]["inputs"]["seed"] = seed
+    wf["3"]["inputs"]["steps"] = 20
+    wf["3"]["inputs"]["cfg"] = 7.5
+
+    r = requests.post("http://127.0.0.1:8188/prompt", json={"prompt": wf}, timeout=10)
+    prompt_id = r.json()["prompt_id"]
+    while True:
+        hist = requests.get(f"http://127.0.0.1:8188/history/{prompt_id}", timeout=5).json()
+        if prompt_id in hist:
+            img_info = hist[prompt_id]["outputs"]["9"]["images"][0]
+            view_url = f"http://127.0.0.1:8188/view?filename={img_info['filename']}&amp;subfolder={img_info['subfolder']}&amp;type={img_info['type']}"
+            return urllib.request.urlopen(view_url).read()
+        time.sleep(1.0)</code></pre>
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Native Modal Dialog: Architecture X-Ray & Self-Study Guide -->
+  <dialog id="xray-dialog" class="x-ray-dialog" closedby="any" aria-labelledby="xray-dialog-title">
+    <div class="dialog-head">
+      <div>
+        <span class="pill-tag">Self-Study Blueprint</span>
+        <h2 id="xray-dialog-title" style="margin:0.25rem 0 0 0; font-size:1.2rem;">วิธีนำโค้ดจากคลาส 6 ชั่วโมง มาประกอบเป็นโปรเจกต์นี้</h2>
+      </div>
+      <form method="dialog">
+        <button type="submit" class="btn-ghost" autofocus>ปิดหน้าต่าง (Esc)</button>
+      </form>
+    </div>
+    <div class="dialog-body">
+      <p style="margin-top:0; font-size:0.9rem; color:var(--muted);">
+        <strong>CineLocal Studio</strong> ใช้เฉพาะไลบรารีมาตรฐานที่อยู่ในไฟล์ <code>requirements.txt</code> ของคลาสเรียน โดยนำโค้ดจากทั้ง 4 โมดูลมาต่อกันตามลำดับนี้:
+      </p>
+
+      <div style="display:grid; gap:0.85rem; margin:1rem 0;">
+        <div style="padding:0.9rem; border-radius:0.7rem; border:1px solid var(--line); background:var(--paper);">
+          <strong style="color:var(--brand);">ขั้นที่ 1: ปรับ System Prompt ให้ส่งกลับเป็นลิสต์ 3 ฉาก (ต่อยอด Module 2)</strong>
+          <p style="margin:0.3rem 0 0 0; font-size:0.84rem;">
+            ในห้องเรียนเราสั่งให้ LM Studio ตอบกลับเป็น JSON ที่มี <code>positive_prompt</code> เดียว ส่วนในโปรเจกต์นี้เราแก้ <code>SYSTEM_PROMPT</code> ให้ส่งลิสต์ <code>"scenes": [...]</code> ออกมา 3 ฉาก พร้อมระบุมุมกล้อง (<code>camera_angle</code>) คำบรรยายฉากภาษาไทย (<code>narration_th</code>) และชุดสีประจำเรื่อง (<code>color_palette</code>)
+          </p>
+        </div>
+
+        <div style="padding:0.9rem; border-radius:0.7rem; border:1px solid var(--line); background:var(--paper);">
+          <strong style="color:var(--brand);">ขั้นที่ 2: ใช้ For-Loop ส่งเรนเดอร์ทีละฉากเพื่อไม่ให้ VRAM 6GB ล้น (ต่อยอด Module 3 &amp; 4)</strong>
+          <p style="margin:0.3rem 0 0 0; font-size:0.84rem;">
+            ถ้าตั้งค่า <code>batch_size = 3</code> ในโหนด <code>Empty Latent Image</code> การ์ดจอ RTX 3050 (6GB VRAM) มีโอกาสค้างหรือเกิด Out of Memory เราจึงใช้ลูป <code>for scene in storyboard["scenes"]:</code> ใน Python ยิง HTTP POST ไปที่ <code>/prompt</code> ทีละฉากแทน และขยับค่า <code>base_seed + index</code> เพื่อให้ภาพทั้ง 3 ฉากคุมโทนใกล้เคียงกันโดยใช้ VRAM ประมาณ 4.2 GB
+          </p>
+        </div>
+
+        <div style="padding:0.9rem; border-radius:0.7rem; border:1px solid var(--line); background:var(--paper);">
+          <strong style="color:var(--brand);">ขั้นที่ 3: รันสคริปต์จริงจากโฟลเดอร์ <code>05-bonus-showcase/</code></strong>
+          <p style="margin:0.3rem 0 0 0; font-size:0.84rem;">
+            ในโปรเจกต์มีไฟล์ <code>05-bonus-showcase/app.py</code> เตรียมไว้ให้แล้ว เปิด LM Studio (พอร์ต <code>1234</code>) กับ ComfyUI (พอร์ต <code>8188</code>) แล้วรันคำสั่งด้านล่างได้เลย:
+          </p>
+          <pre class="code-pre" tabindex="0" style="margin-top:0.5rem; border-radius:0.5rem;"><code>python 05-bonus-showcase/app.py</code></pre>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="footer">
+    <div class="container">
+      <p style="margin:0; font-weight:700; color:var(--ink);">
+        Mastering Local AI Stack 2026: Jupyter Notebook × LM Studio × ComfyUI
+      </p>
+      <p style="margin:0.3rem 0 0 0;">
+        โปรเจกต์ตัวอย่างสำหรับฝึกเขียนโค้ดต่อยอดหลังจบคลาส • ทดลองรันในโหมดจำลองบนหน้าเว็บ หรือต่อเข้ากับ Local AI Server บนเครื่องได้ทันที
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Studio Script -->
+  <script>
+    const STYLE_CONFIGS = {
+      cyberpunk: {
+        name: 'Cyberpunk Neon',
+        cfg: 7.5,
+        steps: 20,
+        suffix: 'cyberpunk neon lighting, wet pavement reflections, teal and amber glow, 35mm anamorphic lens, detailed',
+        negative: 'blurry, low quality, daylight, flat lighting, watermark, text, deformed hands'
+      },
+      cinematic: {
+        name: 'Golden Hour Film',
+        cfg: 7.0,
+        steps: 20,
+        suffix: 'golden hour sunlight, morning mist, Kodak Portra 400 film grain, 50mm prime lens, shallow depth of field, photorealistic',
+        negative: 'blurry, neon, cartoon, oversaturated, watermark, text, ugly, low resolution'
+      },
+      watercolor: {
+        name: 'Ghibli Anime Art',
+        cfg: 6.5,
+        steps: 20,
+        suffix: 'Studio Ghibli inspired hand-painted background art, gouache and watercolor textures, warm natural lighting, soft clouds',
+        negative: 'photorealistic, 3d render, gritty, dark horror, blurry, watermark, text'
+      },
+      isometric: {
+        name: 'Isometric 3D Box',
+        cfg: 8.0,
+        steps: 22,
+        suffix: 'isometric 3D miniature cutaway diorama, tilt-shift macro lens, Octane render, soft studio lighting, clay and glass materials',
+        negative: 'first person view, blurry, flat 2d, messy background, watermark, text, cropped'
+      }
+    };
+
+    const PRESET_STORIES = {
+      bangkok2088: {
+        idea: 'ตลาดน้ำอัจฉริยะในกรุงเทพปี 2088 ที่เรือหางยาวขับเคลื่อนด้วยพลังงานแม่เหล็กไฟฟ้าและมีหุ่นยนต์บาริสต้าชงชาไทยโบราณริมคลองเรืองแสง',
+        style: 'cyberpunk',
+        genre: 'Sci-Fi Street Culture • 3-Scene Storyboard',
+        project_title_th: 'คลองบางกอก 2088: ตลาดน้ำเรือแม่เหล็กไฟฟ้า',
+        project_title_en: 'KHLONG BANGKOK 2088: MAGLEV FLOATING MARKET',
+        logline_th: 'ตลาดน้ำริมคลองกรุงเทพฯ ในปี 2088 ที่เรือหางยาวเปลี่ยนมาใช้รางแม่เหล็กไฟฟ้าเหนือผิวน้ำ โดยมีหุ่นยนต์ทองเหลืองคอยชงชาไทยเย็นขายให้คนเดินตลาดช่วงหัวค่ำ',
+        color_palette: ['#0F172A', '#00F5D4', '#FF7B00', '#F43F5E'],
+        scenes: [
+          {
+            scene_number: 1,
+            title_th: 'ฉากที่ 1: เรือหางยาวแม่เหล็กไฟฟ้าแล่นเข้าตลาดริมคลองช่วงค่ำ',
+            camera_angle: 'Wide Establishing Shot • 24mm Anamorphic',
+            seed: 208801,
+            narration_th: 'ป้ายไฟนีออนสีเขียวมรกตและสีส้มส่องสะท้อนผิวน้ำในคลอง เรือหางยาวติดเครื่องยนต์แม่เหล็กไฟฟ้าลอยตัวเหนือน้ำอย่างนิ่มนวล ผ่านหน้าบ้านไม้สองชั้นที่แขวนป้ายเมนูโฮโลแกรมภาษาไทย',
+            sd_positive_prompt: 'wide establishing shot of futuristic Bangkok floating market in year 2088 at night, magnetic levitating long-tail boats glowing with cyan thrusters, wooden canal houses with holographic Thai signs, neon reflections on water, 35mm anamorphic lens',
+            sd_negative_prompt: 'blurry, low quality, watermark, text, deformed, daytime, dull colors',
+            art_theme: 'canal_wide'
+          },
+          {
+            scene_number: 2,
+            title_th: 'ฉากที่ 2: หุ่นยนต์บาริสต้าชักชาไทยบนหัวเรือไม้สัก',
+            camera_angle: 'Medium Tracking Shot • 50mm Prime f/1.4',
+            seed: 208802,
+            narration_th: 'บนหัวเรือไม้สัก หุ่นยนต์บาริสต้าบอดี้ทองเหลืองกำลังยกกระบอกทองแดงเทชาไทยสีส้มสลับไปมาผ่านถุงกรองผ้า ไอน้ำร้อนลอยกระทบแสงไฟนีออนจากร้านค้าริมตลิ่ง',
+            sd_positive_prompt: 'medium shot of brass and porcelain humanoid barista robot on a wooden boat pouring steaming orange Thai iced tea between two copper mugs, glowing optical sensors, steam lit by teal and amber neon lights, shallow depth of field, 50mm lens',
+            sd_negative_prompt: 'blurry, extra limbs, bad anatomy, watermark, text, low resolution',
+            art_theme: 'robot_tea'
+          },
+          {
+            scene_number: 3,
+            title_th: 'ฉากที่ 3: แก้วชาไทยเย็นวางเสิร์ฟบนเคาน์เตอร์เรือท่ามกลางละอองฝน',
+            camera_angle: 'Macro Hero Close-Up • 85mm Lens',
+            seed: 208803,
+            narration_th: 'แก้วชาไทยใส่น้ำแข็งราดนมสดด้านบนวางอยู่บนเคาน์เตอร์ไม้เปียกชื้น หยดน้ำข้างแก้วสะท้อนแสงไฟจากพระปรางค์วัดอรุณฯ และป้ายไฟนีออนที่อยู่ฝั่งตรงข้ามคลอง',
+            sd_positive_prompt: 'close-up hero shot of a frosted glass of orange Thai milk tea with condensed milk layer on top, resting on wet teak wood boat counter, reflections of glowing Wat Arun spire in the background bokeh, raindrops, 85mm macro lens',
+            sd_negative_prompt: 'blurry, deformed glass, watermark, text, flat lighting, low quality',
+            art_theme: 'tea_closeup'
+          }
+        ]
+      },
+      maehongson: {
+        idea: 'แคมเปญแบรนด์กาแฟดริปออร์แกนิกจากยอดดอยแม่ฮ่องสอน ท่ามกลางทะเลหมอกยามเช้าและแสงอาทิตย์สีทองที่ส่องผ่านป่าสน',
+        style: 'cinematic',
+        genre: 'Coffee Brand Film • 3-Scene Storyboard',
+        project_title_th: 'ดอยแม่ฮ่องสอนยามเช้า: กาแฟดริปอาราบิก้าคั่วสด',
+        project_title_en: 'MORNING IN MAE HONG SON: SINGLE ORIGIN DRIP COFFEE',
+        logline_th: 'ภาพยนตร์โฆษณาสั้นเล่าขั้นตอนตั้งแต่การเก็บผลกาแฟเชอร์รีสุกสีแดงใต้ร่มสนบนดอยแม่ฮ่องสอน ไปจนถึงการดริปกาแฟร้อนริมระเบียงไม้ท่ามกลางหมอกเช้า',
+        color_palette: ['#1B3022', '#D97706', '#FDE68A', '#78350F'],
+        scenes: [
+          {
+            scene_number: 1,
+            title_th: 'ฉากที่ 1: แสงแดดเช้าส่องผ่านแนวสนและแปลงกาแฟบนดอย',
+            camera_angle: 'Aerial Drone Wide Shot • 24mm Golden Hour',
+            seed: 58001,
+            narration_th: 'แสงแดดช่วงหกโมงเช้าส่องลอดแนวต้นสนลงมาที่ไหล่เขาแม่ฮ่องสอน หมอกขาวลอยคลออยู่ตามพุ่มกาแฟอาราบิก้าที่มีผลเชอร์รีสีแดงสุกเต็มกิ่ง',
+            sd_positive_prompt: 'wide landscape of Mae Hong Son mountain peaks at sunrise, morning mist rolling through pine forest, coffee plantation with ripe red coffee cherries in foreground, warm sun rays, Kodak Portra 400, 24mm lens',
+            sd_negative_prompt: 'blurry, artificial, cyberpunk, neon, watermark, text, overcast',
+            art_theme: 'mountain_mist'
+          },
+          {
+            scene_number: 2,
+            title_th: 'ฉากที่ 2: รินน้ำร้อนจากกาดริปทองแดงลงบนผงกาแฟคั่วบดใหม่',
+            camera_angle: 'Close-Up Slow Motion • 50mm Macro',
+            seed: 58002,
+            narration_th: 'กาดริปปากยาวรินน้ำร้อนวนช้าๆ ลงบนผงกาแฟในกรวยเซรามิก ผงกาแฟค่อยๆ พองตัวขึ้นพร้อมฟองละเอียดสีน้ำตาลทอง และมีไอน้ำลอยขึ้นตัดกับแสงแดด',
+            sd_positive_prompt: 'close-up of copper gooseneck kettle pouring hot water into ceramic V60 coffee dripper on wooden balcony, blooming coffee grounds with golden crema bubbles, rising steam backlit by morning sun, misty mountains background, 50mm macro',
+            sd_negative_prompt: 'blurry, plastic cup, messy, watermark, text, bad hands',
+            art_theme: 'coffee_pour'
+          },
+          {
+            scene_number: 3,
+            title_th: 'ฉากที่ 3: แก้วเซรามิกใส่กาแฟดำร้อนวางคู่เมล็ดกาแฟคั่วบนโต๊ะไม้ไผ่',
+            camera_angle: 'Hero Product Shot • 85mm Portrait Lens',
+            seed: 58003,
+            narration_th: 'กาแฟดำสีน้ำตาลใสในแก้วเซรามิกปั้นมือวางอยู่บนโต๊ะไม้ไผ่ ข้างกันมีเมล็ดกาแฟคั่วกลางวางกระจายอยู่เล็กน้อย ด้านหลังเป็นวิวทิวเขาแม่ฮ่องสอนที่หมอกเริ่มจางลง',
+            sd_positive_prompt: 'product photography of handcrafted ceramic mug filled with amber black coffee on bamboo table, roasted coffee beans scattered beside it, view of sunlit Mae Hong Son misty valleys in soft bokeh background, 85mm lens',
+            sd_negative_prompt: 'blurry, watermark, logo text, oversaturated, low quality',
+            art_theme: 'mug_hero'
+          }
+        ]
+      },
+      himmapan: {
+        idea: 'นิทานแฟนตาซี: นักศึกษาวิศวกรรมศาสตร์สร้างโดรนสำรวจทรงกินรีบินเข้าไปสำรวจวิหารโบราณเรืองแสงกลางป่าหิมพานต์',
+        style: 'watercolor',
+        genre: 'Animation Concept Pitch • 3-Scene Storyboard',
+        project_title_th: 'โดรนกินรี: บันทึกการสำรวจวิหารกลางป่าหิมพานต์',
+        project_title_en: 'KINNAREE DRONE: FIELD NOTES FROM HIMMAPAN RUINS',
+        logline_th: 'โปรเจกต์แอนิเมชันขนาดสั้นว่าด้วยนักศึกษาวิศวกรรมที่ประกอบโดรนปีกกระพือทรงกินรี แล้วส่งเข้าไปเก็บข้อมูลแผนที่สามมิติในวิหารร้างกลางป่าหิมพานต์',
+        color_palette: ['#14532D', '#38BDF8', '#FACC15', '#E879F9'],
+        scenes: [
+          {
+            scene_number: 1,
+            title_th: 'ฉากที่ 1: โดรนปีกกลบินผ่านน้ำตกและต้นไม้ใหญ่เข้าเขตวิหาร',
+            camera_angle: 'Wide Concept Art • Panoramic Frame',
+            seed: 77101,
+            narration_th: 'โดรนสำรวจสีทองขนาดเท่าฝ่ามือกระพือปีกบินเลียบน้ำตกสีเขียวอมฟ้า ลัดเลาะผ่านรากไม้ใหญ่ที่มีมอสเรืองแสงเกาะอยู่เพื่อมุ่งหน้าไปยังซุ้มประตูวิหารหิน',
+            sd_positive_prompt: 'Studio Ghibli style hand-painted concept art of lush forest, giant banyan trees and emerald waterfalls, a small golden mechanical bird-like drone flying across sunbeams, watercolor and gouache texture',
+            sd_negative_prompt: 'photorealistic, dark gritty, blurry, watermark, text, ugly',
+            art_theme: 'forest_shrine'
+          },
+          {
+            scene_number: 2,
+            title_th: 'ฉากที่ 2: เลเซอร์สีฟ้าจากหน้าอกโดรนสแกนลายสลักบนเสาศิลาแลง',
+            camera_angle: 'Medium Dynamic Shot • 35mm Lens',
+            seed: 77102,
+            narration_th: 'ตัวโดรนลอยนิ่งอยู่หน้าเสาศิลาแลงภายในวิหาร กล้องด้านหน้าฉายเส้นเลเซอร์สีฟ้าอ่อนไล่เก็บรายละเอียดลายกนกและอักษรโบราณที่สลักอยู่บนผิวหิน',
+            sd_positive_prompt: 'anime background painting of an ornate golden mechanical drone with Thai motifs hovering inside an overgrown stone temple, projecting a cyan scan beam onto ancient stone carvings, sunlight through vines, warm painted texture',
+            sd_negative_prompt: 'blurry, modern office, watermark, text, low quality',
+            art_theme: 'drone_scan'
+          },
+          {
+            scene_number: 3,
+            title_th: 'ฉากที่ 3: กลไกกลางโถงวิหารฉายแผนที่กลุ่มดาวขึ้นบนเพดานโดม',
+            camera_angle: 'Low Angle Climax Shot • 24mm Wide',
+            seed: 77103,
+            narration_th: 'เมื่อโดรนส่งสัญญาณครบรอบ แท่นหินกลมกลางสระบัวก็หมุนเปิดออกและฉายภาพโฮโลแกรมแผนที่กลุ่มดาวขึ้นไปบนเพดานโดมของวิหาร',
+            sd_positive_prompt: 'low-angle painted anime scene inside ancient sanctuary dome, stone pedestal projecting a glowing golden star map onto ceiling, moss and lotus pond reflecting the light, Studio Ghibli background art style',
+            sd_negative_prompt: 'blurry, bad composition, watermark, text, dull colors',
+            art_theme: 'star_sanctuary'
+          }
+        ]
+      },
+      cybercat: {
+        idea: 'ภาพยนตร์สั้นแอนิเมชัน: แมวส้มนักสืบไซเบอร์สวมแว่น AR ไขคดีข้อมูลหายในห้องเซิร์ฟเวอร์เรืองแสงยามเที่ยงคืน',
+        style: 'isometric',
+        genre: '3D Short Film Pitch • 3-Scene Storyboard',
+        project_title_th: 'สารวัตรเหมียวส้ม: คดีปริศนาห้องเซิร์ฟเวอร์เที่ยงคืน',
+        project_title_en: 'AGENT GINGER: THE MIDNIGHT SERVER HEIST',
+        logline_th: 'เมื่อแพ็กเกจข้อมูลลับของมหาวิทยาลัยหายไปในคืนก่อนส่งโปรเจกต์ สารวัตรแมวส้มพร้อมแว่นขยายโฮโลแกรมจึงต้องออกตามรอยอุ้งเท้าดิจิทัลในห้องเซิร์ฟเวอร์',
+        color_palette: ['#1E1B4B', '#FB923C', '#2DD4BF', '#A855F7'],
+        scenes: [
+          {
+            scene_number: 1,
+            title_th: 'ฉากที่ 1: ห้องเซิร์ฟเวอร์ย่อส่วนและไฟสถานะสีม่วงที่ตู้แร็ค 04',
+            camera_angle: 'Isometric 3D Cutaway • Tilt-Shift Macro',
+            seed: 99401,
+            narration_th: 'ภายในห้องเซิร์ฟเวอร์ตอนเที่ยงคืน ตู้แร็คเรียงแถวส่องไฟสถานะสีเขียวมิ้นต์ตามปกติ ยกเว้นตู้หมายเลข 04 ที่ไฟเปลี่ยนเป็นสีม่วงกะพริบพร้อมเสียงพัดลมดังผิดจังหวะ',
+            sd_positive_prompt: 'isometric 3D miniature cutaway diorama of a glowing server room at midnight, cute orange tabby cat detective wearing a tiny trench coat and AR monocle examining server racks, Octane render, tilt-shift macro, soft studio lighting',
+            sd_negative_prompt: 'flat 2d, blurry, realistic human, watermark, text, cropped',
+            art_theme: 'iso_server'
+          },
+          {
+            scene_number: 2,
+            title_th: 'ฉากที่ 2: แว่น AR ตรวจพบรอยเท้าหนูไขลานบนสายไฟเบอร์ออปติก',
+            camera_angle: 'Close-Up Character Shot • 50mm 3D Render',
+            seed: 99402,
+            narration_th: 'สารวัตรแมวส้มแตะขาแว่น AR เพื่อเปิดโหมดสแกนความร้อน หน้าจอเลนส์แสดงรอยเท้าขนาดจิ๋วเดินเรียงไปตามท่อสายไฟเบอร์ออปติกมุ่งตรงไปยังใต้โต๊ะควบคุม',
+            sd_positive_prompt: '3D stylized Octane render close-up of a fluffy orange cat detective peering through a glowing cyan magnifying glass at tiny glowing footprints on fiber optic cables, emerald eyes, warm rim lighting, detailed fur',
+            sd_negative_prompt: 'blurry, ugly, deformed eyes, watermark, text, low quality',
+            art_theme: 'cat_monocle'
+          },
+          {
+            scene_number: 3,
+            title_th: 'ฉากที่ 3: เจอหนูของเล่นไขลานคาบแฟลชไดรฟ์และเสียบคืนพอร์ตสำเร็จ',
+            camera_angle: 'Hero Victory Shot • Isometric Diorama',
+            seed: 99403,
+            narration_th: 'ใต้โต๊ะควบคุม เจ้าหนูของเล่นไขลานกำลังคาบแฟลชไดรฟ์สำรองข้อมูลไปซ่อนไว้ข้างกล่องสายไฟ สารวัตรแมวส้มจึงหยิบแฟลชไดรฟ์กลับไปเสียบเข้าพอร์ตจนไฟสถานะกลับมาเป็นสีเขียวครบทุกตู้',
+            sd_positive_prompt: '3D isometric render of orange tabby cat detective standing beside a green computer terminal displaying checkmark icon, a tiny clockwork toy mouse holding a USB drive next to it, cozy server desk, Octane render',
+            sd_negative_prompt: 'blurry, scary, dark, watermark, text, deformed',
+            art_theme: 'cat_victory'
+          }
+        ]
+      }
+    };
+
+    let currentPresetKey = 'bangkok2088';
+    let currentStyleKey = 'cyberpunk';
+    let executionMode = 'simulation'; // 'simulation' | 'live'
+    let currentStoryboard = JSON.parse(JSON.stringify(PRESET_STORIES.bangkok2088));
+
+    // Generate rich procedural SVG artwork for each scene so the Instant Demo looks stunning offline
+    function buildSceneSVG(scene, palette, styleKey) {
+      const c0 = palette[0] || '#101820';
+      const c1 = palette[1] || '#2e7d5b';
+      const c2 = palette[2] || '#f59e0b';
+      const c3 = palette[3] || '#ec4899';
+      const idx = scene.scene_number;
+
+      if (idx === 1) {
+        return `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${scene.title_th}">
+          <defs>
+            <linearGradient id="sky-${scene.seed}" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${c0}" />
+              <stop offset="62%" stop-color="#1b2838" />
+              <stop offset="100%" stop-color="${c1}" stop-opacity="0.55" />
+            </linearGradient>
+            <radialGradient id="sun-${scene.seed}" cx="50%" cy="38%" r="36%">
+              <stop offset="0%" stop-color="${c2}" stop-opacity="0.95" />
+              <stop offset="55%" stop-color="${c3}" stop-opacity="0.35" />
+              <stop offset="100%" stop-color="${c0}" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <rect width="512" height="512" fill="url(#sky-${scene.seed})" />
+          <circle cx="256" cy="195" r="175" fill="url(#sun-${scene.seed})" />
+          <!-- Distant Silhouette Architecture / Mountains -->
+          <polygon points="0,330 65,240 120,285 185,175 240,260 256,135 278,260 335,190 405,275 460,220 512,310 512,360 0,360" fill="#0b1116" opacity="0.82" />
+          <!-- Glowing Windows / Lights -->
+          <g fill="${c1}" opacity="0.85">
+            <rect x="82" y="275" width="18" height="6" rx="2" />
+            <rect x="176" y="220" width="14" height="22" rx="2" />
+            <rect x="328" y="232" width="16" height="20" rx="2" />
+            <rect x="435" y="265" width="22" height="8" rx="2" />
+          </g>
+          <!-- Water / Mist Horizon -->
+          <rect x="0" y="345" width="512" height="167" fill="#090f14" opacity="0.9" />
+          <!-- Reflections -->
+          <g stroke="${c2}" stroke-width="3" stroke-linecap="round" opacity="0.65">
+            <line x1="210" y1="365" x2="302" y2="365" />
+            <line x1="190" y1="385" x2="320" y2="385" />
+            <line x1="220" y1="408" x2="295" y2="408" />
+            <line x1="175" y1="432" x2="335" y2="432" stroke="${c1}" />
+          </g>
+          <!-- Foreground Vessel / Subject Silhouette -->
+          <path d="M 110 405 Q 256 445 402 395 L 365 438 L 148 438 Z" fill="#162129" stroke="${c1}" stroke-width="2" />
+          <circle cx="256" cy="398" r="7" fill="${c2}" />
+          <!-- Framing HUD Overlay -->
+          <rect x="18" y="18" width="476" height="476" rx="12" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="6 6" />
+          <text x="32" y="480" fill="rgba(255,255,255,0.75)" font-family="JetBrains Mono, monospace" font-size="11">SD1.5 • 512x512 • SEED ${scene.seed} • ${styleKey.toUpperCase()}</text>
+        </svg>`;
+      }
+
+      if (idx === 2) {
+        return `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${scene.title_th}">
+          <defs>
+            <linearGradient id="bg2-${scene.seed}" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${c0}" />
+              <stop offset="55%" stop-color="#1e293b" />
+              <stop offset="100%" stop-color="${c1}" stop-opacity="0.45" />
+            </linearGradient>
+          </defs>
+          <rect width="512" height="512" fill="url(#bg2-${scene.seed})" />
+          <!-- Bokeh Circles -->
+          <circle cx="110" cy="130" r="42" fill="${c2}" opacity="0.22" />
+          <circle cx="410" cy="110" r="58" fill="${c1}" opacity="0.2" />
+          <circle cx="380" cy="280" r="34" fill="${c3}" opacity="0.22" />
+          <circle cx="95" cy="320" r="28" fill="${c1}" opacity="0.25" />
+          <!-- Central Character / Action Silhouette -->
+          <rect x="166" y="135" width="180" height="230" rx="28" fill="#131c24" stroke="${c1}" stroke-width="2.5" />
+          <circle cx="256" cy="210" r="46" fill="#0d141a" stroke="${c2}" stroke-width="2.5" />
+          <circle cx="238" cy="206" r="8" fill="${c1}" />
+          <circle cx="274" cy="206" r="8" fill="${c1}" />
+          <!-- Flowing Energy / Pouring Stream -->
+          <path d="M 256 262 C 215 310, 295 340, 256 410" fill="none" stroke="${c2}" stroke-width="8" stroke-linecap="round" />
+          <path d="M 256 262 C 235 310, 275 340, 256 410" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.7" />
+          <rect x="216" y="395" width="80" height="58" rx="10" fill="${c2}" opacity="0.88" />
+          <rect x="18" y="18" width="476" height="476" rx="12" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="6 6" />
+          <text x="32" y="480" fill="rgba(255,255,255,0.75)" font-family="JetBrains Mono, monospace" font-size="11">SD1.5 • 512x512 • SEED ${scene.seed} • ${styleKey.toUpperCase()}</text>
+        </svg>`;
+      }
+
+      return `<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${scene.title_th}">
+        <defs>
+          <radialGradient id="hero3-${scene.seed}" cx="50%" cy="48%" r="52%">
+            <stop offset="0%" stop-color="${c2}" stop-opacity="0.55" />
+            <stop offset="55%" stop-color="${c1}" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="${c0}" stop-opacity="1" />
+          </radialGradient>
+        </defs>
+        <rect width="512" height="512" fill="${c0}" />
+        <circle cx="256" cy="250" r="230" fill="url(#hero3-${scene.seed})" />
+        <!-- Macro Hero Object -->
+        <rect x="70" y="380" width="372" height="18" rx="9" fill="#273545" />
+        <rect x="186" y="175" width="140" height="205" rx="22" fill="rgba(255,255,255,0.08)" stroke="${c2}" stroke-width="3" />
+        <rect x="196" y="215" width="120" height="155" rx="14" fill="${c2}" opacity="0.82" />
+        <ellipse cx="256" cy="215" rx="60" ry="14" fill="#fffbeb" opacity="0.9" />
+        <!-- Ambient Sparkles -->
+        <circle cx="150" cy="165" r="5" fill="${c1}" />
+        <circle cx="368" cy="190" r="6" fill="${c3}" />
+        <circle cx="340" cy="125" r="4" fill="#ffffff" />
+        <circle cx="195" cy="115" r="3.5" fill="${c2}" />
+        <rect x="18" y="18" width="476" height="476" rx="12" fill="none" stroke="rgba(255,255,255,0.14)" stroke-dasharray="6 6" />
+        <text x="32" y="480" fill="rgba(255,255,255,0.75)" font-family="JetBrains Mono, monospace" font-size="11">SD1.5 • 512x512 • SEED ${scene.seed} • ${styleKey.toUpperCase()}</text>
+      </svg>`;
+    }
+
+    // Build custom Storyboard when user edits the Thai text input with their own custom idea
+    function synthesizeCustomStoryboard(customIdea, styleKey) {
+      const styleObj = STYLE_CONFIGS[styleKey] || STYLE_CONFIGS.cyberpunk;
+      const cleanIdea = customIdea.trim() || 'โลกอนาคตของนักพัฒนา AI ไทย';
+      const baseSeed = Math.floor(100000 + Math.random() * 800000);
+      const palettes = {
+        cyberpunk: ['#0F172A', '#00F5D4', '#FF7B00', '#F43F5E'],
+        cinematic: ['#1C1917', '#D97706', '#FDE68A', '#2E7D5B'],
+        watercolor: ['#14532D', '#38BDF8', '#FACC15', '#F472B6'],
+        isometric: ['#1E1B4B', '#FB923C', '#2DD4BF', '#A855F7']
+      };
+
+      return {
+        idea: cleanIdea,
+        style: styleKey,
+        genre: `Custom Storyboard • ${styleObj.name}`,
+        project_title_th: `โครงเรื่อง 3 ฉาก: ${cleanIdea.slice(0, 42)}${cleanIdea.length > 42 ? '...' : ''}`,
+        project_title_en: `LOCAL AI STORYBOARD DIRECTOR • ${styleObj.name.toUpperCase()} EDITION`,
+        logline_th: `แปลงโจทย์ "${cleanIdea}" ออกเป็นลำดับภาพ 3 ฉาก (มุมกว้าง มุมปานกลาง และมุมโคลสอัป) พร้อมคำสั่งวาดภาพสำหรับ Stable Diffusion 1.5`,
+        color_palette: palettes[styleKey] || palettes.cyberpunk,
+        scenes: [
+          {
+            scene_number: 1,
+            title_th: 'ฉากที่ 1: ภาพมุมกว้างปูบรรยากาศสถานที่ (Establishing Shot)',
+            camera_angle: 'Wide Establishing Shot • 24mm Cinema Lens',
+            seed: baseSeed + 1,
+            narration_th: `เปิดฉากด้วยภาพมุมกว้างของ "${cleanIdea}" เพื่อให้เห็นสถานที่ ช่วงเวลา และโทนแสงหลักของเรื่อง`,
+            sd_positive_prompt: `wide establishing shot illustrating the concept, environmental detail, ${styleObj.suffix}`,
+            sd_negative_prompt: styleObj.negative
+          },
+          {
+            scene_number: 2,
+            title_th: 'ฉากที่ 2: จับภาพตัวละครหรือเหตุการณ์กำลังดำเนินอยู่ (Medium Action Shot)',
+            camera_angle: 'Medium Tracking Shot • 50mm Prime Lens',
+            seed: baseSeed + 2,
+            narration_th: `ขยับกล้องเข้ามาที่ระยะกลางเพื่อจับภาพการกระทำของตัวละครหรือวัตถุหลักในโจทย์ "${cleanIdea}"`,
+            sd_positive_prompt: `medium character and subject focus shot, natural motion detail, ${styleObj.suffix}`,
+            sd_negative_prompt: styleObj.negative
+          },
+          {
+            scene_number: 3,
+            title_th: 'ฉากที่ 3: ภาพโคลสอัปเน้นรายละเอียดวัตถุหลัก (Close-Up Shot)',
+            camera_angle: 'Macro Hero Close-Up • 85mm Portrait Lens',
+            seed: baseSeed + 3,
+            narration_th: `เจาะภาพระยะใกล้ที่วัตถุหรือสีหน้าสำคัญของฉาก เพื่อใช้เป็นภาพปิดท้าย Storyboard`,
+            sd_positive_prompt: `close-up key visual shot, rim lighting, shallow depth of field bokeh, ${styleObj.suffix}`,
+            sd_negative_prompt: styleObj.negative
+          }
+        ]
+      };
+    }
+
+    function renderStoryboardToDOM(sb) {
+      document.getElementById('pitch-genre-badge').textContent = sb.genre || '3-Scene AI Storyboard';
+      document.getElementById('pitch-title-th').textContent = sb.project_title_th;
+      document.getElementById('pitch-title-en').textContent = sb.project_title_en;
+      document.getElementById('pitch-logline').textContent = sb.logline_th;
+
+      // Render color palette swatches
+      const paletteEl = document.getElementById('pitch-palette');
+      paletteEl.innerHTML = '';
+      (sb.color_palette || ['#2E7D5B', '#69B98E', '#181D19', '#F59E0B']).forEach((hex) => {
+        const sw = document.createElement('span');
+        sw.className = 'swatch';
+        sw.style.backgroundColor = hex;
+        sw.title = hex;
+        paletteEl.appendChild(sw);
+      });
+
+      // Render 3 Scene Cards
+      const container = document.getElementById('scenes-container');
+      container.innerHTML = '';
+
+      sb.scenes.forEach((scene) => {
+        const card = document.createElement('article');
+        card.className = 'scene-card';
+
+        const visualMarkup = scene.image_data_url
+          ? `<img src="${scene.image_data_url}" alt="${scene.title_th}" />`
+          : buildSceneSVG(scene, sb.color_palette, sb.style || currentStyleKey);
+
+        card.innerHTML = `
+          <div class="scene-visual">
+            ${visualMarkup}
+            <div class="scene-badge-top">
+              <span class="scene-chip scene-chip-num">SCENE 0${scene.scene_number}</span>
+              <span class="scene-chip" title="${scene.camera_angle}">${scene.camera_angle}</span>
+            </div>
+          </div>
+          <div class="scene-body">
+            <h3 class="scene-title">${scene.title_th}</h3>
+            <p class="scene-narration">${scene.narration_th}</p>
+            <div class="scene-prompt-box">
+              <div class="scene-prompt-label" style="white-space:nowrap;">
+                <span>Node "6" Prompt</span>
+                <span class="font-mono">seed: ${scene.seed || 42}</span>
+              </div>
+              <p class="scene-prompt-text" title="${scene.sd_positive_prompt.replace(/"/g, '&quot;')}">${scene.sd_positive_prompt}</p>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      // Update Inspector JSON & ComfyUI Payload
+      const cleanJson = {
+        project_title_th: sb.project_title_th,
+        project_title_en: sb.project_title_en,
+        logline_th: sb.logline_th,
+        color_palette: sb.color_palette,
+        scenes: sb.scenes.map((s) => ({
+          scene_number: s.scene_number,
+          title_th: s.title_th,
+          camera_angle: s.camera_angle,
+          narration_th: s.narration_th,
+          sd_positive_prompt: s.sd_positive_prompt,
+          sd_negative_prompt: s.sd_negative_prompt
+        }))
+      };
+      document.getElementById('inspector-json-code').textContent = JSON.stringify(cleanJson, null, 2);
+
+      const firstScene = sb.scenes[0];
+      const styleObj = STYLE_CONFIGS[currentStyleKey] || STYLE_CONFIGS.cyberpunk;
+      const comfyPayload = {
+        prompt: {
+          "3": {
+            class_type: "KSampler",
+            inputs: {
+              seed: firstScene.seed || 208801,
+              steps: styleObj.steps,
+              cfg: styleObj.cfg,
+              sampler_name: "euler",
+              scheduler: "normal",
+              denoise: 1.0,
+              model: ["4", 0],
+              positive: ["6", 0],
+              negative: ["7", 0],
+              latent_image: ["5", 0]
+            }
+          },
+          "4": {
+            class_type: "CheckpointLoaderSimple",
+            inputs: { ckpt_name: "v1-5-pruned-emaonly.safetensors" }
+          },
+          "5": {
+            class_type: "EmptyLatentImage",
+            inputs: { width: 512, height: 512, batch_size: 1 }
+          },
+          "6": {
+            class_type: "CLIPTextEncode",
+            inputs: { text: firstScene.sd_positive_prompt, clip: ["4", 1] }
+          },
+          "7": {
+            class_type: "CLIPTextEncode",
+            inputs: { text: firstScene.sd_negative_prompt, clip: ["4", 1] }
+          },
+          "8": {
+            class_type: "VAEDecode",
+            inputs: { samples: ["3", 0], vae: ["4", 2] }
+          },
+          "9": {
+            class_type: "SaveImage",
+            inputs: { filename_prefix: "CineLocal_Scene01", images: ["8", 0] }
+          }
+        }
+      };
+      document.getElementById('inspector-comfy-code').textContent = JSON.stringify(comfyPayload, null, 2);
+    }
+
+    function setNodeStates(activeNodeId, doneNodeIds) {
+      document.querySelectorAll('#node-strip .node-box').forEach((box) => {
+        const nid = box.getAttribute('data-node');
+        if (nid === activeNodeId) {
+          box.setAttribute('data-state', 'active');
+        } else if (doneNodeIds.includes(nid)) {
+          box.setAttribute('data-state', 'done');
+        } else {
+          box.setAttribute('data-state', 'idle');
+        }
+      });
+    }
+
+    const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    async function runSimulationPipeline() {
+      const btn = document.getElementById('generate-btn');
+      const btnLabel = document.getElementById('generate-btn-label');
+      const dot = document.getElementById('pipeline-dot');
+      const stageText = document.getElementById('pipeline-stage-text');
+      const vramReadout = document.getElementById('vram-readout');
+
+      btn.disabled = true;
+      dot.classList.add('active');
+
+      // Stage 1: LM Studio JSON Director
+      setNodeStates('llm', []);
+      stageText.textContent = 'Stage 1/3: กำลังส่งแนวคิดภาษาไทยให้ LM Studio (:1234) แตกเป็น JSON 3 ฉาก...';
+      vramReadout.textContent = '2.2 GB / 6.0 GB (LLM Active)';
+      btnLabel.textContent = 'กำลังคิดบทและมุมกล้อง 3 ฉาก (LM Studio)...';
+      await sleep(550);
+
+      // Stage 2: CLIP & Checkpoint
+      setNodeStates('6', ['llm', '4']);
+      stageText.textContent = 'Stage 2/3: แปลง SD Prompt ทั้ง 3 ฉากด้วย CLIP Text Encode (Node "6" & "7")...';
+      vramReadout.textContent = '4.1 GB / 6.0 GB (LLM + SD 1.5)';
+      btnLabel.textContent = 'กำลังเข้ารหัส Prompt สู่ ComfyUI...';
+      await sleep(480);
+
+      // Stage 3: KSampler
+      setNodeStates('3', ['llm', '4', '6', '5']);
+      stageText.textContent = 'Stage 3/3: กำลังเรนเดอร์ภาพ 512x512 ด้วย KSampler (20 steps, euler)...';
+      vramReadout.textContent = '4.4 GB / 6.0 GB (KSampler Peak)';
+      btnLabel.textContent = 'กำลังวาดภาพ Storyboard 3 ฉาก...';
+      await sleep(620);
+
+      // Determine whether user modified the textarea away from current preset
+      const typedIdea = document.getElementById('story-input').value.trim();
+      const presetObj = PRESET_STORIES[currentPresetKey];
+      if (presetObj && typedIdea === presetObj.idea) {
+        currentStoryboard = JSON.parse(JSON.stringify(presetObj));
+        currentStoryboard.style = currentStyleKey;
+        const styleObj = STYLE_CONFIGS[currentStyleKey];
+        currentStoryboard.scenes.forEach((sc) => {
+          sc.sd_positive_prompt = `${sc.sd_positive_prompt}, ${styleObj.suffix}`;
+        });
+      } else {
+        currentStoryboard = synthesizeCustomStoryboard(typedIdea, currentStyleKey);
+      }
+
+      renderStoryboardToDOM(currentStoryboard);
+
+      setNodeStates(null, ['llm', '4', '6', '5', '3', '8']);
+      stageText.textContent = 'เสร็จสมบูรณ์: สร้าง Storyboard 3 ฉาก + JSON + SD Prompts เรียบร้อยแล้ว!';
+      vramReadout.textContent = '4.2 GB / 6.0 GB (Safe)';
+      dot.classList.remove('active');
+      btn.disabled = false;
+      btnLabel.textContent = 'เดินเครื่องสร้าง Storyboard 3 ฉาก →';
+    }
+
+    async function runLiveLocalPipeline() {
+      const btn = document.getElementById('generate-btn');
+      const btnLabel = document.getElementById('generate-btn-label');
+      const dot = document.getElementById('pipeline-dot');
+      const stageText = document.getElementById('pipeline-stage-text');
+      const typedIdea = document.getElementById('story-input').value.trim();
+      const styleObj = STYLE_CONFIGS[currentStyleKey] || STYLE_CONFIGS.cyberpunk;
+
+      btn.disabled = true;
+      dot.classList.add('active');
+
+      try {
+        setNodeStates('llm', []);
+        stageText.textContent = 'Live Mode: กำลังเชื่อมต่อ LM Studio ที่ http://localhost:1234/v1/chat/completions ...';
+        btnLabel.textContent = 'กำลังเรียก LM Studio (:1234)...';
+
+        const llmRes = await fetch('http://localhost:1234/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'local-model',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are a Film Storyboard Director. Given a Thai idea, output ONLY valid JSON with keys: project_title_th, project_title_en, logline_th, color_palette (array of 4 hex strings), and scenes (array of 3 objects, each with scene_number, title_th, camera_angle, narration_th, sd_positive_prompt, sd_negative_prompt).'
+              },
+              {
+                role: 'user',
+                content: `แนวคิดภาษาไทย: ${typedIdea}\nสไตล์ภาพสำหรับ SD 1.5: ${styleObj.suffix}`
+              }
+            ],
+            temperature: 0.4,
+            max_tokens: 900
+          })
+        });
+
+        if (!llmRes.ok) {
+          throw new Error(`LM Studio HTTP ${llmRes.status}`);
+        }
+        const llmData = await llmRes.json();
+        const rawText = llmData.choices[0].message.content;
+        const jsonStart = rawText.indexOf('{');
+        const jsonEnd = rawText.lastIndexOf('}') + 1;
+        const parsed = JSON.parse(rawText.slice(jsonStart, jsonEnd));
+
+        parsed.style = currentStyleKey;
+        parsed.genre = `Live Local LLM Output • ${styleObj.name}`;
+        parsed.scenes.forEach((sc, i) => {
+          sc.seed = 90000 + i + 1;
+        });
+
+        currentStoryboard = parsed;
+        renderStoryboardToDOM(currentStoryboard);
+        setNodeStates(null, ['llm', '4', '6', '5', '3', '8']);
+        stageText.textContent = 'เชื่อมต่อ LM Studio สำเร็จ! (หากต้องการเรนเดอร์ภาพผ่าน ComfyUI โดยไม่ติด CORS ให้รันไฟล์ python 05-bonus-showcase/app.py)';
+      } catch (err) {
+        stageText.textContent = `ไม่พบการตอบกลับจาก localhost:1234 (${err.message}) ระบบจึงสลับมาแสดงผลด้วยโหมดจำลองแทน`;
+        await runSimulationPipeline();
+      } finally {
+        dot.classList.remove('active');
+        btn.disabled = false;
+        btnLabel.textContent = 'เดินเครื่องสร้าง Storyboard 3 ฉาก →';
+      }
+    }
+
+    // Export standalone HTML Pitch Deck
+    function exportStandaloneHTML() {
+      const sb = currentStoryboard;
+      const htmlContent = `<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<title>${sb.project_title_th} - AI Storyboard Pitch Deck</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet" />
+<style>
+  body { font-family: 'Google Sans Thai', sans-serif; background: #181d19; color: #f7f6f2; margin: 0; padding: 2.5rem; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .header { border-bottom: 1px solid #323d35; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .card { background: #1f2621; border: 1px solid #323d35; border-radius: 14px; overflow: hidden; }
+  .card-body { padding: 1.1rem; }
+  .prompt { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #acb3a8; background: #121714; padding: 0.65rem; border-radius: 8px; margin-top: 0.75rem; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <p style="color:#69b98e; font-weight:700; margin:0;">GENERATED BY CINELOCAL STUDIO • MASTERING LOCAL AI STACK 2026</p>
+      <h1 style="margin:0.4rem 0;">${sb.project_title_th}</h1>
+      <p style="color:#acb3a8; margin:0 0 0.75rem 0;">${sb.project_title_en}</p>
+      <p style="margin:0;">${sb.logline_th}</p>
+    </div>
+    <div class="grid">
+      ${sb.scenes.map((sc) => `
+        <div class="card">
+          <div>${buildSceneSVG(sc, sb.color_palette, sb.style || 'cyberpunk')}</div>
+          <div class="card-body">
+            <div style="font-size:12px; color:#69b98e; font-weight:700;">SCENE 0${sc.scene_number} • ${sc.camera_angle}</div>
+            <h3 style="margin:0.4rem 0;">${sc.title_th}</h3>
+            <p style="font-size:14px; line-height:1.6;">${sc.narration_th}</p>
+            <div class="prompt"><strong>SD 1.5 Prompt:</strong><br/>${sc.sd_positive_prompt}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</body>
+</html>`;
+
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Storyboard_${currentPresetKey}_PitchDeck.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportJSONFile() {
+      const blob = new Blob([document.getElementById('inspector-json-code').textContent], {
+        type: 'application/json;charset=utf-8'
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Storyboard_${currentPresetKey}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Event Wiring via addEventListener (No inline onclick)
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initial Render
+      renderStoryboardToDOM(currentStoryboard);
+
+      // Theme Toggle
+      const themeBtn = document.getElementById('theme-toggle-btn');
+      const themeLabel = document.getElementById('theme-label');
+      const syncThemeLabel = () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        themeLabel.textContent = isDark ? 'Light' : 'Dark';
+      };
+      syncThemeLabel();
+
+      themeBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.classList.toggle('dark');
+        localStorage.setItem('local_ai_workshop_theme', isDark ? 'dark' : 'light');
+        syncThemeLabel();
+      });
+
+      // Preset Scenario Chips
+      document.querySelectorAll('.preset-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+          const key = chip.getAttribute('data-preset');
+          const preset = PRESET_STORIES[key];
+          if (!preset) return;
+          currentPresetKey = key;
+          currentStyleKey = preset.style;
+
+          document.querySelectorAll('.preset-chip').forEach((c) => {
+            c.setAttribute('aria-pressed', String(c === chip));
+          });
+          document.querySelectorAll('.style-btn').forEach((sb) => {
+            sb.setAttribute('aria-pressed', String(sb.getAttribute('data-style') === currentStyleKey));
+          });
+
+          document.getElementById('story-input').value = preset.idea;
+          runSimulationPipeline();
+        });
+      });
+
+      // Visual Style Buttons
+      document.querySelectorAll('.style-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentStyleKey = btn.getAttribute('data-style');
+          document.querySelectorAll('.style-btn').forEach((b) => {
+            b.setAttribute('aria-pressed', String(b === btn));
+          });
+          runSimulationPipeline();
+        });
+      });
+
+      // Execution Engine Mode Buttons
+      const simBtn = document.getElementById('mode-sim-btn');
+      const liveBtn = document.getElementById('mode-live-btn');
+      const statusText = document.getElementById('engine-status-text');
+
+      simBtn.addEventListener('click', () => {
+        executionMode = 'simulation';
+        simBtn.setAttribute('aria-pressed', 'true');
+        liveBtn.setAttribute('aria-pressed', 'false');
+        statusText.innerHTML = '<span>พร้อมแสดงผลทันทีบนเบราว์เซอร์ (ไม่ต้องเปิดเซิร์ฟเวอร์)</span><span class="font-mono">VRAM ~4.2GB</span>';
+      });
+
+      liveBtn.addEventListener('click', () => {
+        executionMode = 'live';
+        simBtn.setAttribute('aria-pressed', 'false');
+        liveBtn.setAttribute('aria-pressed', 'true');
+        statusText.innerHTML = '<span>ยิง API จริงไปที่ localhost:1234 (LM Studio)</span><span class="font-mono">Live API</span>';
+      });
+
+      // Generate Button
+      document.getElementById('generate-btn').addEventListener('click', () => {
+        if (executionMode === 'live') {
+          runLiveLocalPipeline();
+        } else {
+          runSimulationPipeline();
+        }
+      });
+
+      // Export Buttons
+      document.getElementById('export-html-btn').addEventListener('click', exportStandaloneHTML);
+      document.getElementById('export-json-btn').addEventListener('click', exportJSONFile);
+
+      // Inspector Tabs
+      const tabs = [
+        { btn: 'tab-json-btn', panel: 'panel-json' },
+        { btn: 'tab-comfy-btn', panel: 'panel-comfy' },
+        { btn: 'tab-python-btn', panel: 'panel-python' }
+      ];
+      tabs.forEach((t) => {
+        document.getElementById(t.btn).addEventListener('click', () => {
+          tabs.forEach((other) => {
+            const active = other.btn === t.btn;
+            document.getElementById(other.btn).setAttribute('aria-selected', String(active));
+            document.getElementById(other.panel).hidden = !active;
+          });
+        });
+      });
+
+      // Copy Buttons
+      document.querySelectorAll('.copy-btn').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const targetId = btn.getAttribute('data-copy-target');
+          const codeEl = document.getElementById(targetId);
+          if (!codeEl) return;
+          const orig = btn.textContent;
+          try {
+            await navigator.clipboard.writeText(codeEl.textContent);
+            btn.textContent = 'Copied!';
+            setTimeout(() => { btn.textContent = orig; }, 1600);
+          } catch (_) {
+            btn.textContent = 'Error';
+          }
+        });
+      });
+
+      // Native Dialog Modal (X-Ray Blueprint)
+      const xrayDialog = document.getElementById('xray-dialog');
+      document.getElementById('open-xray-btn').addEventListener('click', () => {
+        xrayDialog.showModal();
+      });
+
+      // Fallback light-dismiss for browsers without dialog closedby="any"
+      if (!('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e, dialog) => {
+          const r = dialog.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        let pressedOutside = false;
+        xrayDialog.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, xrayDialog); });
+        xrayDialog.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, xrayDialog)) xrayDialog.close(); });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -39,5 +39,17 @@ Thumbs.db
 
 # Output & Temporary generated media
 output/
+outputs/
+05-bonus-showcase/outputs/
 temp/
 *.log
+
+# Local ComfyUI installations or archives if downloaded inside repo
+ComfyUI/
+ComfyUI_windows_portable/
+*.7z
+
+# Environment variables & local tool caches
+.env
+.env.*
+node_modules/

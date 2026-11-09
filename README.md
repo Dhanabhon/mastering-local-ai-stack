@@ -4,6 +4,8 @@
 > *Workshop materials, Jupyter Notebooks, ComfyUI workflows, and Setup Guide for "Mastering Local AI Stack: Jupyter Notebook × LM Studio × ComfyUI" (6-Hour University Training Course).*
 
 [![Setup Guide](https://img.shields.io/badge/Live_Setup_Guide-GitHub_Pages-2563eb?style=for-the-badge)](https://dhanabhon.github.io/mastering-local-ai-stack/)
+[![6-Hour Lab Guide](https://img.shields.io/badge/6--Hour_Lab_Guide-Hands--On_Labs-2e7d5b?style=for-the-badge)](https://dhanabhon.github.io/mastering-local-ai-stack/labs.html)
+[![Showcase Demo](https://img.shields.io/badge/Showcase_Demo-CineLocal_Studio-181d19?style=for-the-badge)](https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![LM Studio](https://img.shields.io/badge/LM_Studio-Local_LLM_API-10b981?style=for-the-badge)](https://lmstudio.ai/)
 [![ComfyUI](https://img.shields.io/badge/ComfyUI-SD_1.5_Node_API-8b5cf6?style=for-the-badge)](https://github.com/comfyanonymous/ComfyUI)
@@ -12,12 +14,20 @@
 
 ---
 
-## คู่มือการเตรียมเครื่องก่อนเข้าห้องอบรม (Pre-Workshop Setup Guide)
+## คู่มือการเตรียมเครื่อง, ใบงาน 6 ชั่วโมง และโปรเจกต์ Showcase ต่อยอด
 
-ผู้เข้าอบรมและผู้ดูแลห้องปฏิบัติการสามารถดูวิธีติดตั้งโปรแกรม ดาวน์โหลดโมเดล และตรวจเช็กความพร้อมของเครื่องแยกตามระบบปฏิบัติการ (**Windows NVIDIA GPU** และ **macOS Apple Silicon**) ได้ที่หน้าเว็บคู่มือ:
-
-- **GitHub Pages (หน้าเว็บคู่มือออนไลน์):** **[https://dhanabhon.github.io/mastering-local-ai-stack/](https://dhanabhon.github.io/mastering-local-ai-stack/)**
-- **เปิดไฟล์ HTML จากในคลังโดยตรง:** [`docs/index.html`](./docs/index.html)
+1. **คู่มือเตรียมเครื่องก่อนเข้าห้องอบรม (Pre-Workshop Setup Guide):**
+   - **GitHub Pages (ออนไลน์):** **[https://dhanabhon.github.io/mastering-local-ai-stack/](https://dhanabhon.github.io/mastering-local-ai-stack/)**
+   - **ไฟล์ HTML ในคลัง:** [`docs/index.html`](./docs/index.html)
+2. **ใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges (6-Hour Hands-On Lab Guide):**
+   - **GitHub Pages (ออนไลน์):** **[https://dhanabhon.github.io/mastering-local-ai-stack/labs.html](https://dhanabhon.github.io/mastering-local-ai-stack/labs.html)**
+   - **ไฟล์ HTML ในคลัง:** [`docs/labs.html`](./docs/labs.html)
+3. **✨ โปรเจกต์ตัวอย่างต่อยอดหลังจบคลาส (CineLocal Studio — AI Storyboard & Pitch Deck Director):**
+   - **Interactive Web Demo (มีโหมดจำลองทันที + โหมดต่อ Local AI จริง):** **[https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html](https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html)** | [`docs/showcase.html`](./docs/showcase.html)
+   - **ซอร์สโค้ด Python และคู่มือแกะรอยด้วยตัวเอง:** [`05-bonus-showcase/app.py`](./05-bonus-showcase/app.py) | [`05-bonus-showcase/README.md`](./05-bonus-showcase/README.md)
+4. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
+   - **Google Slides:** **[เปิดสไลด์ออนไลน์](https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit?usp=sharing)**
+   - **ไฟล์ PDF / PPTX ในคลัง:** [`slides/Mastering_Local_AI_Stack_2026.pdf`](./slides/Mastering_Local_AI_Stack_2026.pdf) | [`slides/Mastering_Local_AI_Stack_2026.pptx`](./slides/Mastering_Local_AI_Stack_2026.pptx)
 
 ---
 
@@ -65,9 +75,12 @@ mastering-local-ai-stack/
 ├── requirements.txt                               # รายการไลบรารี Python ที่ใช้ในหลักสูตร
 ├── .gitignore                                     # เพิกเฉยไฟล์ขยะ, .venv และไฟล์โมเดลขนาดใหญ่
 ├── docs/
-│   └── index.html                                 # หน้าเว็บ GitHub Pages คู่มือเตรียมเครื่อง (Windows/macOS)
+│   ├── index.html                                 # หน้าเว็บคู่มือเตรียมเครื่อง (Pre-Workshop Setup Guide)
+│   ├── labs.html                                  # หน้าเว็บใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges
+│   └── showcase.html                              # หน้าเว็บ Interactive Showcase Demo (CineLocal Studio)
 ├── slides/
-│   └── .gitkeep                                   # โฟลเดอร์สำหรับวางไฟล์สไลด์บรรยาย
+│   ├── Mastering_Local_AI_Stack_2026.pdf          # ไฟล์สไลด์บรรยาย PDF (ธีม Tomera AI & Google Sans Thai)
+│   └── Mastering_Local_AI_Stack_2026.pptx         # ไฟล์สไลด์บรรยาย PowerPoint (.pptx)
 ├── assets/
 │   └── sample_article.txt                         # บทความภาษาไทยตัวอย่างสำหรับใช้ใน Module 1 และ 2
 ├── 01-jupyter-basics/
@@ -76,8 +89,11 @@ mastering-local-ai-stack/
 │   └── 02_local_llm_integration.ipynb             # ใบงานที่ 2: การเชื่อมต่อ LM Studio API และสกัดข้อมูล JSON
 ├── 03-comfyui-workflows/
 │   └── sd15_txt2img_api.json                      # เวิร์กโฟลว์ ComfyUI (API Format) สำหรับ SD 1.5 (512x512)
-└── 04-capstone-pipeline/
-    └── 04_end_to_end_ai_pipeline.ipynb            # ใบงานที่ 4: Capstone เชื่อมต่อ LM Studio คู่กับ ComfyUI
+├── 04-capstone-pipeline/
+│   └── 04_end_to_end_ai_pipeline.ipynb            # ใบงานที่ 4: Capstone เชื่อมต่อ LM Studio คู่กับ ComfyUI
+└── 05-bonus-showcase/
+    ├── README.md                                  # คู่มือแกะรอยโปรเจกต์ต่อยอดด้วยตัวเองทีละขั้นตอน
+    └── app.py                                     # สคริปต์ Python Full-Stack สร้าง Storyboard 3 ฉาก + HTML Pitch Deck
 ```
 
 ---

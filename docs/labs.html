@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark light" />
+  <meta name="theme-color" content="#181D19" />
+  <title>Hands-On Lab Guide (6 Hours) | Mastering Local AI Stack 2026</title>
+  <meta name="description" content="คู่มือปฏิบัติการ 6 ชั่วโมง (Step-by-Step Lab &amp; Bonus Challenges) สำหรับหลักสูตร Mastering Local AI Stack: Jupyter Notebook × LM Studio × ComfyUI" />
+
+  <!-- Google Fonts: Google Sans Thai & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Google Sans Thai"', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            tomera: {
+              ink: '#101317',
+              paper: '#F7F6F2',
+              soft: '#EBEBE5',
+              line: '#D9DCD3',
+              muted: '#61665F',
+              brand: '#2E7D5B',
+              deep: '#256B4E',
+              bright: '#69B98E',
+              hover: '#78C99E',
+              dark: '#181D19',
+              darkcard: '#222924',
+              dim: '#ACB3A8',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --ink: #101317;
+      --paper: #F7F6F2;
+      --soft: #EBEBE5;
+      --line: #D9DCD3;
+      --muted: #61665F;
+      --brand: #2E7D5B;
+      --brand-deep: #256B4E;
+      --brand-bright: #69B98E;
+      --dark: #181D19;
+      --dark-card: #222924;
+      --dim: #ACB3A8;
+      --brand-color: var(--brand);
+      color-scheme: light dark;
+      accent-color: var(--brand-color);
+      scroll-behavior: smooth;
+      scroll-padding-top: 5.5rem;
+    }
+
+    html.dark {
+      --brand-color: var(--brand-bright);
+      color-scheme: dark;
+    }
+
+    html:not(.dark) {
+      --brand-color: var(--brand);
+      color-scheme: light;
+    }
+
+    body {
+      font-family: 'Google Sans Thai', system-ui, -apple-system, sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    h1 {
+      font-size: clamp(1.75rem, 3vw, 2.375rem);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    h2 {
+      font-size: clamp(1.35rem, 2vw, 1.625rem);
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+      font-weight: 700;
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      line-height: 1.4;
+      font-weight: 600;
+      text-wrap: balance;
+    }
+
+    p, li, dd {
+      text-wrap: pretty;
+    }
+
+    code, pre, .tabular-data {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .tabular-nums-ui {
+      font-variant-numeric: tabular-nums;
+    }
+
+    ::selection {
+      background-color: #2E7D5B;
+      color: #FFFFFF;
+    }
+
+    :where(a:any-link, button, input[type="checkbox"], summary, pre[tabindex="0"]):focus-visible {
+      outline: 2px solid var(--brand-color);
+      outline-offset: 2px;
+    }
+
+    .visually-hidden:where(:not(:focus-within, :active)) {
+      position: absolute !important;
+      clip-path: inset(50%) !important;
+      overflow: hidden !important;
+      width: 1px !important;
+      height: 1px !important;
+      margin: -1px !important;
+      padding: 0 !important;
+      border: 0 !important;
+      white-space: nowrap !important;
+    }
+
+    .lab-meter {
+      width: 100%;
+      height: 0.55rem;
+      border-radius: 9999px;
+      overflow: hidden;
+      accent-color: #2E7D5B;
+    }
+    .lab-meter::-webkit-progress-bar {
+      background-color: rgba(172, 179, 168, 0.25);
+      border-radius: 9999px;
+    }
+    .lab-meter::-webkit-progress-value {
+      background-color: #2E7D5B;
+      border-radius: 9999px;
+      transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    html.dark .lab-meter::-webkit-progress-value {
+      background-color: #69B98E;
+    }
+    .lab-meter::-moz-progress-bar {
+      background-color: #2E7D5B;
+      border-radius: 9999px;
+    }
+
+    body[data-os="windows"] .os-panel-mac {
+      display: none !important;
+    }
+    body[data-os="macos"] .os-panel-win {
+      display: none !important;
+    }
+
+    .lab-step-card:has(input.step-check:checked) {
+      border-color: #2E7D5B;
+      background-color: rgba(46, 125, 91, 0.06);
+    }
+    html.dark .lab-step-card:has(input.step-check:checked) {
+      border-color: #69B98E;
+      background-color: rgba(105, 185, 142, 0.08);
+    }
+
+    details > summary {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      .lab-meter::-webkit-progress-value {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+
+<body data-os="windows" class="bg-tomera-paper text-tomera-ink dark:bg-tomera-dark dark:text-tomera-paper min-h-screen transition-colors duration-200">
+
+  <!-- Skip Link -->
+  <a href="#main-heading" class="visually-hidden fixed top-3 left-3 z-[100] px-4 py-2 rounded-lg bg-tomera-brand text-white text-sm font-semibold shadow-lg">
+    ข้ามไปยังเนื้อหาใบงานปฏิบัติการ (Skip to main content)
+  </a>
+
+  <!-- Sticky Top Header -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-tomera-paper/95 dark:bg-tomera-dark/95 border-b border-tomera-line dark:border-tomera-darkcard">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 shrink-0 rounded-lg bg-tomera-brand flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-sm">
+          LAB
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-sm sm:text-base tracking-tight text-tomera-ink dark:text-tomera-paper truncate">Mastering Local AI Stack 2026</span>
+            <span class="hidden md:inline-block text-xs font-semibold px-2 py-0.5 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright tabular-nums-ui">
+              6-Hour Lab Guide
+            </span>
+          </div>
+          <p class="text-xs text-tomera-muted dark:text-tomera-dim truncate">ใบงานปฏิบัติการทีละขั้นตอน • Jupyter × LM Studio × ComfyUI</p>
+        </div>
+      </div>
+
+      <!-- Top Navigation & Controls -->
+      <div class="flex items-center gap-2 shrink-0">
+        <a href="./index.html" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-line dark:border-tomera-darkcard bg-white dark:bg-tomera-darkcard hover:border-tomera-brand dark:hover:border-tomera-bright transition-colors">
+          คู่มือเตรียมเครื่อง (Setup)
+        </a>
+        <a href="./showcase.html" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-tomera-deep hover:bg-tomera-brand text-white shadow-sm transition-colors">
+          ✨ Demo โปรเจกต์ต่อยอด
+        </a>
+
+        <div role="group" aria-label="เลือกระบบปฏิบัติการ" class="flex items-center text-xs bg-tomera-soft dark:bg-tomera-darkcard p-1 rounded-lg">
+          <button type="button" id="nav-btn-win" aria-pressed="true" class="px-2.5 py-1 rounded-md font-semibold transition-colors min-h-[28px]">
+            <span class="sm:hidden">Win</span>
+            <span class="hidden sm:inline">Windows</span>
+          </button>
+          <button type="button" id="nav-btn-mac" aria-pressed="false" class="px-2.5 py-1 rounded-md font-medium transition-colors min-h-[28px]">
+            <span class="sm:hidden">Mac</span>
+            <span class="hidden sm:inline">macOS</span>
+          </button>
+        </div>
+
+        <button type="button" id="theme-toggle-btn" aria-label="สลับโหมดสี" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold bg-tomera-soft dark:bg-tomera-darkcard text-tomera-ink dark:text-tomera-paper hover:opacity-90 transition-opacity">
+          <svg id="theme-icon-sun" aria-hidden="true" class="w-4 h-4 text-amber-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path>
+          </svg>
+          <svg id="theme-icon-moon" aria-hidden="true" class="w-4 h-4 text-tomera-deep hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+          </svg>
+          <span id="theme-label">Light</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section & Overall Lab Progress -->
+  <section class="border-b border-tomera-line dark:border-tomera-darkcard bg-white dark:bg-tomera-ink">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 pt-9 pb-8">
+      <div class="flex flex-wrap items-center gap-2 text-xs font-semibold text-tomera-brand dark:text-tomera-bright mb-2">
+        <span>HANDS-ON WORKBOOK • 09:00 – 16:00 น. (6 ชั่วโมง)</span>
+        <span>•</span>
+        <a href="https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit" target="_blank" rel="noopener noreferrer" class="underline hover:opacity-80">
+          เปิดสไลด์ประกอบการเรียน (Google Slides) ↗
+        </a>
+      </div>
+
+      <h1 id="main-heading" tabindex="-1" class="text-tomera-ink dark:text-tomera-paper max-w-4xl">
+        ใบงานปฏิบัติการ 6 ชั่วโมง: สร้างไปป์ไลน์ Local AI ด้วย Jupyter Notebook × LM Studio × ComfyUI
+      </h1>
+
+      <p class="mt-3 text-sm sm:text-base text-tomera-muted dark:text-tomera-dim max-w-[70ch]">
+        หลังจากเตรียมความพร้อมของเครื่องตาม <a href="./index.html" class="underline font-semibold text-tomera-brand dark:text-tomera-bright">คู่มือ Pre-Workshop Setup</a> เรียบร้อยแล้ว ให้ผู้เข้าอบรมไล่ทำตามขั้นตอนด้านล่างทีละข้อ ติ๊กถูกเมื่อทำสำเร็จในแต่ละจุด และหากทำเสร็จก่อนเวลา สามารถลงมือทำโจทย์ <strong>Bonus Challenges</strong> ท้ายแต่ละบทได้ทันที
+      </p>
+
+      <!-- Live Lab Progress Bar Card -->
+      <div class="mt-6 p-4 sm:p-5 rounded-xl bg-tomera-paper dark:bg-tomera-dark border border-tomera-line dark:border-tomera-darkcard">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <div>
+            <span class="text-sm font-bold text-tomera-ink dark:text-tomera-paper">ความคืบหน้าการทำ Lab ทั้งหมดของคุณ</span>
+            <span class="text-xs text-tomera-muted dark:text-tomera-dim block sm:inline sm:ml-2">(บันทึกอัตโนมัติในเบราว์เซอร์เครื่องนี้)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="lab-progress-badge" aria-live="polite" class="px-3 py-1 rounded-lg text-xs font-bold bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright tabular-nums-ui">
+              ทำสำเร็จแล้ว 0 / 16 ขั้นตอน (0%)
+            </span>
+            <button type="button" id="reset-lab-btn" class="text-xs font-medium px-2.5 py-1 min-h-[28px] rounded-lg bg-tomera-soft dark:bg-tomera-darkcard text-tomera-ink dark:text-tomera-paper hover:opacity-80 transition-opacity">
+              ล้างค่า (Reset)
+            </button>
+          </div>
+        </div>
+        <label for="lab-progress-bar" class="visually-hidden">ความคืบหน้าการทำใบงานปฏิบัติการ 6 ชั่วโมง</label>
+        <progress id="lab-progress-bar" class="lab-meter" max="16" value="0">0 จาก 16 ขั้นตอน</progress>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- Sticky Module Jump Nav -->
+    <nav aria-label="สารบัญโมดูลปฏิบัติการ" class="flex flex-wrap items-center gap-2 text-xs sm:text-sm pb-6 border-b border-tomera-line dark:border-tomera-darkcard">
+      <span class="font-bold text-tomera-muted dark:text-tomera-dim mr-1">ข้ามไปยังช่วงเวลา:</span>
+      <a href="#launch" class="px-3 py-1.5 rounded-lg bg-tomera-soft dark:bg-tomera-darkcard hover:bg-tomera-brand hover:text-white transition-colors font-medium">0. เปิดเซิร์ฟเวอร์ก่อนเริ่ม</a>
+      <a href="#module-1" class="px-3 py-1.5 rounded-lg bg-tomera-soft dark:bg-tomera-darkcard hover:bg-tomera-brand hover:text-white transition-colors font-medium tabular-nums-ui">Module 1 (09:00–10:15)</a>
+      <a href="#module-2" class="px-3 py-1.5 rounded-lg bg-tomera-soft dark:bg-tomera-darkcard hover:bg-tomera-brand hover:text-white transition-colors font-medium tabular-nums-ui">Module 2 (10:30–12:00)</a>
+      <a href="#module-3" class="px-3 py-1.5 rounded-lg bg-tomera-soft dark:bg-tomera-darkcard hover:bg-tomera-brand hover:text-white transition-colors font-medium tabular-nums-ui">Module 3 (13:00–14:30)</a>
+      <a href="#module-4" class="px-3 py-1.5 rounded-lg bg-tomera-soft dark:bg-tomera-darkcard hover:bg-tomera-brand hover:text-white transition-colors font-medium tabular-nums-ui">Module 4 (14:45–16:00)</a>
+      <a href="#bonus-challenges" class="px-3 py-1.5 rounded-lg bg-tomera-brand text-white font-semibold hover:bg-tomera-deep transition-colors">🔥 โจทย์ Challenge พิเศษ</a>
+    </nav>
+
+    <div class="divide-y divide-tomera-line dark:divide-tomera-darkcard">
+
+      <!-- ===================================================================
+           SECTION 0: Quick Launch Commands
+           =================================================================== -->
+      <section id="launch" class="py-9">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+          <div>
+            <span class="text-xs font-mono uppercase tracking-wider text-tomera-brand dark:text-tomera-bright font-semibold">STEP 0 • PRE-LAB LAUNCH</span>
+            <h2 class="text-tomera-ink dark:text-tomera-paper mt-0.5">เปิดโปรแกรมทั้ง 3 ส่วนให้พร้อมก่อนเริ่มรันใบงาน</h2>
+          </div>
+          <span class="text-xs font-mono px-2.5 py-1 rounded bg-tomera-soft dark:bg-tomera-darkcard text-tomera-muted dark:text-tomera-dim">
+            ใช้เวลา ~3 นาที
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
+          <div class="p-4 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard">
+            <div class="text-xs font-mono font-bold text-tomera-brand dark:text-tomera-bright">1. LM Studio (:1234)</div>
+            <p class="text-sm font-semibold mt-1">เปิด Local LLM Server</p>
+            <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-1">
+              โหลดโมเดล <code>Qwen2.5-3B-Instruct (Q4_K_M)</code> ตั้งค่า Context Length = <code>2048</code> แล้วไปที่แถบ <strong>Developer</strong> กดปุ่ม <strong>Start Server</strong> (พอร์ต <code>1234</code>)
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard">
+            <div class="text-xs font-mono font-bold text-tomera-brand dark:text-tomera-bright">2. ComfyUI (:8188)</div>
+            <p class="text-sm font-semibold mt-1">เปิด Diffusion Server</p>
+            <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-1">
+              ตรวจสอบว่ามีไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> ใน <code>models/checkpoints/</code> แล้วรัน ComfyUI ทิ้งไว้ที่ <code>http://127.0.0.1:8188</code>
+            </p>
+          </div>
+          <div class="p-4 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard">
+            <div class="text-xs font-mono font-bold text-tomera-brand dark:text-tomera-bright">3. JupyterLab (:8888)</div>
+            <p class="text-sm font-semibold mt-1">เปิดหน้าต่างเขียนโค้ด</p>
+            <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-1">
+              เปิดใช้งาน <code>.venv</code> ในโฟลเดอร์โปรเจกต์ <code>mastering-local-ai-stack</code> แล้วรันคำสั่ง <code>jupyter lab</code>
+            </p>
+          </div>
+        </div>
+
+        <!-- OS Specific Launch Command -->
+        <div class="os-panel-win">
+          <div class="code-container rounded-xl overflow-hidden bg-tomera-ink border border-tomera-darkcard">
+            <div class="flex items-center justify-between px-4 py-2 bg-tomera-dark border-b border-tomera-darkcard text-xs text-tomera-dim">
+              <span>Windows PowerShell: เปิดใช้งาน .venv และรัน JupyterLab</span>
+              <button type="button" data-copy-btn aria-label="Copy คำสั่งเปิด JupyterLab สำหรับ Windows" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-tomera-paper overflow-x-auto"><code>cd mastering-local-ai-stack
+.venv\Scripts\activate
+jupyter lab</code></pre>
+          </div>
+        </div>
+
+        <div class="os-panel-mac">
+          <div class="code-container rounded-xl overflow-hidden bg-tomera-ink border border-tomera-darkcard">
+            <div class="flex items-center justify-between px-4 py-2 bg-tomera-dark border-b border-tomera-darkcard text-xs text-tomera-dim">
+              <span>macOS Terminal: เปิดใช้งาน .venv และรัน JupyterLab</span>
+              <button type="button" data-copy-btn aria-label="Copy คำสั่งเปิด JupyterLab สำหรับ macOS" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-tomera-paper overflow-x-auto"><code>cd mastering-local-ai-stack
+source .venv/bin/activate
+jupyter lab</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           MODULE 1: 09:00 - 10:15 (75 Mins)
+           =================================================================== -->
+      <section id="module-1" class="py-10">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold px-2.5 py-1 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright mb-2 tabular-nums-ui">
+              MODULE 1 • 09:00 – 10:15 น. (75 นาที)
+            </div>
+            <h2 class="text-tomera-ink dark:text-tomera-paper">Jupyter Notebook Basics &amp; REST API Health Check</h2>
+            <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+              ไฟล์ปฏิบัติการ: <code class="text-tomera-brand dark:text-tomera-bright font-semibold">01-jupyter-basics/01_python_and_api_basics.ipynb</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Step 1.1 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m1-s1" data-lab-id="lab-m1-s1" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m1-s1" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 1.1 — เปิดไฟล์ Notebook ที่ 1 และตรวจสอบ Python Environment (.venv)
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ในหน้าต่าง JupyterLab ด้านซ้าย ให้ดับเบิลคลิกโฟลเดอร์ <code>01-jupyter-basics</code> แล้วเปิดไฟล์ <code>01_python_and_api_basics.ipynb</code> จากนั้นคลิกที่ <strong>Code Cell แรก (ส่วนที่ 1)</strong> แล้วกดปุ่ม <kbd class="px-1.5 py-0.5 text-xs rounded bg-tomera-soft dark:bg-tomera-dark border border-tomera-line dark:border-tomera-dim/30">Shift</kbd> + <kbd class="px-1.5 py-0.5 text-xs rounded bg-tomera-soft dark:bg-tomera-dark border border-tomera-line dark:border-tomera-dim/30">Enter</kbd>
+                </p>
+                <ul class="mt-2 text-xs sm:text-sm space-y-1 text-tomera-muted dark:text-tomera-dim list-disc pl-5">
+                  <li><strong>สิ่งที่ต้องเห็น:</strong> บรรทัด <code>Executable Path</code> ต้องมีคำว่า <code>.venv</code> อยู่ด้านใน</li>
+                  <li>ทดลองดับเบิลคลิกที่กล่อง <strong>Markdown Cell</strong> เพื่อดูโค้ด Markdown แล้วกด <code>Shift + Enter</code> เพื่อเรนเดอร์กลับมาเป็นข้อความปกติ</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1.2 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m1-s2" data-lab-id="lab-m1-s2" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m1-s2" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 1.2 — อ่านไฟล์บทความภาษาไทย (<code>sample_article.txt</code>) ด้วย UTF-8
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  เลื่อนลงมาที่ <strong>ส่วนที่ 2</strong> แล้วกด <code>Shift + Enter</code> เพื่ออ่านไฟล์ <code>../assets/sample_article.txt</code> แยกเป็นรายย่อหน้าด้วย <code>article_text.split("\n\n")</code>
+                </p>
+                <ul class="mt-2 text-xs sm:text-sm space-y-1 text-tomera-muted dark:text-tomera-dim list-disc pl-5">
+                  <li><strong>สิ่งที่ต้องเห็น:</strong> แสดงจำนวนตัวอักษรทั้งหมด จำนวนย่อหน้า (4 ย่อหน้า) และข้อความย่อหน้าที่ 1 โดยที่สระและวรรณยุกต์ภาษาไทยไม่เพี้ยน</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1.3 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m1-s3" data-lab-id="lab-m1-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m1-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 1.3 — แปลง Python Dict/List เป็น JSON String และตาราง <code>pandas.DataFrame</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  รัน Code Cell ใน <strong>ส่วนที่ 3</strong> เพื่อดูความแตกต่างระหว่างข้อมูลแบบข้อความ JSON (ที่ส่งผ่าน REST API) กับตาราง <code>pd.DataFrame(local_ai_models)</code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 1.4 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m1-s4" data-lab-id="lab-m1-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m1-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 1.4 — ยิง REST API เช็กสถานะเซิร์ฟเวอร์ด้วย <code>requests.get()</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  รัน Code Cell ใน <strong>ส่วนที่ 4</strong> เพื่อตรวจสอบว่าทั้ง <code>http://localhost:1234/v1/models</code> (LM Studio) และ <code>http://127.0.0.1:8188/system_stats</code> (ComfyUI) แสดงสถานะ <strong><code>Online (HTTP 200)</code></strong> ทั้งคู่
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini-Challenge 1 -->
+          <details class="rounded-xl bg-tomera-soft/70 dark:bg-tomera-ink border border-tomera-brand/40 p-4">
+            <summary class="font-bold text-sm sm:text-base text-tomera-deep dark:text-tomera-bright">
+              💡 โจทย์เสริมท้าย Module 1 (สำหรับผู้ที่ทำเสร็จเร็ว): วิเคราะห์สถิติย่อหน้าและบันทึกเป็นไฟล์ CSV
+            </summary>
+            <div class="mt-3 text-xs sm:text-sm space-y-3 text-tomera-ink dark:text-tomera-paper">
+              <p>
+                <strong>โจทย์:</strong> เพิ่ม Code Cell ใหม่ต่อท้ายใบงานที่ 1 แล้วเขียนโค้ดวนลูปอ่าน <code>paragraphs</code> ทั้ง 4 ย่อหน้า สร้างตาราง <code>DataFrame</code> ที่เก็บหมายเลขย่อหน้า, จำนวนตัวอักษร, จำนวนคำ (คั่นด้วยช่องว่าง), และข้อความ 40 ตัวอักษรแรก จากนั้นบันทึกออกเป็นไฟล์ <code>article_paragraph_stats.csv</code>
+              </p>
+              <div class="code-container rounded-xl overflow-hidden bg-tomera-ink border border-tomera-darkcard">
+                <div class="flex items-center justify-between px-4 py-2 bg-tomera-dark border-b border-tomera-darkcard text-xs text-tomera-dim">
+                  <span>Python (เฉลยโจทย์เสริม Module 1 — กด Copy ไปวางใน Cell ใหม่ได้เลย)</span>
+                  <button type="button" data-copy-btn aria-label="Copy โค้ดโจทย์เสริม Module 1" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre tabindex="0" class="p-4 text-xs text-tomera-paper overflow-x-auto"><code># โจทย์เสริม Module 1: สร้างตารางสถิติแต่ละย่อหน้าและเซฟเป็น CSV
+stats_rows = []
+for idx, para in enumerate(paragraphs, start=1):
+    stats_rows.append({
+        "paragraph_no": idx,
+        "char_count": len(para),
+        "token_estimate": int(len(para) / 3.5),  # ประมาณจำนวน Token ภาษาไทยเบื้องต้น
+        "preview": para[:45] + "..."
+    })
+
+df_para_stats = pd.DataFrame(stats_rows)
+df_para_stats.to_csv("article_paragraph_stats.csv", index=False, encoding="utf-8-sig")
+display(df_para_stats)</code></pre>
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           MODULE 2: 10:30 - 12:00 (90 Mins)
+           =================================================================== -->
+      <section id="module-2" class="py-10">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold px-2.5 py-1 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright mb-2 tabular-nums-ui">
+              MODULE 2 • 10:30 – 12:00 น. (90 นาที)
+            </div>
+            <h2 class="text-tomera-ink dark:text-tomera-paper">Local LLMs with LM Studio &amp; Structured JSON Extraction</h2>
+            <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+              ไฟล์ปฏิบัติการ: <code class="text-tomera-brand dark:text-tomera-bright font-semibold">02-lm-studio-api/02_local_llm_integration.ipynb</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Step 2.1 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m2-s1" data-lab-id="lab-m2-s1" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m2-s1" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 2.1 — เชื่อมต่อ LM Studio Server (<code>:1234</code>) ด้วยไลบรารี <code>openai</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  เปิดไฟล์ <code>02-lm-studio-api/02_local_llm_integration.ipynb</code> แล้วรัน <strong>Code Cell แรก</strong> เพื่อสร้าง <code>OpenAI(base_url="http://localhost:1234/v1", api_key="lm-studio")</code> และดึงชื่อโมเดลที่โหลดค้างไว้ผ่าน <code>client.models.list()</code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2.2 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m2-s2" data-lab-id="lab-m2-s2" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m2-s2" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 2.2 — ทดลองปรับ <code>System Prompt</code> และค่า <code>temperature</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ใน <strong>ส่วนที่ 1</strong> ให้รันคำสั่งอธิบายคำว่า <code>Quantization (Q4_K_M)</code> ที่ <code>temperature=0.3</code> จากนั้นลองแก้ตัวเลขเป็น <code>temperature=0.9</code> แล้วรันซ้ำ 2 ครั้งเพื่อสังเกตความหลากหลายของรูปประโยคที่โมเดลแต่งขึ้นมา
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2.3 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m2-s3" data-lab-id="lab-m2-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m2-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 2.3 — สั่งให้ Local LLM สกัดประเด็นจากบทความภาษาไทยออกมาเป็น JSON Array
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ใน <strong>ส่วนที่ 2</strong> รันโค้ดที่ส่ง <code>article_text</code> คู่กับ <code>extraction_system_prompt</code> โดยตั้ง <code>temperature=0.1</code> เพื่อบังคับให้โมเดลตอบกลับเป็น JSON ที่มีคีย์ <code>topic</code>, <code>category</code>, และ <code>key_takeaway</code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2.4 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m2-s4" data-lab-id="lab-m2-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m2-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 2.4 — แปลง JSON จาก LLM เป็นตาราง <code>pandas.DataFrame</code> ด้วย <code>parse_json_safely()</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  รัน Cell ถัดมาเพื่อตัด Markdown code block (<code>```json</code>) ที่อาจติดมากับคำตอบ แล้วแสดงผลตารางสรุปประเด็นสำคัญบนหน้าจอ Notebook
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini-Challenge 2 -->
+          <details class="rounded-xl bg-tomera-soft/70 dark:bg-tomera-ink border border-tomera-brand/40 p-4">
+            <summary class="font-bold text-sm sm:text-base text-tomera-deep dark:text-tomera-bright">
+              💡 โจทย์เสริมท้าย Module 2 (สำหรับผู้ที่ทำเสร็จเร็ว): สร้างระบบสกัด JSON แบบเพิ่มคอลัมน์ Action Item &amp; Priority
+            </summary>
+            <div class="mt-3 text-xs sm:text-sm space-y-3 text-tomera-ink dark:text-tomera-paper">
+              <p>
+                <strong>โจทย์:</strong> ลองปรับแก้ <code>extraction_system_prompt</code> ให้สกัดฟิลด์เพิ่มอีก 2 คอลัมน์ ได้แก่ <code>"priority"</code> (ให้โมเดลประเมินเป็น <code>High / Medium</code>) และ <code>"action_item"</code> (สิ่งที่ผู้ดูแลระบบควรลงมือทำ) แล้วแปลงลงตาราง Pandas
+              </p>
+              <div class="code-container rounded-xl overflow-hidden bg-tomera-ink border border-tomera-darkcard">
+                <div class="flex items-center justify-between px-4 py-2 bg-tomera-dark border-b border-tomera-darkcard text-xs text-tomera-dim">
+                  <span>Python (เฉลยโจทย์เสริม Module 2)</span>
+                  <button type="button" data-copy-btn aria-label="Copy โค้ดโจทย์เสริม Module 2" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                    <span>Copy</span>
+                  </button>
+                </div>
+                <pre tabindex="0" class="p-4 text-xs text-tomera-paper overflow-x-auto"><code>custom_sys_prompt = """คุณคือผู้เชี่ยวชาญด้านระบบ AI ในองค์กร
+อ่านบทความแล้วสกัดประเด็นออกมา 4 ข้อในรูปแบบ JSON Array เท่านั้น:
+[
+  {
+    "topic": "ชื่อหัวข้อ",
+    "category": "Hardware / Model / Workflow / Benefit",
+    "priority": "High หรือ Medium",
+    "action_item": "แนวทางปฏิบัติสั้นๆ 1 ประโยค"
+  }
+]"""
+
+res_custom = client.chat.completions.create(
+    model=loaded_model_id,
+    messages=[
+        {"role": "system", "content": custom_sys_prompt},
+        {"role": "user", "content": article_text}
+    ],
+    temperature=0.1,
+    max_tokens=800
+)
+
+df_action = pd.DataFrame(parse_json_safely(res_custom.choices[0].message.content))
+display(df_action)</code></pre>
+              </div>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           MODULE 3: 13:00 - 14:30 (90 Mins)
+           =================================================================== -->
+      <section id="module-3" class="py-10">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold px-2.5 py-1 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright mb-2 tabular-nums-ui">
+              MODULE 3 • 13:00 – 14:30 น. (90 นาที)
+            </div>
+            <h2 class="text-tomera-ink dark:text-tomera-paper">Node-Based Image Generation with ComfyUI</h2>
+            <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+              ไฟล์เวิร์กโฟลว์อ้างอิง: <code class="text-tomera-brand dark:text-tomera-bright font-semibold">03-comfyui-workflows/sd15_txt2img_api.json</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Step 3.1 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m3-s1" data-lab-id="lab-m3-s1" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m3-s1" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 3.1 — เปิดหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และไล่สายเชื่อมต่อทั้ง 7 โหนด
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  เปิดเบราว์เซอร์ไปที่ <code>http://127.0.0.1:8188</code> โหลด Default Workflow ของ Stable Diffusion 1.5 แล้วตรวจสอบการเชื่อมสายระหว่างโหนด:
+                </p>
+                <ul class="mt-2 text-xs sm:text-sm space-y-1 text-tomera-muted dark:text-tomera-dim list-disc pl-5">
+                  <li><strong>Load Checkpoint (Node 4):</strong> เลือกไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (หรือ <code>DreamShaper_8_pruned.safetensors</code>)</li>
+                  <li><strong>CLIP Text Encode (Node 6 &amp; 7):</strong> กล่องบนใส่ Positive Prompt ภาษาอังกฤษ กล่องล่างใส่ Negative Prompt (เช่น <code>text, watermark, blurry, low quality</code>)</li>
+                  <li><strong>Empty Latent Image (Node 5):</strong> ตั้งค่า <code>width = 512</code>, <code>height = 512</code>, <code>batch_size = 1</code></li>
+                  <li><strong>KSampler (Node 3):</strong> ตั้งค่า <code>steps = 20</code>, <code>cfg = 7.0</code>, <code>sampler_name = euler</code>, <code>scheduler = normal</code></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3.2 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m3-s2" data-lab-id="lab-m3-s2" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m3-s2" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 3.2 — กด Queue Prompt เพื่อเรนเดอร์ภาพแรกและสังเกตเวลาประมวลผล
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  คลิกปุ่ม <strong>Queue Prompt</strong> บนหน้าเว็บ ComfyUI สังเกตกรอบสีเขียวที่วิ่งผ่านโหนด <code>Load Checkpoint -&gt; CLIP -&gt; KSampler -&gt; VAE Decode -&gt; Save Image</code> (ใช้เวลาประมาณ 2–3 วินาทีต่อภาพบน RTX 3050 6GB และ Apple Silicon)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3.3 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m3-s3" data-lab-id="lab-m3-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m3-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 3.3 — เปิด Developer Mode และส่งออกไฟล์ <code>Save (API Format)</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  คลิกไอคอนรูปเฟือง (Settings) มุมขวาบนของ ComfyUI ติ๊กเปิด <strong>Enable Dev mode Options</strong> จากนั้นกดปุ่ม <strong>Save (API Format)</strong> แล้วเปิดเปรียบเทียบกับไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3.4 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m3-s4" data-lab-id="lab-m3-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m3-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 3.4 — ระบุตำแหน่งคีย์ JSON ของ Node <code>"6"</code> (Prompt) และ Node <code>"3"</code> (Seed)
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  เปิดไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab เพื่อดูโครงสร้าง Dictionary ที่เราจะเขียนโค้ด Python เข้าไปแทนที่ค่าในบทถัดไป:
+                  <code>workflow["6"]["inputs"]["text"]</code> และ <code>workflow["3"]["inputs"]["seed"]</code>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini-Challenge 3 -->
+          <details class="rounded-xl bg-tomera-soft/70 dark:bg-tomera-ink border border-tomera-brand/40 p-4">
+            <summary class="font-bold text-sm sm:text-base text-tomera-deep dark:text-tomera-bright">
+              💡 โจทย์เสริมท้าย Module 3 (สำหรับผู้ที่ทำเสร็จเร็ว): ทดลองปรับ Aspect Ratio แนวนอน/แนวตั้ง และค่า CFG Scale
+            </summary>
+            <div class="mt-3 text-xs sm:text-sm space-y-2 text-tomera-ink dark:text-tomera-paper">
+              <p>
+                <strong>โจทย์:</strong> ในหน้าเว็บ ComfyUI ลองล็อกค่า <code>seed</code> ใน KSampler ให้เป็นค่าคงที่ (เปลี่ยน <code>control_after_generate</code> เป็น <code>fixed</code>) แล้วทดสอบปรับค่าต่อไปนี้:
+              </p>
+              <ol class="list-decimal pl-5 space-y-1">
+                <li>เปลี่ยนขนาดภาพใน <strong>Empty Latent Image</strong> เป็นแนวนอน <code>width = 640, height = 384</code> (ยังอยู่ในงบ VRAM 6GB และหารด้วย 64 ลงตัว)</li>
+                <li>เปรียบเทียบภาพที่ได้เมื่อตั้งค่า <code>cfg = 4.5</code> (แสงนุ่มนวล เป็นธรรมชาติ) เทียบกับ <code>cfg = 11.0</code> (สีจัดและเร่งคอนทราสต์ตามคำสั่ง Prompt อย่างเข้มงวด)</li>
+              </ol>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           MODULE 4: 14:45 - 16:00 (75 Mins)
+           =================================================================== -->
+      <section id="module-4" class="py-10">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-2 text-xs font-mono font-bold px-2.5 py-1 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/15 dark:text-tomera-bright mb-2 tabular-nums-ui">
+              MODULE 4 • 14:45 – 16:00 น. (75 นาที)
+            </div>
+            <h2 class="text-tomera-ink dark:text-tomera-paper">Full-Stack Local AI Pipeline (Capstone Integration)</h2>
+            <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+              ไฟล์ปฏิบัติการ: <code class="text-tomera-brand dark:text-tomera-bright font-semibold">04-capstone-pipeline/04_end_to_end_ai_pipeline.ipynb</code>
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Step 4.1 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m4-s1" data-lab-id="lab-m4-s1" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m4-s1" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 4.1 — ตรวจสอบการเปิดเซิร์ฟเวอร์คู่กันและการจัดการ VRAM 6GB
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  เปิดไฟล์ <code>04-capstone-pipeline/04_end_to_end_ai_pipeline.ipynb</code> แล้วรัน <strong>Code Cell แรก</strong> เพื่อโหลดไลบรารีและตั้งค่าตัวแปร <code>LM_STUDIO_BASE_URL</code> (<code>:1234</code>) คู่กับ <code>COMFYUI_BASE_URL</code> (<code>:8188</code>)
+                </p>
+                <p class="text-xs text-tomera-muted dark:text-tomera-dim mt-1.5">
+                  <em>ทิปสำหรับเครื่อง Windows RTX 3050 6GB:</em> หากเปิดโปรแกรมอื่นค้างไว้เยอะ สามารถลดสไลเดอร์ <strong>GPU Offload</strong> ใน LM Studio ลงมาที่ระดับ 50%–70% เพื่อให้ซีพียู Intel Core Ultra 7 ช่วยแบ่งเบาภาระการ์ดจอได้
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4.2 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m4-s2" data-lab-id="lab-m4-s2" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m4-s2" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 4.2 — สร้างและทดสอบฟังก์ชัน <code>generate_sd_prompt(topic)</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ใน <strong>ส่วนที่ 1</strong> รัน Cell เพื่อสร้างฟังก์ชันแปลงหัวข้อภาษาไทยเป็น English Stable Diffusion Prompt จากนั้นลองเอาเครื่องหมาย <code>#</code> หน้าบรรทัด <code>print(generate_sd_prompt(sample_topic))</code> ออกเพื่อดู Prompt ภาษาอังกฤษที่โมเดล 3B แต่งออกมา
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4.3 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m4-s3" data-lab-id="lab-m4-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m4-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 4.3 — สร้างฟังก์ชันส่งคิวเรนเดอร์ <code>queue_prompt()</code> และดึงภาพ <code>wait_and_fetch_image()</code>
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ใน <strong>ส่วนที่ 2</strong> รัน Cell เพื่อประกาศฟังก์ชันที่คุยกับ ComfyUI API ทั้ง 3 Endpoint ได้แก่ <code>POST /prompt</code> (ส่งงานเข้าคิว), <code>GET /history/{prompt_id}</code> (เช็กสถานะจนกว่าจะเรนเดอร์เสร็จ), และ <code>GET /view</code> (ดึงไบต์รูปภาพมาเปิดด้วย <code>PIL.Image</code>)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4.4 -->
+          <div class="lab-step-card p-5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard transition-colors">
+            <div class="flex items-start gap-3.5">
+              <input type="checkbox" id="lab-m4-s4" data-lab-id="lab-m4-s4" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
+              <div class="min-w-0 flex-1">
+                <label for="lab-m4-s4" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
+                  Lab 4.4 — รันไปป์ไลน์ End-to-End สร้างภาพจากโจทย์ภาษาไทยของตัวเอง!
+                </label>
+                <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ใน <strong>ส่วนที่ 3</strong> ลองเปลี่ยนข้อความในตัวแปร <code>user_topic</code> เป็นหัวข้อภาษาไทยที่คุณต้องการ แล้วกด <code>Shift + Enter</code> เพื่อดู Jupyter Notebook สั่ง LM Studio แต่ง Prompt และสั่ง ComfyUI วาดภาพกลับมาแสดงในหน้า Notebook โดยอัตโนมัติ
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================
+           BONUS CHALLENGES SECTION (If Time Remains)
+           =================================================================== -->
+      <section id="bonus-challenges" class="py-10">
+        <div class="p-6 sm:p-8 rounded-2xl bg-tomera-dark text-tomera-paper border border-tomera-brand/50">
+          <div class="inline-flex items-center gap-2 text-xs font-mono font-bold px-2.5 py-1 rounded bg-tomera-brand text-white mb-3">
+            BONUS CHALLENGES • โจทย์ท้าทายสำหรับผู้ที่ทำ Lab ครบก่อนเวลา
+          </div>
+          <h2 class="text-tomera-paper">โจทย์ประยุกต์ต่อยอด (Extra Challenges)</h2>
+          <p class="text-sm text-tomera-dim mt-1.5 max-w-[72ch]">
+            หากผู้เข้าอบรมรันไปป์ไลน์ใน Module 4 สำเร็จเรียบร้อยแล้วและยังมีเวลาเหลือ สามารถเลือกทำโจทย์ท้าทายทั้ง 3 ระดับด้านล่างโดยสร้าง Code Cell ใหม่ต่อท้ายในไฟล์ <code>04_end_to_end_ai_pipeline.ipynb</code> ได้เลยครับ (มีแนวทางและเฉลยโค้ดซ่อนไว้ให้กดเปิดดูได้)
+          </p>
+
+          <div class="mt-6 space-y-5">
+
+            <!-- Challenge A -->
+            <div class="p-5 rounded-xl bg-tomera-darkcard border border-tomera-brand/30">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-mono font-bold text-tomera-bright">CHALLENGE A • ระดับกลาง (แนะนำ!)</span>
+                <span class="text-xs text-tomera-dim">เวลาโดยประมาณ: 15–20 นาที</span>
+              </div>
+              <h3 class="text-tomera-paper mt-1">Multi-Scene Storyboard Generator (สร้างสตอรี่บอร์ดนิทาน/โฆษณา 3 ฉากอัตโนมัติ)</h3>
+              <p class="text-xs sm:text-sm text-tomera-dim mt-1.5">
+                <strong>โจทย์:</strong> แทนที่จะวาดทีละภาพ ให้เขียนฟังก์ชันรับ <strong>"แก่นเรื่องภาษาไทย 1 ประโยค"</strong> (เช่น <em>"การเดินทางของนักศึกษาไทยที่สร้างหุ่นยนต์เกษตรอัจฉริยะ"</em>) แล้วสั่งให้ <strong>LM Studio</strong> แต่งเนื้อเรื่องออกเป็น <strong>JSON Array 3 ฉาก</strong> (แต่ละฉากมี <code>scene_no</code>, <code>thai_narration</code>, และ <code>sd_prompt</code>) จากนั้นเขียนลูป <code>for</code> ส่งแต่ละฉากไปให้ <strong>ComfyUI</strong> วาดภาพออกมาแสดงเรียงกันทั้ง 3 ฉากพร้อมคำบรรยายภาษาไทย!
+              </p>
+
+              <details class="mt-3 rounded-lg bg-tomera-ink p-3.5 border border-tomera-darkcard">
+                <summary class="text-xs sm:text-sm font-semibold text-tomera-bright">
+                  คลิกเพื่อดูโค้ดต้นแบบ / เฉลย Challenge A (Copy ไปรันใน Notebook ได้เลย)
+                </summary>
+                <div class="mt-3 code-container rounded-lg overflow-hidden bg-tomera-ink">
+                  <div class="flex items-center justify-between px-3 py-1.5 bg-tomera-dark text-xs text-tomera-dim">
+                    <span>Python: ฟังก์ชันสร้าง Storyboard 3 ฉากอัตโนมัติ</span>
+                    <button type="button" data-copy-btn aria-label="Copy โค้ดเฉลย Challenge A" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <pre tabindex="0" class="p-3 text-xs text-tomera-paper overflow-x-auto"><code>import re
+
+def generate_storyboard(story_theme: str, num_scenes: int = 3):
+    models = llm_client.models.list()
+    model_id = models.data[0].id if models.data else "local-model"
+
+    sys_prompt = f"""You are a storyboard director.
+Break the user's Thai topic into {num_scenes} sequential scenes.
+Return ONLY a valid JSON array with this exact structure:
+[
+  {{
+    "scene_no": 1,
+    "thai_narration": "คำบรรยายฉากภาษาไทยสั้นๆ 1 ประโยค",
+    "sd_prompt": "masterpiece, best quality, detailed English Stable Diffusion 1.5 prompt for this scene"
+  }}
+]"""
+
+    res = llm_client.chat.completions.create(
+        model=model_id,
+        messages=[
+            {"role": "system", "content": sys_prompt},
+            {"role": "user", "content": story_theme}
+        ],
+        temperature=0.4,
+        max_tokens=700
+    )
+    raw = re.sub(r"```(?:json)?", "", res.choices[0].message.content).strip()
+    match = re.search(r"\[.*\]", raw, flags=re.DOTALL)
+    scenes = json.loads(match.group(0) if match else raw)
+
+    for sc in scenes:
+        display(Markdown(f"---\n### ฉากที่ {sc['scene_no']}: {sc['thai_narration']}"))
+        display(Markdown(f"`Prompt:` *{sc['sd_prompt']}*"))
+
+        wf = json.loads(WORKFLOW_JSON_PATH.read_text(encoding="utf-8"))
+        wf["6"]["inputs"]["text"] = sc["sd_prompt"]
+        wf["3"]["inputs"]["seed"] = random.randint(1, 999_999_999_999_999)
+
+        pid = queue_prompt(wf)["prompt_id"]
+        img = wait_and_fetch_image(pid)
+        display(img)
+
+# ทดลองรัน Storyboard 3 ฉาก
+generate_storyboard("นักศึกษาไทยพัฒนาโดรน AI ช่วยดูแลแปลงปลูกสตรอว์เบอร์รีบนดอยในเชียงใหม่")</code></pre>
+                </div>
+              </details>
+            </div>
+
+            <!-- Challenge B -->
+            <div class="p-5 rounded-xl bg-tomera-darkcard border border-tomera-brand/30">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-mono font-bold text-tomera-bright">CHALLENGE B • ระดับกลาง-สูง</span>
+                <span class="text-xs text-tomera-dim">เวลาโดยประมาณ: 15–20 นาที</span>
+              </div>
+              <h3 class="text-tomera-paper mt-1">Style Preset &amp; Dynamic Negative Prompt Controller</h3>
+              <p class="text-xs sm:text-sm text-tomera-dim mt-1.5">
+                <strong>โจทย์:</strong> ปรับปรุงไปป์ไลน์ให้ผู้เรียนเลือก <code>style_preset</code> ได้ (เช่น <code>"Cyberpunk Neon"</code>, <code>"Watercolor Illustration"</code>, <code>"3D Isometric Render"</code>) โดยให้ LM Studio สร้างทั้ง <code>positive_prompt</code> และ <code>negative_prompt</code> ที่เหมาะสมกับสไตล์นั้น แล้วนำค่าไปใส่ทั้งใน <strong>Node <code>"6"</code> (Positive)</strong> และ <strong>Node <code>"7"</code> (Negative)</strong> พร้อมกัน
+              </p>
+
+              <details class="mt-3 rounded-lg bg-tomera-ink p-3.5 border border-tomera-darkcard">
+                <summary class="text-xs sm:text-sm font-semibold text-tomera-bright">
+                  คลิกเพื่อดูโค้ดต้นแบบ / เฉลย Challenge B
+                </summary>
+                <div class="mt-3 code-container rounded-lg overflow-hidden bg-tomera-ink">
+                  <div class="flex items-center justify-between px-3 py-1.5 bg-tomera-dark text-xs text-tomera-dim">
+                    <span>Python: ฟังก์ชันควบคุมทั้ง Positive (Node 6) และ Negative Prompt (Node 7)</span>
+                    <button type="button" data-copy-btn aria-label="Copy โค้ดเฉลย Challenge B" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <pre tabindex="0" class="p-3 text-xs text-tomera-paper overflow-x-auto"><code>STYLE_PRESETS = {
+    "cyberpunk": "cyberpunk neon style, rain-slicked streets, holographic glow, cinematic lighting, 8k",
+    "watercolor": "soft watercolor painting on textured paper, Studio Ghibli inspired, pastel tones, hand-drawn",
+    "isometric": "3D isometric miniature diorama, cute stylized 3d render, Blender Cycles, soft studio lighting"
+}
+
+def run_styled_pipeline(user_topic: str, style_key: str = "isometric"):
+    style_tags = STYLE_PRESETS.get(style_key, STYLE_PRESETS["isometric"])
+    base_prompt = generate_sd_prompt(user_topic)
+    final_positive = f"{base_prompt}, {style_tags}"
+    final_negative = "text, watermark, blurry, low quality, deformed, ugly, bad anatomy"
+
+    wf = json.loads(WORKFLOW_JSON_PATH.read_text(encoding="utf-8"))
+    wf["6"]["inputs"]["text"] = final_positive
+    wf["7"]["inputs"]["text"] = final_negative
+    wf["3"]["inputs"]["seed"] = random.randint(1, 999_999_999_999_999)
+
+    display(Markdown(f"**Style:** `{style_key}` | **Final Prompt:** `{final_positive}`"))
+    pid = queue_prompt(wf)["prompt_id"]
+    img = wait_and_fetch_image(pid)
+    display(img)
+    return img
+
+# ทดลองเปลี่ยน style_key เป็น "cyberpunk", "watercolor", หรือ "isometric"
+run_styled_pipeline("ร้านกาแฟเล็กๆ ในกรุงเทพฯ ที่มีหุ่นยนต์บาริสต้าชงกาแฟ", style_key="isometric")</code></pre>
+                </div>
+              </details>
+            </div>
+
+            <!-- Challenge C -->
+            <div class="p-5 rounded-xl bg-tomera-darkcard border border-tomera-brand/30">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <span class="text-xs font-mono font-bold text-tomera-bright">CHALLENGE C • ระดับสูง</span>
+                <span class="text-xs text-tomera-dim">เวลาโดยประมาณ: 20 นาที</span>
+              </div>
+              <h3 class="text-tomera-paper mt-1">Batch Prompt Experiment &amp; Side-by-Side Matplotlib Grid</h3>
+              <p class="text-xs sm:text-sm text-tomera-dim mt-1.5">
+                <strong>โจทย์:</strong> ใช้หัวข้อภาษาไทยเดียวกัน แต่ลองสั่งเรนเดอร์เปรียบเทียบ 3 สไตล์ (`cyberpunk`, `watercolor`, `isometric`) แล้วใช้ไลบรารี <code>matplotlib.pyplot</code> นำภาพทั้ง 3 ใบมาวางเรียงเปรียบเทียบกันในแถวเดียว (<code>1x3 Grid</code>) พร้อมใส่ชื่อสไตล์ไว้เหนือภาพแต่ละใบและบันทึกเป็นไฟล์ภาพรวม <code>style_comparison.png</code>
+              </p>
+
+              <details class="mt-3 rounded-lg bg-tomera-ink p-3.5 border border-tomera-darkcard">
+                <summary class="text-xs sm:text-sm font-semibold text-tomera-bright">
+                  คลิกเพื่อดูโค้ดต้นแบบ / เฉลย Challenge C
+                </summary>
+                <div class="mt-3 code-container rounded-lg overflow-hidden bg-tomera-ink">
+                  <div class="flex items-center justify-between px-3 py-1.5 bg-tomera-dark text-xs text-tomera-dim">
+                    <span>Python: เรนเดอร์ 3 สไตล์และพล็อตเปรียบเทียบด้วย Matplotlib</span>
+                    <button type="button" data-copy-btn aria-label="Copy โค้ดเฉลย Challenge C" class="px-2.5 py-1 rounded bg-tomera-darkcard hover:bg-tomera-brand text-tomera-paper font-medium transition-colors">
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <pre tabindex="0" class="p-3 text-xs text-tomera-paper overflow-x-auto"><code>import matplotlib.pyplot as plt
+
+topic = "หอสมุดแห่งอนาคตกลางสวนธรรมชาติในมหาวิทยาลัย"
+base_en_prompt = generate_sd_prompt(topic)
+fixed_seed = random.randint(1, 999_999_999_999_999)
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 5))
+
+for idx, (style_name, style_tags) in enumerate(STYLE_PRESETS.items()):
+    wf = json.loads(WORKFLOW_JSON_PATH.read_text(encoding="utf-8"))
+    wf["6"]["inputs"]["text"] = f"{base_en_prompt}, {style_tags}"
+    wf["3"]["inputs"]["seed"] = fixed_seed  # ใช้ Seed เดียวกันเพื่อเทียบผลของ Style Tags
+
+    pid = queue_prompt(wf)["prompt_id"]
+    img = wait_and_fetch_image(pid)
+
+    axes[idx].imshow(img)
+    axes[idx].set_title(f"Style: {style_name.upper()}", fontsize=12, fontweight="bold")
+    axes[idx].axis("off")
+
+plt.tight_layout()
+plt.savefig("style_comparison.png", dpi=150)
+plt.show()</code></pre>
+                </div>
+              </details>
+            </div>
+
+            <!-- Flagship Showcase Project CTA Card -->
+            <div class="rounded-xl bg-white dark:bg-tomera-dark border-2 border-tomera-brand dark:border-tomera-bright p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span class="inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-tomera-brand/15 text-tomera-deep dark:bg-tomera-bright/20 dark:text-tomera-bright">
+                  Flagship Self-Study Showcase • 05-bonus-showcase/
+                </span>
+                <h3 class="text-base sm:text-lg font-bold text-tomera-ink dark:text-tomera-paper mt-1.5">
+                  ✨ CineLocal Studio: สตูดิโอผู้กำกับ AI สร้าง Storyboard ภาพยนตร์ 3 ฉากอัตโนมัติ
+                </h3>
+                <p class="text-xs sm:text-sm text-tomera-muted dark:text-tomera-dim mt-1">
+                  ดูตัวอย่างการนำความรู้ทั้ง 4 โมดูลในห้องเรียนไปสร้างเป็นเว็บแอปพลิเคชันเต็มรูปแบบ (เปลี่ยนไอเดียภาษาไทย 1 บรรทัด เป็นบทภาพยนตร์ 3 ฉาก + มุมกล้อง + ภาพ SD 1.5 + ไฟล์ HTML Pitch Deck) พร้อมแจกโค้ด <code>05-bonus-showcase/app.py</code> ให้ไปศึกษาต่อยอดเอง
+                </p>
+              </div>
+              <a href="./showcase.html" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-tomera-deep hover:bg-tomera-brand text-white text-xs sm:text-sm font-semibold shadow-sm shrink-0 transition-colors">
+                <span>เปิดดู Showcase Demo</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-tomera-line dark:border-tomera-darkcard py-8 mt-6 text-center text-xs text-tomera-muted dark:text-tomera-dim">
+    <div class="max-w-5xl mx-auto px-4 space-y-1.5">
+      <p class="font-semibold text-tomera-ink dark:text-tomera-paper">
+        Mastering Local AI Stack 2026: Jupyter Notebook × LM Studio × ComfyUI
+      </p>
+      <p>
+        <a href="./index.html" class="underline hover:text-tomera-brand dark:hover:text-tomera-bright">คู่มือการเตรียมเครื่อง (Setup Guide)</a>
+        <span> · </span>
+        <a href="https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit" target="_blank" rel="noopener noreferrer" class="underline hover:text-tomera-brand dark:hover:text-tomera-bright">สไลด์การสอน (Google Slides)</a>
+        <span> · </span>
+        <a href="https://github.com/Dhanabhon/mastering-local-ai-stack" target="_blank" rel="noopener noreferrer" class="underline hover:text-tomera-brand dark:hover:text-tomera-bright">GitHub Repository</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Client-Side Script (Using addEventListener per Modern Web Guidance) -->
+  <script>
+    const STORAGE_KEYS = {
+      OS: 'local_ai_workshop_os',
+      THEME: 'local_ai_workshop_theme',
+      LAB_PROGRESS: 'local_ai_workshop_labs_v1'
+    };
+
+    function setOS(osName) {
+      const validOS = osName === 'macos' ? 'macos' : 'windows';
+      document.body.setAttribute('data-os', validOS);
+      localStorage.setItem(STORAGE_KEYS.OS, validOS);
+
+      const navWin = document.getElementById('nav-btn-win');
+      const navMac = document.getElementById('nav-btn-mac');
+      const isWin = validOS === 'windows';
+
+      navWin.setAttribute('aria-pressed', String(isWin));
+      navMac.setAttribute('aria-pressed', String(!isWin));
+
+      if (isWin) {
+        navWin.className = 'px-2.5 py-1 rounded-md font-semibold transition-colors min-h-[28px] bg-tomera-brand text-white shadow-sm';
+        navMac.className = 'px-2.5 py-1 rounded-md font-medium transition-colors min-h-[28px] text-tomera-muted dark:text-tomera-dim hover:text-tomera-ink dark:hover:text-tomera-paper';
+      } else {
+        navMac.className = 'px-2.5 py-1 rounded-md font-semibold transition-colors min-h-[28px] bg-tomera-brand text-white shadow-sm';
+        navWin.className = 'px-2.5 py-1 rounded-md font-medium transition-colors min-h-[28px] text-tomera-muted dark:text-tomera-dim hover:text-tomera-ink dark:hover:text-tomera-paper';
+      }
+    }
+
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      const sunIcon = document.getElementById('theme-icon-sun');
+      const moonIcon = document.getElementById('theme-icon-moon');
+      const label = document.getElementById('theme-label');
+      const btn = document.getElementById('theme-toggle-btn');
+
+      if (theme === 'light') {
+        root.classList.remove('dark');
+        root.style.colorScheme = 'light';
+        sunIcon.classList.add('hidden');
+        moonIcon.classList.remove('hidden');
+        label.textContent = 'Dark';
+        btn.setAttribute('aria-label', 'Switch to Dark Mode');
+      } else {
+        root.classList.add('dark');
+        root.style.colorScheme = 'dark';
+        moonIcon.classList.add('hidden');
+        sunIcon.classList.remove('hidden');
+        label.textContent = 'Light';
+        btn.setAttribute('aria-label', 'Switch to Light Mode');
+      }
+      localStorage.setItem(STORAGE_KEYS.THEME, theme);
+    }
+
+    function updateLabProgress() {
+      const checkboxes = document.querySelectorAll('input.step-check');
+      const total = checkboxes.length;
+      let checked = 0;
+      checkboxes.forEach((cb) => {
+        if (cb.checked) checked++;
+      });
+
+      const pct = total > 0 ? Math.round((checked / total) * 100) : 0;
+      const badge = document.getElementById('lab-progress-badge');
+      const bar = document.getElementById('lab-progress-bar');
+
+      badge.textContent = checked === total
+        ? `🎉 ทำครบทั้ง ${checked} / ${total} ขั้นตอนแล้ว! (100%)`
+        : `ทำสำเร็จแล้ว ${checked} / ${total} ขั้นตอน (${pct}%)`;
+      bar.value = checked;
+      bar.textContent = `${checked} จาก ${total} ขั้นตอน`;
+    }
+
+    function saveLabProgress() {
+      const checkboxes = document.querySelectorAll('input.step-check');
+      const state = {};
+      checkboxes.forEach((cb) => {
+        state[cb.getAttribute('data-lab-id')] = cb.checked;
+      });
+      localStorage.setItem(STORAGE_KEYS.LAB_PROGRESS, JSON.stringify(state));
+      updateLabProgress();
+    }
+
+    function loadLabProgress() {
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEYS.LAB_PROGRESS) || '{}');
+      } catch (e) {
+        saved = {};
+      }
+      const checkboxes = document.querySelectorAll('input.step-check');
+      checkboxes.forEach((cb) => {
+        const id = cb.getAttribute('data-lab-id');
+        cb.checked = Boolean(saved[id]);
+        cb.addEventListener('change', saveLabProgress);
+      });
+      updateLabProgress();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(localStorage.getItem(STORAGE_KEYS.THEME) || 'dark');
+      setOS(localStorage.getItem(STORAGE_KEYS.OS) || 'windows');
+      loadLabProgress();
+
+      document.getElementById('nav-btn-win').addEventListener('click', () => setOS('windows'));
+      document.getElementById('nav-btn-mac').addEventListener('click', () => setOS('macos'));
+      document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+        const isDark = document.documentElement.classList.contains('dark');
+        applyTheme(isDark ? 'light' : 'dark');
+      });
+
+      document.getElementById('reset-lab-btn').addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEYS.LAB_PROGRESS);
+        document.querySelectorAll('input.step-check').forEach((cb) => {
+          cb.checked = false;
+        });
+        updateLabProgress();
+      });
+
+      document.querySelectorAll('[data-copy-btn]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const container = btn.closest('.code-container');
+          const codeEl = container ? container.querySelector('pre code') : null;
+          if (!codeEl) return;
+          navigator.clipboard.writeText(codeEl.innerText.trim()).then(() => {
+            const span = btn.querySelector('span') || btn;
+            const orig = span.textContent;
+            span.textContent = 'Copied!';
+            btn.classList.add('bg-tomera-brand', 'text-white');
+            setTimeout(() => {
+              span.textContent = orig;
+              btn.classList.remove('bg-tomera-brand', 'text-white');
+            }, 1500);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

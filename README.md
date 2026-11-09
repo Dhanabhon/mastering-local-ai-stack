@@ -22,10 +22,13 @@
 2. **ใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges (6-Hour Hands-On Lab Guide):**
    - **GitHub Pages (ออนไลน์):** **[https://dhanabhon.github.io/mastering-local-ai-stack/labs.html](https://dhanabhon.github.io/mastering-local-ai-stack/labs.html)**
    - **ไฟล์ HTML ในคลัง:** [`docs/labs.html`](./docs/labs.html)
-3. **✨ โปรเจกต์ตัวอย่างต่อยอดหลังจบคลาส (CineLocal Studio — AI Storyboard & Pitch Deck Director):**
-   - **Interactive Web Demo (มีโหมดจำลองทันที + โหมดต่อ Local AI จริง):** **[https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html](https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html)** | [`docs/showcase.html`](./docs/showcase.html)
+3. **✨ โปรเจกต์ตัวอย่างต่อยอด #1 (CineLocal Studio — AI Storyboard & Pitch Deck Director):**
+   - **Interactive Web Demo:** **[https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html](https://dhanabhon.github.io/mastering-local-ai-stack/showcase.html)** | [`docs/showcase.html`](./docs/showcase.html)
    - **ซอร์สโค้ด Python และคู่มือแกะรอยด้วยตัวเอง:** [`05-bonus-showcase/app.py`](./05-bonus-showcase/app.py) | [`05-bonus-showcase/README.md`](./05-bonus-showcase/README.md)
-4. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
+4. **🎬 โปรเจกต์ตัวอย่างต่อยอด #2 (Local AI Media Studio — Custom Image & Video Web App):**
+   - **Interactive Web Demo:** **[https://dhanabhon.github.io/mastering-local-ai-stack/media-studio.html](https://dhanabhon.github.io/mastering-local-ai-stack/media-studio.html)** | [`docs/media-studio.html`](./docs/media-studio.html)
+   - **ซอร์สโค้ด Web App ครอบ LM Studio + ComfyUI (เลือกโหมด Image / Video ได้):** [`06-custom-media-studio/app.py`](./06-custom-media-studio/app.py) | [`06-custom-media-studio/README.md`](./06-custom-media-studio/README.md)
+5. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
    - **Google Slides:** **[เปิดสไลด์ออนไลน์](https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit?usp=sharing)**
    - **ไฟล์ PDF / PPTX ในคลัง:** [`slides/Mastering_Local_AI_Stack_2026.pdf`](./slides/Mastering_Local_AI_Stack_2026.pdf) | [`slides/Mastering_Local_AI_Stack_2026.pptx`](./slides/Mastering_Local_AI_Stack_2026.pptx)
 
@@ -77,7 +80,8 @@ mastering-local-ai-stack/
 ├── docs/
 │   ├── index.html                                 # หน้าเว็บคู่มือเตรียมเครื่อง (Pre-Workshop Setup Guide)
 │   ├── labs.html                                  # หน้าเว็บใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges
-│   └── showcase.html                              # หน้าเว็บ Interactive Showcase Demo (CineLocal Studio)
+│   ├── showcase.html                              # หน้าเว็บ Interactive Showcase #1 (CineLocal Storyboard)
+│   └── media-studio.html                          # หน้าเว็บ Interactive Showcase #2 (Custom Image & Video Studio)
 ├── slides/
 │   ├── Mastering_Local_AI_Stack_2026.pdf          # ไฟล์สไลด์บรรยาย PDF (ธีม Tomera AI & Google Sans Thai)
 │   └── Mastering_Local_AI_Stack_2026.pptx         # ไฟล์สไลด์บรรยาย PowerPoint (.pptx)
@@ -91,9 +95,14 @@ mastering-local-ai-stack/
 │   └── sd15_txt2img_api.json                      # เวิร์กโฟลว์ ComfyUI (API Format) สำหรับ SD 1.5 (512x512)
 ├── 04-capstone-pipeline/
 │   └── 04_end_to_end_ai_pipeline.ipynb            # ใบงานที่ 4: Capstone เชื่อมต่อ LM Studio คู่กับ ComfyUI
-└── 05-bonus-showcase/
-    ├── README.md                                  # คู่มือแกะรอยโปรเจกต์ต่อยอดด้วยตัวเองทีละขั้นตอน
-    └── app.py                                     # สคริปต์ Python Full-Stack สร้าง Storyboard 3 ฉาก + HTML Pitch Deck
+├── 05-bonus-showcase/
+│   ├── README.md                                  # คู่มือแกะรอยโปรเจกต์ต่อยอด #1 (Storyboard Pitch Deck)
+│   └── app.py                                     # สคริปต์ Python Full-Stack สร้าง Storyboard 3 ฉาก + HTML Pitch Deck
+└── 06-custom-media-studio/
+    ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #2 (Custom Image & Video Web App)
+    ├── app.py                                     # เว็บแอปครอบ LM Studio + ComfyUI เลือกโหมด Image / Video (พอร์ต 8090)
+    └── workflows/
+        └── sd15_animatediff_api.json              # เวิร์กโฟลว์ตัวอย่างสำหรับโหมดสร้างวิดีโอด้วย AnimateDiff API
 ```
 
 ---

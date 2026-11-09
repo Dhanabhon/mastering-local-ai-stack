@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Local AI Media Studio (Showcase #2) | Custom Image &amp; Video Web App</title>
+  <meta name="description" content="Showcase ตัวที่ 2: เว็บแอปพลิเคชันครอบ LM Studio และ ComfyUI สำหรับสั่งสร้างภาพนิ่ง (Image) และภาพเคลื่อนไหว (Video) แบบปรับแต่งพารามิเตอร์ได้เอง" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('local_ai_workshop_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #101317;
+      --paper: #f7f6f2;
+      --surface: #ffffff;
+      --soft: #ebebe5;
+      --line: #d9dcd3;
+      --muted: #61665f;
+      --brand: #2e7d5b;
+      --brand-deep: #256b4e;
+      --brand-bright: #69b98e;
+      --brand-tint: rgba(46, 125, 91, 0.11);
+      --code-bg: #121714;
+      --code-border: #2a342d;
+      --code-text: #eef2ed;
+      --shadow-sm: 0 2px 8px rgba(16, 19, 23, 0.05);
+      --shadow-md: 0 12px 32px rgba(16, 19, 23, 0.08);
+      accent-color: var(--brand);
+    }
+
+    html.dark {
+      --ink: #f7f6f2;
+      --paper: #181d19;
+      --surface: #1f2621;
+      --soft: #262f29;
+      --line: #323d35;
+      --muted: #acb3a8;
+      --brand: #69b98e;
+      --brand-deep: #2e7d5b;
+      --brand-bright: #78c99e;
+      --brand-tint: rgba(105, 185, 142, 0.14);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.42);
+      accent-color: var(--brand-bright);
+    }
+
+    /* Progressive enhancement fallback when accent-color is not supported */
+    @supports not (accent-color: var(--brand)) {
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        background: transparent;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 8px;
+        background: var(--line);
+        border-radius: 4px;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 18px;
+        width: 18px;
+        border-radius: 50%;
+        background: var(--brand);
+        cursor: pointer;
+        margin-top: -5px;
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Google Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, pre, kbd, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-ligatures: none;
+    }
+
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: color-mix(in srgb, var(--paper) 90%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.6rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--brand-tint);
+      color: var(--brand);
+      border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-ghost:hover {
+      border-color: var(--brand);
+    }
+
+    .hero {
+      padding: 2rem 0 1.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+      line-height: 1.25;
+      margin: 0.4rem 0 0.65rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.75rem 0 3rem;
+    }
+
+    @media (min-width: 980px) {
+      .workspace-grid {
+        grid-template-columns: 450px minmax(0, 1fr);
+        align-items: start;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1rem;
+      margin: 0 0 1rem 0;
+    }
+
+    legend {
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0 0.4rem;
+      color: var(--brand);
+    }
+
+    .form-group {
+      margin-block-end: 0.9rem;
+    }
+    .form-group:last-child {
+      margin-block-end: 0;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-block-end: 0.3rem;
+    }
+
+    .hint {
+      display: block;
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-block-start: 0.25rem;
+    }
+
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      min-height: 44px;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+
+    textarea {
+      min-height: 78px;
+      resize: vertical;
+    }
+
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .radio-card {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 0.7rem;
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      background: var(--paper);
+      font-size: 0.82rem;
+      font-weight: 600;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .slider-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-radius: 0.65rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: var(--brand);
+    }
+
+    .stage-box {
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      background: var(--paper);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 430px;
+    }
+
+    canvas#studio-canvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.75rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--line);
+    }
+
+    .code-panel {
+      margin-top: 1.25rem;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      color: var(--code-text);
+    }
+
+    .code-head {
+      padding: 0.6rem 1rem;
+      background: #1a211d;
+      border-bottom: 1px solid var(--code-border);
+      font-size: 0.76rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    pre.code-pre {
+      margin: 0;
+      padding: 0.95rem 1rem;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-group">
+        <div class="brand-badge">M2</div>
+        <div>
+          <div class="brand-title">
+            <span>Local AI Media Studio</span>
+            <span class="pill-tag">Showcase #2 • Custom Image &amp; Video Web App</span>
+          </div>
+          <p class="brand-sub">เว็บแอปครอบ LM Studio (:1234) และ ComfyUI (:8188) บน Environment เดิมของคอร์ส</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a href="./index.html" class="btn-ghost">← คู่มือเตรียมเครื่อง</a>
+        <a href="./labs.html" class="btn-ghost">ใบงาน Lab 6 ชม.</a>
+        <a href="./showcase.html" class="btn-ghost">Showcase #1 (Storyboard)</a>
+        <button type="button" id="theme-toggle-btn" class="btn-ghost" aria-label="สลับโหมดสี">
+          <span id="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <span class="pill-tag">06-custom-media-studio/app.py • พอร์ต 8090</span>
+      <h1>เว็บแอปส่วนตัวสำหรับสั่งสร้างภาพนิ่ง (Image) และภาพเคลื่อนไหว (Video)</h1>
+      <p style="margin: 0; color: var(--muted); max-width: 82ch; font-size: 0.95rem;">
+        หลังจากตั้งค่า LM Studio และ ComfyUI เสร็จเรียบร้อยแล้ว คุณสามารถรันไฟล์ <code>python 06-custom-media-studio/app.py</code> เพื่อเปิดหน้าเว็บสตูดิโอที่รวมการปรับแต่งค่าโหนดสำคัญทั้งหมดไว้ในหน้าเดียว ไม่ต้องเปิดหน้ากราฟโหนด ComfyUI ทุกครั้ง และเลือกสลับได้ทันทีว่าจะสร้าง <strong>ภาพนิ่ง (Image)</strong> หรือ <strong>วิดีโอแอนิเมชัน (Video)</strong>
+      </p>
+    </div>
+  </section>
+
+  <main class="container workspace-grid">
+    <!-- Left Column: Interactive Form -->
+    <section class="card" aria-labelledby="ctrl-heading">
+      <h2 id="ctrl-heading" style="margin-top: 0; font-size: 1.05rem;">แผงควบคุมพารามิเตอร์ (Custom Studio Controls)</h2>
+
+      <form id="demo-studio-form" action="#preview" method="POST">
+        <fieldset>
+          <legend>1. เลือกโหมดการสร้างสื่อ (Output Mode)</legend>
+          <div class="radio-grid">
+            <label class="radio-card" for="mode-img">
+              <input type="radio" id="mode-img" name="mode" value="image" checked />
+              <span>🖼️ Generate Image</span>
+            </label>
+            <label class="radio-card" for="mode-vid">
+              <input type="radio" id="mode-vid" name="mode" value="video" />
+              <span>🎬 Generate Video</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>2. โจทย์ภาษาไทย &amp; LM Studio Prompt Enhancer</legend>
+          <div class="form-group">
+            <label class="field-label" for="user-prompt">คำสั่งสร้างภาพหรือวิดีโอ (Required):</label>
+            <textarea id="user-prompt" name="prompt" required>แมวส้มใส่แว่นตานักวิทยาศาสตร์กำลังทดลองสร้างหุ่นยนต์ AI ในห้องแล็บอนาคต</textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="llm-enhance" style="display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; font-weight: 600; cursor: pointer;">
+              <input type="checkbox" id="llm-enhance" name="use_llm" checked />
+              <span>ให้ LM Studio (:1234) แปลและขยายเป็น English Prompt</span>
+            </label>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="style-preset">สไตล์ภาพและแสง (Style Preset):</label>
+            <select id="style-preset" name="style">
+              <option value="photorealistic">Photorealistic Cinema (ภาพถ่ายสมจริง แสงภาพยนตร์)</option>
+              <option value="cyberpunk">Cyberpunk Neon (ไฟนีออนไซเบอร์พังก์)</option>
+              <option value="anime">Anime / Studio Ghibli (ภาพวาดอนิเมะสีอบอุ่น)</option>
+              <option value="product">Commercial Product Shot (ภาพถ่ายสินค้าในสตูดิโอ)</option>
+            </select>
+          </div>
+        </fieldset>
+
+        <fieldset id="video-engine-fieldset" class="hidden">
+          <legend>3. รูปแบบการสร้างวิดีโอ (Video Engine)</legend>
+          <div class="form-group">
+            <label class="radio-card" for="ve-motion" style="margin-bottom: 0.45rem;">
+              <input type="radio" id="ve-motion" name="video_engine" value="sd15_motion" checked />
+              <span>⚡ AI Motion Clip (ใช้ SD 1.5 เดิม • รันผ่าน 100% บน VRAM 6GB)</span>
+            </label>
+            <label class="radio-card" for="ve-comfy">
+              <input type="radio" id="ve-comfy" name="video_engine" value="comfy_video_api" />
+              <span>🧩 Custom ComfyUI Video JSON (AnimateDiff / Wan2.1)</span>
+            </label>
+          </div>
+          <span class="hint">โหมด AI Motion Clip ใช้โมเดล SD 1.5 ตัวเดิมสร้างคีย์เฟรมแล้วทำ Cinema Zoom &amp; Crossfade ออกมาเป็นไฟล์ .webp และ .gif โดยไม่ต้องโหลดโมเดลวิดีโอเพิ่มหลาย GB</span>
+        </fieldset>
+
+        <fieldset>
+          <legend>4. ตั้งค่าโหนด ComfyUI (Node "3", "4", "5", "7")</legend>
+          <div class="form-group">
+            <span class="field-label">สัดส่วนภาพ Aspect Ratio (Node "5"):</span>
+            <div class="radio-grid">
+              <label class="radio-card" for="ratio-1-1">
+                <input type="radio" id="ratio-1-1" name="aspect_ratio" value="1:1" checked />
+                <span>1:1 (512×512)</span>
+              </label>
+              <label class="radio-card" for="ratio-16-9">
+                <input type="radio" id="ratio-16-9" name="aspect_ratio" value="16:9" />
+                <span>16:9 (640×384)</span>
+              </label>
+              <label class="radio-card" for="ratio-9-16">
+                <input type="radio" id="ratio-9-16" name="aspect_ratio" value="9:16" />
+                <span>9:16 (384×640)</span>
+              </label>
+              <label class="radio-card" for="ratio-2-3">
+                <input type="radio" id="ratio-2-3" name="aspect_ratio" value="2:3" />
+                <span>2:3 (512×768)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="slider-row form-group">
+            <div>
+              <label class="field-label" for="steps-slider">Steps: <span id="steps-out">20</span></label>
+              <input type="range" id="steps-slider" name="steps" min="10" max="35" value="20" />
+            </div>
+            <div>
+              <label class="field-label" for="cfg-slider">CFG Scale: <span id="cfg-out">7.0</span></label>
+              <input type="range" id="cfg-slider" name="cfg" min="3.0" max="12.0" step="0.5" value="7.0" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <span class="field-label">การกำหนดค่า Seed (Node "3" KSampler):</span>
+            <div class="radio-grid" style="margin-bottom: 0.45rem;">
+              <label class="radio-card" for="s-rand">
+                <input type="radio" id="s-rand" name="seed_mode" value="random" checked />
+                <span>🎲 สุ่ม Seed ใหม่</span>
+              </label>
+              <label class="radio-card" for="s-fix">
+                <input type="radio" id="s-fix" name="seed_mode" value="fixed" />
+                <span>📌 ล็อกค่า Seed เดิม</span>
+              </label>
+            </div>
+            <label class="field-label" for="seed-num">หมายเลข Seed:</label>
+            <input
+              type="text"
+              id="seed-num"
+              name="seed_value"
+              value="42"
+              inputmode="numeric"
+              pattern="[0-9]+"
+              autocorrect="off"
+              autocapitalize="off"
+              spellcheck="false"
+            />
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn-primary" id="run-demo-btn">
+          🚀 ทดสอบสร้างสื่อในหน้าเว็บจำลอง (Run Studio Preview)
+        </button>
+      </form>
+    </section>
+
+    <!-- Right Column: Live Canvas Viewport & JSON Inspector -->
+    <section>
+      <div class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.9rem;">
+          <div>
+            <h2 style="margin: 0; font-size: 1.05rem;">หน้าจอแสดงผลลัพธ์ (Studio Output Viewport)</h2>
+            <p style="margin: 0; font-size: 0.78rem; color: var(--muted);" id="viewport-subtitle">
+              โหมดปัจจุบัน: ภาพนิ่ง (Static Image 512×512) • Seed: 42
+            </p>
+          </div>
+          <span class="pill-tag" id="mode-pill">🖼️ IMAGE MODE</span>
+        </div>
+
+        <div class="stage-box">
+          <canvas id="studio-canvas" width="512" height="512"></canvas>
+        </div>
+
+        <div class="code-panel">
+          <div class="code-head">
+            <span>คีย์ในไฟล์ JSON ที่โค้ด Python เข้าไปอัปเดตค่าให้อัตโนมัติก่อนส่งเข้า ComfyUI</span>
+            <span>POST http://127.0.0.1:8188/prompt</span>
+          </div>
+          <pre class="code-pre" id="json-preview-code"></pre>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 1.25rem;">
+        <h3 style="margin-top: 0; font-size: 0.98rem;">วิธีเปิดรัน Web App ตัวจริงบนเครื่องของคุณ</h3>
+        <p style="font-size: 0.84rem; color: var(--muted); margin-top: 0;">
+          เมื่อเปิด LM Studio (พอร์ต 1234) และ ComfyUI (พอร์ต 8188) ไว้แล้ว ให้รันคำสั่งด้านล่างใน Terminal ที่เปิดใช้งาน <code>.venv</code> เพื่อเปิดเว็บแอปที่พอร์ต <code>8090</code>:
+        </p>
+        <div class="code-panel" style="margin-top: 0.5rem;">
+          <div class="code-head">
+            <span>Terminal / PowerShell</span>
+          </div>
+          <pre class="code-pre"><code>python 06-custom-media-studio/app.py
+# เปิดเบราว์เซอร์ไปที่ http://127.0.0.1:8090</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Theme toggle
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeLabel = document.getElementById('theme-label');
+    function syncThemeLabel() {
+      const isDark = document.documentElement.classList.contains('dark');
+      themeLabel.textContent = isDark ? 'Light' : 'Dark';
+    }
+    syncThemeLabel();
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('local_ai_workshop_theme', isDark ? 'dark' : 'light');
+      syncThemeLabel();
+    });
+
+    // Interactive Controls & Animated Canvas Simulator
+    const form = document.getElementById('demo-studio-form');
+    const stepsSlider = document.getElementById('steps-slider');
+    const stepsOut = document.getElementById('steps-out');
+    const cfgSlider = document.getElementById('cfg-slider');
+    const cfgOut = document.getElementById('cfg-out');
+    const videoFieldset = document.getElementById('video-engine-fieldset');
+    const modePill = document.getElementById('mode-pill');
+    const viewportSubtitle = document.getElementById('viewport-subtitle');
+    const jsonPreviewCode = document.getElementById('json-preview-code');
+    const canvas = document.getElementById('studio-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let animRequest = null;
+    let currentState = {
+      mode: 'image',
+      prompt: 'แมวส้มใส่แว่นตานักวิทยาศาสตร์กำลังทดลองสร้างหุ่นยนต์ AI ในห้องแล็บอนาคต',
+      style: 'photorealistic',
+      aspect: '1:1',
+      steps: 20,
+      cfg: 7.0,
+      seed: 42,
+      videoEngine: 'sd15_motion',
+    };
+
+    const RATIO_MAP = {
+      '1:1': [512, 512],
+      '16:9': [640, 384],
+      '9:16': [384, 640],
+      '2:3': [512, 768],
+    };
+
+    const STYLE_COLORS = {
+      photorealistic: ['#0f2027', '#203a43', '#2c5364', '#f59e0b'],
+      cyberpunk: ['#090d16', '#1e1b4b', '#0d9488', '#f43f5e'],
+      anime: ['#1e3a5f', '#2e7d5b', '#69b98e', '#fde047'],
+      product: ['#18181b', '#27272a', '#52525b', '#38bdf8'],
+    };
+
+    stepsSlider.addEventListener('input', () => {
+      stepsOut.textContent = stepsSlider.value;
+    });
+    cfgSlider.addEventListener('input', () => {
+      cfgOut.textContent = Number(cfgSlider.value).toFixed(1);
+    });
+
+    document.querySelectorAll('input[name="mode"]').forEach((r) => {
+      r.addEventListener('change', () => {
+        const isVideo = document.getElementById('mode-vid').checked;
+        videoFieldset.classList.toggle('hidden', !isVideo);
+      });
+    });
+
+    function drawStudioFrame(timestampMs) {
+      const [w, h] = RATIO_MAP[currentState.aspect] || [512, 512];
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+
+      const palette = STYLE_COLORS[currentState.style] || STYLE_COLORS.photorealistic;
+      const isVideo = currentState.mode === 'video';
+      const t = isVideo ? (timestampMs || 0) * 0.002 : 0;
+
+      // Background gradient with subtle motion in video mode
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, palette[0]);
+      grad.addColorStop(0.55, palette[1]);
+      grad.addColorStop(1, palette[2]);
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Animated or static focal subject
+      const zoom = isVideo ? 1 + 0.08 * Math.sin(t) : 1;
+      ctx.save();
+      ctx.translate(w / 2, h / 2);
+      ctx.scale(zoom, zoom);
+
+      // Glowing aura
+      const aura = ctx.createRadialGradient(0, 0, 10, 0, 0, Math.min(w, h) * 0.35);
+      aura.addColorStop(0, palette[3] + '88');
+      aura.addColorStop(1, 'transparent');
+      ctx.fillStyle = aura;
+      ctx.beginPath();
+      ctx.arc(Math.sin(t) * 18, Math.cos(t * 0.8) * 10, Math.min(w, h) * 0.35, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Orbiting particles
+      for (let i = 0; i < 6; i++) {
+        const angle = ((currentState.seed % 360) + i * 60) * (Math.PI / 180) + t * 0.9;
+        const px = Math.cos(angle) * (Math.min(w, h) * 0.24);
+        const py = Math.sin(angle) * (Math.min(w, h) * 0.16);
+        ctx.fillStyle = '#ffffffcc';
+        ctx.beginPath();
+        ctx.arc(px, py, 4 + (i % 3), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // Top HUD overlay
+      ctx.fillStyle = 'rgba(16, 19, 23, 0.72)';
+      ctx.fillRect(14, 14, w - 28, 36);
+      ctx.fillStyle = '#f7f6f2';
+      ctx.font = '600 12px "JetBrains Mono", monospace';
+      const badgeText = isVideo
+        ? `🎬 VIDEO (24 FPS Loop • ${currentState.videoEngine}) | ${w}x${h} | Seed: ${currentState.seed}`
+        : `🖼️ IMAGE (${w}x${h}) | Steps: ${currentState.steps} | CFG: ${currentState.cfg} | Seed: ${currentState.seed}`;
+      ctx.fillText(badgeText, 24, 36);
+
+      // Bottom caption
+      ctx.fillStyle = 'rgba(16, 19, 23, 0.78)';
+      ctx.fillRect(14, h - 48, w - 28, 34);
+      ctx.fillStyle = '#69b98e';
+      ctx.font = '500 12px "Google Sans Thai", sans-serif';
+      ctx.fillText(currentState.prompt.slice(0, 58), 24, h - 26);
+
+      if (isVideo) {
+        animRequest = requestAnimationFrame(drawStudioFrame);
+      }
+    }
+
+    function updateInspectionView() {
+      if (animRequest) {
+        cancelAnimationFrame(animRequest);
+        animRequest = null;
+      }
+
+      const [w, h] = RATIO_MAP[currentState.aspect] || [512, 512];
+      const isVideo = currentState.mode === 'video';
+      modePill.textContent = isVideo ? '🎬 VIDEO MODE (Animated WebP/GIF)' : '🖼️ IMAGE MODE (Static PNG)';
+      viewportSubtitle.textContent = `ขนาดภาพ: ${w}×${h} • Steps: ${currentState.steps} • CFG: ${currentState.cfg} • Seed: ${currentState.seed}`;
+
+      const enPrompt = ` ginger scientist cat wearing glasses building an AI robot in a futuristic lab, ${currentState.style} style, masterpiece, best quality`;
+      jsonPreviewCode.textContent =
+`# โค้ด Python ใน 06-custom-media-studio/app.py อัปเดตคีย์ในไฟล์ JSON อัตโนมัติ:
+workflow["6"]["inputs"]["text"] = "${enPrompt.trim()}"
+workflow["5"]["inputs"]["width"] = ${w}
+workflow["5"]["inputs"]["height"] = ${h}
+workflow["3"]["inputs"]["seed"] = ${currentState.seed}
+workflow["3"]["inputs"]["steps"] = ${currentState.steps}
+workflow["3"]["inputs"]["cfg"] = ${currentState.cfg}`;
+
+      drawStudioFrame(0);
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const seedMode = fd.get('seed_mode');
+      const rawSeed = String(fd.get('seed_value') || '42').trim();
+      const nextSeed = seedMode === 'fixed' && /^\d+$/.test(rawSeed)
+        ? Number(rawSeed)
+        : Math.floor(100000 + Math.random() * 900000);
+
+      if (seedMode === 'random') {
+        document.getElementById('seed-num').value = String(nextSeed);
+      }
+
+      currentState = {
+        mode: fd.get('mode') || 'image',
+        prompt: fd.get('prompt') || '',
+        style: fd.get('style') || 'photorealistic',
+        aspect: fd.get('aspect_ratio') || '1:1',
+        steps: Number(fd.get('steps') || 20),
+        cfg: Number(fd.get('cfg') || 7.0),
+        seed: nextSeed,
+        videoEngine: fd.get('video_engine') || 'sd15_motion',
+      };
+      updateInspectionView();
+    });
+
+    updateInspectionView();
+  </script>
+</body>
+</html>

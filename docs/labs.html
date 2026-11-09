@@ -663,10 +663,10 @@ display(df_action)</code></pre>
               <input type="checkbox" id="lab-m3-s2" data-lab-id="lab-m3-s2" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
               <div class="min-w-0 flex-1">
                 <label for="lab-m3-s2" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
-                  Lab 3.2 — กด Queue Prompt เพื่อเรนเดอร์ภาพแรกและสังเกตเวลาประมวลผล
+                  Lab 3.2 — กดปุ่ม <code>Run</code> (หรือ <code>Queue Prompt</code>) เพื่อเรนเดอร์ภาพแรกและสังเกตเวลาประมวลผล
                 </label>
                 <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
-                  คลิกปุ่ม <strong>Queue Prompt</strong> บนหน้าเว็บ ComfyUI สังเกตกรอบสีเขียวที่วิ่งผ่านโหนด <code>Load Checkpoint -&gt; CLIP -&gt; KSampler -&gt; VAE Decode -&gt; Save Image</code> (ใช้เวลาประมาณ 2–3 วินาทีต่อภาพบน RTX 3050 6GB และ Apple Silicon)
+                  คลิกปุ่ม <strong><code>▶ Run</code></strong> (หรือกดคีย์ลัด <code>Ctrl + Enter</code> / ใน UI รุ่นเก่าจะเขียนว่า <code>Queue Prompt</code>) บนหน้าเว็บ ComfyUI สังเกตกรอบสีเขียวที่วิ่งผ่านโหนด <code>Load Checkpoint -&gt; CLIP -&gt; KSampler -&gt; VAE Decode -&gt; Save Image</code> (ใช้เวลาประมาณ 2–3 วินาทีต่อภาพบน RTX 3050 6GB และ Apple Silicon)
                 </p>
               </div>
             </div>
@@ -678,10 +678,10 @@ display(df_action)</code></pre>
               <input type="checkbox" id="lab-m3-s3" data-lab-id="lab-m3-s3" class="step-check mt-1 w-5 h-5 shrink-0 rounded cursor-pointer" />
               <div class="min-w-0 flex-1">
                 <label for="lab-m3-s3" class="font-bold text-base text-tomera-ink dark:text-tomera-paper cursor-pointer block">
-                  Lab 3.3 — เปิด Developer Mode และส่งออกไฟล์ <code>Save (API Format)</code>
+                  Lab 3.3 — เปิด Developer Mode และส่งออกไฟล์ JSON สำหรับ API (<code>Workflow → Export (API)</code>)
                 </label>
                 <p class="text-sm text-tomera-muted dark:text-tomera-dim mt-1">
-                  คลิกไอคอนรูปเฟือง (Settings) มุมขวาบนของ ComfyUI ติ๊กเปิด <strong>Enable Dev mode Options</strong> จากนั้นกดปุ่ม <strong>Save (API Format)</strong> แล้วเปิดเปรียบเทียบกับไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab
+                  คลิกไอคอนรูปเฟือง <strong>⚙️ Settings</strong> (มุมซ้ายล่างหรือขวาบนของ ComfyUI) ค้นหาคำว่า <code>Dev Mode</code> แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จากนั้นไปที่เมนูมุมซ้ายบนเลือก <strong><code>Workflow → Export (API)</code></strong> (หรือปุ่ม <code>Save (API Format)</code> ใน UI รุ่นเก่า) แล้วเปิดเปรียบเทียบกับไฟล์ <code>03-comfyui-workflows/sd15_txt2img_api.json</code> ใน JupyterLab
                 </p>
               </div>
             </div>

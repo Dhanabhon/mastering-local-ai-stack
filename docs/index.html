@@ -1106,13 +1106,13 @@ python main.py --force-fp16</code></pre>
               <strong class="text-slate-900 dark:text-white">ตรวจสอบโหนด <code>Load Checkpoint</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> เมื่อเปิดเบราว์เซอร์ไปที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://127.0.0.1:8188</code> ให้คลิกที่ช่อง <code>ckpt_name</code> ในกล่องโหนด <strong>Load Checkpoint</strong> แล้วเลือกไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (หากเพิ่งวางไฟล์ขณะเปิดโปรแกรมอยู่ ให้กดปุ่ม <code>R</code> บนคีย์บอร์ดเพื่อ Refresh รายชื่อโมเดล)
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">กดปุ่ม <code>Queue Prompt</code> (หรือปุ่ม <code>Run</code>) เพื่อทดสอบวาดภาพแรก (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> ตรวจสอบว่าการ์ดจอสามารถเรนเดอร์ภาพ <code>512x512</code> ออกมาได้ภายใน 2 ถึง 3 วินาทีโดยไม่มีข้อความแจ้งเตือนสีแดง
+              <strong class="text-slate-900 dark:text-white">กดปุ่ม <code>▶ Run</code> (หรือ <code>Queue Prompt</code> ใน UI รุ่นเก่า) เพื่อทดสอบวาดภาพแรก (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> คลิกปุ่ม <strong><code>▶ Run</code></strong> (หรือกดคีย์ลัด <code>Ctrl + Enter</code>) เพื่อตรวจสอบว่าการ์ดจอสามารถเรนเดอร์ภาพ <code>512x512</code> ออกมาได้ภายใน 2 ถึง 3 วินาทีโดยไม่มีข้อความแจ้งเตือนสีแดง
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">คลิกไอคอนฟันเฟือง ⚙️ Settings แล้วเปิด <code>Enable Dev mode Options</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> เปิดหน้าต่างตั้งค่าของ ComfyUI แล้วสับสวิตช์ <strong>Enable Dev mode Options</strong> ให้เป็นสีเขียว
+              <strong class="text-slate-900 dark:text-white">คลิกไอคอนฟันเฟือง ⚙️ Settings แล้วเปิด <code>Enable Dev mode Options</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> เปิดหน้าต่างตั้งค่าของ ComfyUI (มุมซ้ายล่างหรือขวาบน) พิมพ์ค้นหาคำว่า <code>Dev mode</code> แล้วสับสวิตช์ <strong>Enable Dev mode Options</strong> ให้เปิดใช้งาน
             </li>
             <li>
-              <strong class="text-slate-900 dark:text-white">สังเกตปุ่ม <code>Save (API Format)</code> (หรือเมนู <code>Workflow → Export (API)</code>) ที่ปรากฏขึ้นมา (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> ปุ่มนี้จะใช้ในช่วงบ่าย (Module 3 และ 4) สำหรับส่งออกกราฟโหนดเป็นไฟล์ JSON ให้โค้ด Python สั่งรันอัตโนมัติ
+              <strong class="text-slate-900 dark:text-white">ตรวจสอบเมนูส่งออกไฟล์ API <code>Workflow → Export (API)</code> หรือปุ่ม <code>Save (API Format)</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> เมื่อเปิด Dev Mode แล้ว ในหน้า UI รุ่นใหม่จะมีคำสั่ง <strong><code>Workflow → Export (API)</code></strong> ที่เมนูมุมซ้ายบน (หรือปุ่ม <code>Save (API Format)</code> ใน UI รุ่นเก่า) สำหรับใช้ส่งออกกราฟโหนดเป็นไฟล์ JSON ในช่วงบ่าย (Module 3 และ 4)
             </li>
           </ol>
 
@@ -1120,17 +1120,17 @@ python main.py --force-fp16</code></pre>
           <figure class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
             <img
               src="./images/comfyui-webui-devmode.png"
-              alt="หน้าจอเว็บ ComfyUI ที่พอร์ต 8188 แสดงโหนด Load Checkpoint ปุ่ม Queue Prompt หน้าต่าง Settings เปิด Enable Dev mode Options และปุ่ม Save (API Format)"
+              alt="หน้าจอเว็บ ComfyUI ที่พอร์ต 8188 แสดงโหนด Load Checkpoint ปุ่ม Run (Queue Prompt) หน้าต่าง Settings เปิด Enable Dev mode Options และเมนู Export (API)"
               width="1400"
               height="580"
               loading="lazy"
               class="ui-screenshot-img cursor-zoom-in"
               data-zoom-src="./images/comfyui-webui-devmode.png"
-              data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options"
+              data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint ปุ่ม Run และการเปิด Enable Dev mode Options"
             />
             <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
-              <span><strong>ภาพที่ 4.2:</strong> หน้าจอเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) แสดงตำแหน่งเลือกโมเดลและการเปิดปุ่ม <code>Save (API Format)</code></span>
-              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-webui-devmode.png" data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options">
+              <span><strong>ภาพที่ 4.2:</strong> หน้าจอเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) แสดงปุ่ม <code>▶ Run</code> (<code>Queue Prompt</code>) และการเปิดเมนู <code>Export (API)</code> / <code>Save (API Format)</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-webui-devmode.png" data-zoom-caption="ขั้นตอนที่ 4.4: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint ปุ่ม Run และการเปิด Enable Dev mode Options">
                 🔍 คลิกขยายภาพเต็มจอ
               </button>
             </figcaption>

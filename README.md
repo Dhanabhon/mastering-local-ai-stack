@@ -28,7 +28,10 @@
 4. **🎬 โปรเจกต์ตัวอย่างต่อยอด #2 (Local AI Media Studio — Custom Image & Video Web App):**
    - **Interactive Web Demo:** **[https://dhanabhon.github.io/mastering-local-ai-stack/media-studio.html](https://dhanabhon.github.io/mastering-local-ai-stack/media-studio.html)** | [`docs/media-studio.html`](./docs/media-studio.html)
    - **ซอร์สโค้ด Web App ครอบ LM Studio + ComfyUI (เลือกโหมด Image / Video ได้):** [`06-custom-media-studio/app.py`](./06-custom-media-studio/app.py) | [`06-custom-media-studio/README.md`](./06-custom-media-studio/README.md)
-5. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
+5. **🛍️ โปรเจกต์ตัวอย่างต่อยอด #3 (AdCraft AI — Product Video Ad Studio):**
+   - **Interactive Web Demo:** **[https://dhanabhon.github.io/mastering-local-ai-stack/product-ad-studio.html](https://dhanabhon.github.io/mastering-local-ai-stack/product-ad-studio.html)** | [`docs/product-ad-studio.html`](./docs/product-ad-studio.html)
+   - **ซอร์สโค้ดสร้างวิดีโอโฆษณาสินค้า 3 ฉากจากภาพสินค้า 1–3 มุมมอง + ชุดตัวอย่าง Prompt 6 หมวดหมู่:** [`07-product-ad-studio/app.py`](./07-product-ad-studio/app.py) | [`07-product-ad-studio/README.md`](./07-product-ad-studio/README.md)
+6. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
    - **Google Slides:** **[เปิดสไลด์ออนไลน์](https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit?usp=sharing)**
    - **ไฟล์ PDF / PPTX ในคลัง:** [`slides/Mastering_Local_AI_Stack_2026.pdf`](./slides/Mastering_Local_AI_Stack_2026.pdf) | [`slides/Mastering_Local_AI_Stack_2026.pptx`](./slides/Mastering_Local_AI_Stack_2026.pptx)
 
@@ -81,7 +84,8 @@ mastering-local-ai-stack/
 │   ├── index.html                                 # หน้าเว็บคู่มือเตรียมเครื่อง (Pre-Workshop Setup Guide)
 │   ├── labs.html                                  # หน้าเว็บใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges
 │   ├── showcase.html                              # หน้าเว็บ Interactive Showcase #1 (CineLocal Storyboard)
-│   └── media-studio.html                          # หน้าเว็บ Interactive Showcase #2 (Custom Image & Video Studio)
+│   ├── media-studio.html                          # หน้าเว็บ Interactive Showcase #2 (Custom Image & Video Studio)
+│   └── product-ad-studio.html                     # หน้าเว็บ Interactive Showcase #3 (Product Video Ad Studio)
 ├── slides/
 │   ├── Mastering_Local_AI_Stack_2026.pdf          # ไฟล์สไลด์บรรยาย PDF (ธีม Tomera AI & Google Sans Thai)
 │   └── Mastering_Local_AI_Stack_2026.pptx         # ไฟล์สไลด์บรรยาย PowerPoint (.pptx)
@@ -98,11 +102,16 @@ mastering-local-ai-stack/
 ├── 05-bonus-showcase/
 │   ├── README.md                                  # คู่มือแกะรอยโปรเจกต์ต่อยอด #1 (Storyboard Pitch Deck)
 │   └── app.py                                     # สคริปต์ Python Full-Stack สร้าง Storyboard 3 ฉาก + HTML Pitch Deck
-└── 06-custom-media-studio/
-    ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #2 (Custom Image & Video Web App)
-    ├── app.py                                     # เว็บแอปครอบ LM Studio + ComfyUI เลือกโหมด Image / Video (พอร์ต 8090)
+├── 06-custom-media-studio/
+│   ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #2 (Custom Image & Video Web App)
+│   ├── app.py                                     # เว็บแอปครอบ LM Studio + ComfyUI เลือกโหมด Image / Video (พอร์ต 8090)
+│   └── workflows/
+│       └── sd15_animatediff_api.json              # เวิร์กโฟลว์ตัวอย่างสำหรับโหมดสร้างวิดีโอด้วย AnimateDiff API
+└── 07-product-ad-studio/
+    ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #3 (Product Video Ad Studio)
+    ├── app.py                                     # เว็บแอปสร้างวิดีโอโฆษณา 3 ฉากจากภาพสินค้า 1-3 มุมมอง (พอร์ต 8095)
     └── workflows/
-        └── sd15_animatediff_api.json              # เวิร์กโฟลว์ตัวอย่างสำหรับโหมดสร้างวิดีโอด้วย AnimateDiff API
+        └── sd15_product_img2img_api.json          # เวิร์กโฟลว์ตัวอย่างสำหรับจัดแสงและฉากหลังภาพสินค้า (Img2Img)
 ```
 
 ---

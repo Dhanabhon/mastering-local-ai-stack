@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AdCraft AI (Showcase #3) | Product Video Ad Studio</title>
+  <meta name="description" content="Showcase ตัวที่ 3: เว็บแอปสร้างวิดีโอโฆษณาสินค้า 3 ฉากจากภาพสินค้า 1-3 มุมมองและชุดตัวอย่าง Prompt สำเร็จรูป 6 สไตล์" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('local_ai_workshop_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #101317;
+      --paper: #f7f6f2;
+      --surface: #ffffff;
+      --soft: #ebebe5;
+      --line: #d9dcd3;
+      --muted: #61665f;
+      --brand: #2e7d5b;
+      --brand-deep: #256b4e;
+      --brand-bright: #69b98e;
+      --brand-tint: rgba(46, 125, 91, 0.11);
+      --code-bg: #121714;
+      --code-border: #2a342d;
+      --code-text: #eef2ed;
+      --shadow-sm: 0 2px 8px rgba(16, 19, 23, 0.05);
+      --shadow-md: 0 12px 32px rgba(16, 19, 23, 0.14);
+      accent-color: var(--brand);
+    }
+
+    html.dark {
+      --ink: #f7f6f2;
+      --paper: #181d19;
+      --surface: #1f2621;
+      --soft: #262f29;
+      --line: #323d35;
+      --muted: #acb3a8;
+      --brand: #69b98e;
+      --brand-deep: #2e7d5b;
+      --brand-bright: #78c99e;
+      --brand-tint: rgba(105, 185, 142, 0.14);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.42);
+      accent-color: var(--brand-bright);
+    }
+
+    @supports not (accent-color: var(--brand)) {
+      input[type="radio"]:checked {
+        outline: 2px solid var(--brand);
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Google Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, pre, kbd, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-ligatures: none;
+    }
+
+    .container {
+      max-width: 1260px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: color-mix(in srgb, var(--paper) 90%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.6rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--brand-tint);
+      color: var(--brand);
+      border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-ghost:hover {
+      border-color: var(--brand);
+    }
+
+    .hero {
+      padding: 2rem 0 1.25rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+      line-height: 1.25;
+      margin: 0.4rem 0 0.6rem;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      padding: 1.75rem 0 3rem;
+    }
+
+    @media (min-width: 980px) {
+      .workspace-grid {
+        grid-template-columns: 490px minmax(0, 1fr);
+        align-items: start;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.35rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.9rem 1rem;
+      margin: 0 0 1rem 0;
+    }
+
+    legend {
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0 0.4rem;
+      color: var(--brand);
+    }
+
+    .form-group {
+      margin-block-end: 0.85rem;
+    }
+    .form-group:last-child {
+      margin-block-end: 0;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-block-end: 0.3rem;
+    }
+
+    .hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-block-start: 0.2rem;
+    }
+
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.6rem 0.75rem;
+      min-height: 44px;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.9rem;
+    }
+
+    textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+
+    input:focus-visible,
+    textarea:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--brand);
+      outline-offset: 2px;
+    }
+
+    .slots-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.55rem;
+      margin-top: 0.5rem;
+    }
+
+    .slot-box {
+      border: 1px dashed var(--line);
+      border-radius: 0.65rem;
+      padding: 0.5rem;
+      background: var(--paper);
+      text-align: center;
+      font-size: 0.72rem;
+    }
+
+    .slot-preview {
+      width: 100%;
+      height: 72px;
+      object-fit: contain;
+      border-radius: 0.4rem;
+      background: var(--soft);
+      margin-top: 0.35rem;
+      display: none;
+    }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .preset-btn {
+      padding: 0.5rem 0.65rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+    }
+    .preset-btn:hover {
+      border-color: var(--brand);
+    }
+
+    .radio-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.45rem;
+    }
+
+    .radio-card {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0.55rem;
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      background: var(--paper);
+      font-size: 0.78rem;
+      font-weight: 600;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-radius: 0.65rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background: var(--brand);
+    }
+
+    .stage-box {
+      border: 1px solid var(--line);
+      border-radius: 0.85rem;
+      background: var(--paper);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 460px;
+    }
+
+    canvas#ad-canvas {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0.85rem;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--line);
+    }
+
+    .code-panel {
+      margin-top: 1.15rem;
+      border-radius: 0.85rem;
+      overflow: hidden;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      color: var(--code-text);
+    }
+
+    .code-head {
+      padding: 0.55rem 0.95rem;
+      background: #1a211d;
+      border-bottom: 1px solid var(--code-border);
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    pre.code-pre {
+      margin: 0;
+      padding: 0.9rem 1rem;
+      font-size: 0.76rem;
+      overflow-x: auto;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-group">
+        <div class="brand-badge">AD</div>
+        <div>
+          <div class="brand-title">
+            <span>AdCraft AI • Product Video Ad Studio</span>
+            <span class="pill-tag">Showcase #3 • 07-product-ad-studio</span>
+          </div>
+          <p class="brand-sub">โยนภาพสินค้า 1–3 มุมมอง + เลือกชุด Prompt สำเร็จรูป เพื่อสร้างวิดีโอโฆษณา 3 ฉาก</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a href="./index.html" class="btn-ghost">← คู่มือเตรียมเครื่อง</a>
+        <a href="./labs.html" class="btn-ghost">ใบงาน Lab 6 ชม.</a>
+        <a href="./showcase.html" class="btn-ghost">Showcase #1</a>
+        <a href="./media-studio.html" class="btn-ghost">Showcase #2</a>
+        <button type="button" id="theme-toggle-btn" class="btn-ghost" aria-label="สลับโหมดสี">
+          <span id="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <span class="pill-tag">07-product-ad-studio/app.py • พอร์ต 8095</span>
+      <h1>สร้างวิดีโอโฆษณาสินค้าสั้น 3 ฉาก จากภาพสินค้าของคุณ + ชุดตัวอย่าง Prompt 6 หมวดหมู่</h1>
+      <p style="margin: 0; color: var(--muted); max-width: 84ch; font-size: 0.94rem;">
+        ออกแบบตามโครงสร้างวิดีโอโฆษณามาตรฐาน <strong>3-Shot Commercial Formula (Hook → Detail → Offer)</strong>: เพียงอัปโหลดภาพสินค้า <strong>1 ถึง 3 ภาพ</strong> (หากใส่แค่ 1 ภาพ ระบบจะจำลองมุมซูมและมุมเอียงให้ครบ 3 ฉากอัตโนมัติ) คลิกเลือกชุดตัวอย่าง Prompt โฆษณาที่ต้องการ แล้วกด Generate เพื่อรับวิดีโอแอนิเมชันพร้อมคำโปรยภาษาไทยจาก LM Studio และฉากหลังจาก ComfyUI
+      </p>
+    </div>
+  </section>
+
+  <main class="container workspace-grid">
+    <!-- Left Column: Product Upload & Prompt Presets -->
+    <section class="card" aria-labelledby="ad-ctrl-heading">
+      <h2 id="ad-ctrl-heading" style="margin-top: 0; font-size: 1.05rem;">ตั้งค่าแคมเปญโฆษณาสินค้า (Product Ad Campaign)</h2>
+
+      <form id="ad-demo-form" action="#ad-preview" method="POST">
+        <fieldset>
+          <legend>1. โยนภาพสินค้า 1–3 มุมมอง (3-Shot Commercial Formula)</legend>
+          <span class="hint">
+            เลือกไฟล์ภาพสินค้าจากเครื่องของคุณได้เลย (หากยังไม่ได้อัปโหลด ระบบจะใช้ภาพบรรจุภัณฑ์สินค้า 3 มิติจำลองให้ทันที)
+          </span>
+
+          <div class="slots-grid">
+            <div class="slot-box">
+              <label class="field-label" for="file-shot-1">ภาพที่ 1: มุมหลัก (Hook)</label>
+              <input type="file" id="file-shot-1" name="shot_1" accept="image/*" style="width: 100%; font-size: 0.68rem;" />
+              <img id="preview-shot-1" class="slot-preview" alt="ภาพสินค้าที่ 1" />
+            </div>
+            <div class="slot-box">
+              <label class="field-label" for="file-shot-2">ภาพที่ 2: ดีเทล (45°)</label>
+              <input type="file" id="file-shot-2" name="shot_2" accept="image/*" style="width: 100%; font-size: 0.68rem;" />
+              <img id="preview-shot-2" class="slot-preview" alt="ภาพสินค้าที่ 2" />
+            </div>
+            <div class="slot-box">
+              <label class="field-label" for="file-shot-3">ภาพที่ 3: ปิดการขาย</label>
+              <input type="file" id="file-shot-3" name="shot_3" accept="image/*" style="width: 100%; font-size: 0.68rem;" />
+              <img id="preview-shot-3" class="slot-preview" alt="ภาพสินค้าที่ 3" />
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>2. เลือกชุดตัวอย่าง Prompt โฆษณาสำเร็จรูป (6 Commercial Presets)</legend>
+          <div class="preset-grid" role="group" aria-label="เลือกชุดตัวอย่าง Prompt โฆษณา">
+            <button type="button" class="preset-btn" data-preset="coffee_beverage">☕ กาแฟสกัดเย็น / เครื่องดื่ม</button>
+            <button type="button" class="preset-btn" data-preset="luxury_skincare">🧴 สกินแคร์ / เซรั่มหรู</button>
+            <button type="button" class="preset-btn" data-preset="tech_gadget">🎧 หูฟังไร้สาย / แกดเจ็ต</button>
+            <button type="button" class="preset-btn" data-preset="street_sneaker">👟 รองเท้าผ้าใบ / สตรีท</button>
+            <button type="button" class="preset-btn" data-preset="gourmet_food">🥐 ขนมอบ / อาหารพรีเมียม</button>
+            <button type="button" class="preset-btn" data-preset="minimal_watch">⌚ นาฬิกาข้อมือ / แฟชั่น</button>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="prod-name">ชื่อแบรนด์และสินค้า (Product Name):</label>
+            <input type="text" id="prod-name" name="product_name" required value="AURA Cold Brew Coffee" />
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="prod-benefit">จุดขายหลักภาษาไทย (Hook &amp; Benefit):</label>
+            <input type="text" id="prod-benefit" name="selling_point" required value="สกัดเย็นนาน 18 ชั่วโมง หอมเมล็ดกาแฟอาราบิก้าแท้ สดชื่นไม่มีน้ำตาล" />
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="prod-cta">ป้ายโปรโมชันปิดท้าย (Call-to-Action):</label>
+            <input type="text" id="prod-cta" name="cta_badge" required value="สั่งซื้อวันนี้ ลดทันที 20%" />
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="prod-prompt">Prompt ฉากหลังสตูดิโอ (ส่งให้ ComfyUI วาดฉาก):</label>
+            <textarea id="prod-prompt" name="scene_prompt" required>commercial product photography of a sleek cold brew coffee bottle on wet dark slate stone, splashing water droplets, crushed ice cubes, warm morning golden hour sunbeams, 8k advertising shot</textarea>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>3. สัดส่วนวิดีโอโฆษณา (Aspect Ratio)</legend>
+          <div class="radio-grid">
+            <label class="radio-card" for="fmt-9-16">
+              <input type="radio" id="fmt-9-16" name="aspect_ratio" value="9:16" checked />
+              <span>📱 9:16 (TikTok)</span>
+            </label>
+            <label class="radio-card" for="fmt-1-1">
+              <input type="radio" id="fmt-1-1" name="aspect_ratio" value="1:1" />
+              <span>🟦 1:1 (Feed)</span>
+            </label>
+            <label class="radio-card" for="fmt-16-9">
+              <input type="radio" id="fmt-16-9" name="aspect_ratio" value="16:9" />
+              <span>🖥️ 16:9 (YouTube)</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <button type="submit" class="btn-primary">
+          🎬 กดสร้างวิดีโอโฆษณาสินค้า 3 ฉาก (Generate Video Ad)
+        </button>
+      </form>
+    </section>
+
+    <!-- Right Column: Animated Video Ad Viewport -->
+    <section>
+      <div class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.85rem;">
+          <div>
+            <h2 style="margin: 0; font-size: 1.05rem;">หน้าจอแสดงวิดีโอโฆษณา (3-Act Commercial Video Player)</h2>
+            <p style="margin: 0; font-size: 0.78rem; color: var(--muted);" id="ad-status-sub">
+              กำลังเล่นวนลูป: ฉากที่ 1 (Hook) → ฉากที่ 2 (Detail) → ฉากที่ 3 (Offer CTA)
+            </p>
+          </div>
+          <span class="pill-tag" id="scene-indicator">SCENE 1 / 3 • HOOK</span>
+        </div>
+
+        <div class="stage-box">
+          <canvas id="ad-canvas" width="384" height="640"></canvas>
+        </div>
+
+        <div class="code-panel">
+          <div class="code-head">
+            <span>วิธีรันเว็บแอป AdCraft AI บนเครื่องของคุณ (พอร์ต 8095)</span>
+            <span>07-product-ad-studio/app.py</span>
+          </div>
+          <pre class="code-pre"><code>python 07-product-ad-studio/app.py
+# เปิดเบราว์เซอร์ไปที่ http://127.0.0.1:8095
+# ระบบจะบันทึกไฟล์วิดีโอโฆษณาทั้ง .webp และ .gif ลงใน 07-product-ad-studio/outputs/</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeLabel = document.getElementById('theme-label');
+    function syncTheme() {
+      themeLabel.textContent = document.documentElement.classList.contains('dark') ? 'Light' : 'Dark';
+    }
+    syncTheme();
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('local_ai_workshop_theme', isDark ? 'dark' : 'light');
+      syncTheme();
+    });
+
+    const AD_PRESETS = {
+      coffee_beverage: {
+        product_name: 'AURA Cold Brew Coffee',
+        selling_point: 'สกัดเย็นนาน 18 ชั่วโมง หอมเมล็ดกาแฟอาราบิก้าแท้ สดชื่นไม่มีน้ำตาล',
+        cta_badge: 'สั่งซื้อวันนี้ ลดทันที 20%',
+        scene_prompt: 'commercial product photography of a sleek cold brew coffee bottle on wet dark slate stone, splashing water droplets, crushed ice cubes, warm morning golden hour sunbeams, 8k advertising shot',
+        colors: ['#1a120b', '#3c2a21', '#d97706'],
+      },
+      luxury_skincare: {
+        product_name: 'LUMIÈRE Botanical Gold Serum',
+        selling_point: 'เซรั่มเข้มข้นจากสารสกัดธรรมชาติ ฟื้นฟูผิวโกลว์ใสชุ่มชื้นใน 7 วัน',
+        cta_badge: 'ทดลองขนาดพกพาเพียง 390.-',
+        scene_prompt: 'high-end cosmetic product photography on rippling crystal clear water surface, white botanical orchids, soft champagne gold caustic light reflections, luxury spa podium',
+        colors: ['#0f291e', '#1e4d38', '#2e7d5b'],
+      },
+      tech_gadget: {
+        product_name: 'NOVA Pulse ANC Earbuds',
+        selling_point: 'ตัดเสียงรบกวนอัจฉริยะด้วย AI เบสแน่น คมชัดทุกมิติ แบตอึด 36 ชั่วโมง',
+        cta_badge: 'ผ่อน 0% นาน 10 เดือน',
+        scene_prompt: 'futuristic commercial product shot on matte carbon fiber pedestal, neon cyan and emerald laser light streaks, floating holographic soundwaves, dark studio atmosphere',
+        colors: ['#090d16', '#0f172a', '#0284c7'],
+      },
+      street_sneaker: {
+        product_name: 'AERO-X Street Runner',
+        selling_point: 'พื้นโฟมคาร์บอนเด้งรับแรงกระแทก น้ำหนักเบา ดีไซน์สตรีทลุยได้ทุกวัน',
+        cta_badge: 'คอลเลกชันใหม่จำนวนจำกัด',
+        scene_prompt: 'dynamic commercial sneaker photography floating above wet urban asphalt street at night, glowing orange embers and mist, neon city bokeh reflections',
+        colors: ['#181016', '#3b1224', '#e11d48'],
+      },
+      gourmet_food: {
+        product_name: 'MAISON Butter Croissant Box',
+        selling_point: 'อบสดใหม่ทุกเช้าด้วยเนยแท้ฝรั่งเศส กรอบนอกนุ่มใน หอมกรุ่นจากเตา',
+        cta_badge: 'ส่งด่วนถึงบ้านภายใน 1 ชม.',
+        scene_prompt: 'mouth-watering food commercial photography on rustic warm oak wood table, golden flaky crumbs, soft rising steam, morning sunlight through linen curtain',
+        colors: ['#1f140e', '#452715', '#b45309'],
+      },
+      minimal_watch: {
+        product_name: 'CHRONO Verve Titanium',
+        selling_point: 'ตัวเรือนไทเทเนียมเกรดการบิน กระจกแซฟไฟร์กันรอย กันน้ำลึก 100 เมตร',
+        cta_badge: 'รับประกันศูนย์ไทย 5 ปีเต็ม',
+        scene_prompt: 'ultra-luxury timepiece product photography resting on black volcanic basalt rock, dramatic silver studio spotlight, subtle mist, razor-sharp metallic reflections',
+        colors: ['#111322', '#1e1b4b', '#4f46e5'],
+      },
+    };
+
+    const uploadedImgs = [null, null, null];
+    [1, 2, 3].forEach((idx) => {
+      const inp = document.getElementById('file-shot-' + idx);
+      const prev = document.getElementById('preview-shot-' + idx);
+      inp.addEventListener('change', () => {
+        const f = inp.files && inp.files[0];
+        if (!f) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const imgObj = new Image();
+          imgObj.onload = () => {
+            uploadedImgs[idx - 1] = imgObj;
+          };
+          imgObj.src = reader.result;
+          prev.src = reader.result;
+          prev.style.display = 'block';
+        };
+        reader.readAsDataURL(f);
+      });
+    });
+
+    let activePresetKey = 'coffee_beverage';
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const k = btn.getAttribute('data-preset');
+        const p = AD_PRESETS[k];
+        if (!p) return;
+        activePresetKey = k;
+        document.getElementById('prod-name').value = p.product_name;
+        document.getElementById('prod-benefit').value = p.selling_point;
+        document.getElementById('prod-cta').value = p.cta_badge;
+        document.getElementById('prod-prompt').value = p.scene_prompt;
+        syncCampaignState();
+      });
+    });
+
+    const canvas = document.getElementById('ad-canvas');
+    const ctx = canvas.getContext('2d');
+    const sceneIndicator = document.getElementById('scene-indicator');
+    let campaign = {
+      productName: 'AURA Cold Brew Coffee',
+      sellingPoint: 'สกัดเย็นนาน 18 ชั่วโมง หอมเมล็ดกาแฟอาราบิก้าแท้ สดชื่นไม่มีน้ำตาล',
+      ctaBadge: 'สั่งซื้อวันนี้ ลดทันที 20%',
+      aspect: '9:16',
+      colors: AD_PRESETS.coffee_beverage.colors,
+    };
+
+    const ASPECT_SIZES = {
+      '9:16': [384, 640],
+      '1:1': [512, 512],
+      '16:9': [640, 384],
+    };
+
+    function syncCampaignState() {
+      const fd = new FormData(document.getElementById('ad-demo-form'));
+      const preset = AD_PRESETS[activePresetKey] || AD_PRESETS.coffee_beverage;
+      campaign = {
+        productName: fd.get('product_name') || preset.product_name,
+        sellingPoint: fd.get('selling_point') || preset.selling_point,
+        ctaBadge: fd.get('cta_badge') || preset.cta_badge,
+        aspect: fd.get('aspect_ratio') || '9:16',
+        colors: preset.colors,
+      };
+      const [w, h] = ASPECT_SIZES[campaign.aspect] || [384, 640];
+      if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w;
+        canvas.height = h;
+      }
+    }
+
+    document.getElementById('ad-demo-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      syncCampaignState();
+    });
+
+    function renderCommercialLoop(nowMs) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cycleSec = 6.0; // 6-second 3-act commercial loop (2s per scene)
+      const elapsed = ((nowMs || 0) / 1000) % cycleSec;
+      const actIndex = Math.min(2, Math.floor(elapsed / 2.0));
+      const localProgress = (elapsed % 2.0) / 2.0;
+
+      const actNames = ['SCENE 1 / 3 • HOOK SHOT', 'SCENE 2 / 3 • DETAIL ZOOM', 'SCENE 3 / 3 • OFFER CTA'];
+      sceneIndicator.textContent = actNames[actIndex];
+
+      // 1. Studio gradient backdrop
+      const grad = ctx.createLinearGradient(0, 0, w, h);
+      grad.addColorStop(0, campaign.colors[0]);
+      grad.addColorStop(0.6, campaign.colors[1]);
+      grad.addColorStop(1, '#090b0e');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // 2. Studio podium ellipse
+      const podiumY = h * 0.67;
+      ctx.fillStyle = campaign.colors[2] + '44';
+      ctx.beginPath();
+      ctx.ellipse(w / 2, podiumY, w * 0.36, 24, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 3. Floating bokeh particles
+      for (let i = 0; i < 8; i++) {
+        const ang = (i * 45 + elapsed * 40) * (Math.PI / 180);
+        const bx = w * 0.5 + Math.cos(ang) * (w * 0.34);
+        const by = h * 0.4 + Math.sin(ang * 1.3) * (h * 0.2);
+        ctx.fillStyle = campaign.colors[2] + '66';
+        ctx.beginPath();
+        ctx.arc(bx, by, 5 + (i % 3) * 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 4. Product Shot (Uses uploaded photo for this scene or fallback 3D bottle/packshot)
+      const activeUploaded = uploadedImgs[actIndex] || uploadedImgs[0];
+      const scale = 1.0 + 0.08 * localProgress;
+      const tilt = actIndex === 1 ? -0.06 * Math.sin(localProgress * Math.PI) : 0;
+
+      ctx.save();
+      ctx.translate(w / 2, h * 0.43);
+      ctx.scale(scale, scale);
+      ctx.rotate(tilt);
+
+      if (activeUploaded) {
+        const maxDim = Math.min(w, h) * 0.54;
+        const ratio = Math.min(maxDim / activeUploaded.width, maxDim / activeUploaded.height);
+        const dw = activeUploaded.width * ratio;
+        const dh = activeUploaded.height * ratio;
+        ctx.drawImage(activeUploaded, -dw / 2, -dh / 2, dw, dh);
+      } else {
+        // Draw sleek 3D product container
+        const bw = 110;
+        const bh = 195;
+        ctx.fillStyle = campaign.colors[2];
+        ctx.strokeStyle = '#ffffffcc';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.roundRect(-bw / 2, -bh / 2, bw, bh, 18);
+        ctx.fill();
+        ctx.stroke();
+
+        // Bottle cap
+        ctx.fillStyle = '#181c22';
+        ctx.beginPath();
+        ctx.roundRect(-24, -bh / 2 - 24, 48, 24, 6);
+        ctx.fill();
+
+        // Product label
+        ctx.fillStyle = '#f7f6f2';
+        ctx.beginPath();
+        ctx.roundRect(-bw / 2 + 12, -32, bw - 24, 76, 8);
+        ctx.fill();
+
+        ctx.fillStyle = '#101317';
+        ctx.font = '700 12px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(campaign.productName.split(' ')[0].slice(0, 9).toUpperCase(), 0, -2);
+        ctx.fillStyle = campaign.colors[2];
+        ctx.font = '600 10px "JetBrains Mono", monospace';
+        ctx.fillText('SHOT #' + (actIndex + 1), 0, 18);
+      }
+      ctx.restore();
+
+      // 5. Top Brand Pill
+      ctx.fillStyle = 'rgba(16, 19, 23, 0.82)';
+      ctx.beginPath();
+      ctx.roundRect(14, 14, w - 28, 34, 8);
+      ctx.fill();
+      ctx.fillStyle = '#f7f6f2';
+      ctx.font = '700 12px "Google Sans Thai", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('🛍️ ' + campaign.productName.slice(0, 34), 24, 35);
+
+      // 6. Lower-Third Commercial Copy & Call-to-Action Banner
+      const bannerH = 82;
+      const bannerY = h - bannerH - 14;
+      ctx.fillStyle = 'rgba(16, 19, 23, 0.9)';
+      ctx.strokeStyle = campaign.colors[2];
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(14, bannerY, w - 28, bannerH, 12);
+      ctx.fill();
+      ctx.stroke();
+
+      const lines = [
+        'ฉากที่ 1 (เปิดตัว): ใหม่! ' + campaign.productName,
+        'ฉากที่ 2 (จุดเด่น): ' + campaign.sellingPoint,
+        'ฉากที่ 3 (โปรโมชัน): ' + campaign.ctaBadge,
+      ];
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 12.5px "Google Sans Thai", sans-serif';
+      ctx.fillText(lines[actIndex].slice(0, 42), 26, bannerY + 30);
+
+      ctx.fillStyle = '#69b98e';
+      ctx.font = '600 12px "Google Sans Thai", sans-serif';
+      ctx.fillText('🔥 ' + campaign.ctaBadge.slice(0, 38), 26, bannerY + 58);
+
+      requestAnimationFrame(renderCommercialLoop);
+    }
+
+    syncCampaignState();
+    requestAnimationFrame(renderCommercialLoop);
+  </script>
+</body>
+</html>

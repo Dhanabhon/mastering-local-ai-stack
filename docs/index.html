@@ -311,6 +311,24 @@
     .checklist-row:has(input[type="checkbox"]:checked) {
       background-color: rgba(16, 185, 129, 0.06);
     }
+
+    /* Screenshot Figure & Native Lightbox Modal (Modern Web Guidance) */
+    .ui-screenshot-img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1400 / 580;
+      object-fit: cover;
+      display: block;
+    }
+    dialog:modal {
+      overscroll-behavior: contain;
+    }
+    dialog::backdrop {
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      overscroll-behavior: contain;
+    }
   </style>
 </head>
 
@@ -628,26 +646,126 @@ jupyter lab</code></pre>
       <section id="step-3" class="py-10">
         <div class="mb-5">
           <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
-            3. การติดตั้งและตั้งค่า LM Studio (Local LLM Server)
+            3. การติดตั้ง ดาวน์โหลดโมเดลหลัก และตั้งค่า LM Studio (Local LLM Server)
           </h2>
           <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
-            โหลดโมเดลขนาด <strong>3B Parameters</strong> เพื่อเปิด Local OpenAI-Compatible API ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://localhost:1234/v1</code>
+            ดาวน์โหลดโมเดลขนาด <strong>3B Parameters (<code>Q4_K_M</code>)</strong> และเปิด Local OpenAI-Compatible API Server ที่พอร์ต <code class="text-indigo-700 dark:text-indigo-300 font-semibold">1234</code> (<code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://localhost:1234/v1</code>)
           </p>
         </div>
 
         <!-- OS-specific Download Callout -->
         <p class="os-panel-win mb-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
-          <strong>การดาวน์โหลดสำหรับ Windows (RTX 3050 6GB):</strong> ดาวน์โหลดตัวติดตั้ง <strong>LM Studio for Windows (x64)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> โปรแกรมจะเลือกใช้ NVIDIA CUDA 12 ให้โดยอัตโนมัติ
+          <strong>การดาวน์โหลดโปรแกรมสำหรับ Windows (RTX 3050 6GB):</strong> ดาวน์โหลดตัวติดตั้ง <strong>LM Studio for Windows (x64)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> โปรแกรมจะตรวจจับการ์ดจอ NVIDIA และเปิดใช้งาน CUDA 12 ให้โดยอัตโนมัติ
         </p>
 
         <p class="os-panel-mac mb-5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
-          <strong>การดาวน์โหลดสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</strong> ดาวน์โหลด <strong>LM Studio for Mac (Apple Silicon)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> ซึ่งรันผ่าน Apple Metal และ MLX โดยตรง
+          <strong>การดาวน์โหลดโปรแกรมสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</strong> ดาวน์โหลด <strong>LM Studio for Mac (Apple Silicon)</strong> จาก <a href="https://lmstudio.ai/" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">https://lmstudio.ai</a> ซึ่งรองรับ Apple Metal / Unified Memory โดยตรง
         </p>
+
+        <!-- Sub-step 3.1: Detailed UI Walkthrough for Discovering & Downloading the 3B GGUF Model -->
+        <div class="mt-6 mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 3.1 — วิธีค้นหาและดาวน์โหลดโมเดลหลัก <code>Qwen2.5-3B-Instruct-GGUF</code> ในหน้า UI
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+              ขนาดไฟล์ ~2.10 GB (VRAM Safe)
+            </span>
+          </div>
+
+          <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li>
+              <strong class="text-slate-900 dark:text-white">คลิกเมนู Discover (ไอคอนแว่นขยาย 🔍 ด้านซ้ายมือ):</strong> เมื่อเปิดโปรแกรม LM Studio ขึ้นมา ให้ดูแถบไอคอนแนวตั้งซ้ายสุด แล้วคลิกที่ไอคอนรูปแว่นขยาย (หมายเลข <strong class="text-rose-600 dark:text-rose-400">①</strong> ในภาพ)
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">พิมพ์ชื่อโมเดลในช่องค้นหา (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> พิมพ์คำว่า <code class="text-indigo-700 dark:text-indigo-300 font-semibold">Qwen2.5-3B-Instruct-GGUF</code> (หรือหากต้องการใช้โมเดลทางเลือกให้พิมพ์ <code>Llama-3.2-3B-Instruct-GGUF</code>)
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">คลิกเลือกการ์ดโมเดลหลักในคอลัมน์ซ้าย (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> คลิกที่รายการ <code class="font-semibold">Qwen / Qwen2.5-3B-Instruct-GGUF</code> เพื่อให้รายการไฟล์ย่อย (Available Quantizations) แสดงขึ้นมาทางด้านขวา
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">เลือกไฟล์ระดับ <code>Q4_K_M</code> แล้วกดปุ่ม Download (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> ในคอลัมน์ขวา มองหาไฟล์ชื่อ <code class="text-emerald-700 dark:text-emerald-300 font-semibold">qwen2.5-3b-instruct-q4_k_m.gguf</code> (ขนาดประมาณ <strong>2.10 GB</strong> ซึ่งจะมีป้ายสีเขียว <em>"Full GPU Offload Possible"</em>) แล้วกดปุ่ม <strong>Download</strong> สีเขียว จากนั้นรอจนแถบสถานะด้านล่างสุดขึ้น <code>100% Completed</code>
+            </li>
+          </ol>
+
+          <!-- Annotated UI Screenshot 3.1 -->
+          <figure class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
+            <img
+              src="./images/lmstudio-discover-download.png"
+              alt="หน้าจอโปรแกรม LM Studio แสดงตำแหน่งคลิกเมนู Discover แว่นขยาย ช่องค้นหา Qwen2.5-3B-Instruct-GGUF และปุ่ม Download ไฟล์ Q4_K_M ขนาด 2.10 GB"
+              width="1400"
+              height="580"
+              loading="lazy"
+              class="ui-screenshot-img cursor-zoom-in"
+              data-zoom-src="./images/lmstudio-discover-download.png"
+              data-zoom-caption="ขั้นตอนที่ 3.1: หน้าจอค้นหาและดาวน์โหลดโมเดล Qwen2.5-3B-Instruct-GGUF (Q4_K_M) ใน LM Studio"
+            />
+            <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span><strong>ภาพที่ 3.1:</strong> หน้าจอเมนู Discover (🔍) สำหรับค้นหาและกดดาวน์โหลดไฟล์ <code>qwen2.5-3b-instruct-q4_k_m.gguf</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/lmstudio-discover-download.png" data-zoom-caption="ขั้นตอนที่ 3.1: หน้าจอค้นหาและดาวน์โหลดโมเดล Qwen2.5-3B-Instruct-GGUF (Q4_K_M) ใน LM Studio">
+                🔍 คลิกขยายภาพเต็มจอ
+              </button>
+            </figcaption>
+          </figure>
+
+          <!-- Fallback Direct Download Link (If University Firewall Blocks In-App Search) -->
+          <div class="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+            <strong>💡 ทางเลือกกรณีเน็ตมหาวิทยาลัยบล็อกการค้นหาในแอป:</strong> คุณสามารถคลิกดาวน์โหลดไฟล์ <a href="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/tree/main" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-semibold">qwen2.5-3b-instruct-q4_k_m.gguf บนเว็บ Hugging Face โดยตรง</a> แล้วนำไฟล์ไปวางในโฟลเดอร์ <code>C:\Users\&lt;ชื่อผู้ใช้&gt;\.lmstudio\models\Qwen\Qwen2.5-3B-Instruct-GGUF\</code> (Windows) หรือ <code>~/.lmstudio/models/Qwen/Qwen2.5-3B-Instruct-GGUF/</code> (macOS)
+          </div>
+        </div>
+
+        <!-- Sub-step 3.2: Detailed UI Walkthrough for Loading Model, Setting Context Length = 2048 & Starting Port 1234 -->
+        <div class="mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 3.2 — วิธีโหลดโมเดล ตั้งค่า <code>Context Length = 2048</code> และเปิด Local Server (พอร์ต 1234)
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
+              OpenAI-Compatible API (:1234)
+            </span>
+          </div>
+
+          <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li>
+              <strong class="text-slate-900 dark:text-white">คลิกเมนู Developer (ไอคอน <code>&lt;-&gt;</code> ด้านซ้ายมือ — หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> เปลี่ยนจากหน้าดาวน์โหลดมาที่หน้าควบคุมเซิร์ฟเวอร์นักพัฒนา
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">คลิกแถบเลือกโมเดลด้านบนสุด (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> คลิกปุ่ม <em>"Select a model to load"</em> แถบยาวด้านบน แล้วเลือกโมเดล <code>Qwen2.5-3B-Instruct-GGUF (Q4_K_M)</code> ที่เพิ่งดาวน์โหลดเสร็จ
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">ตั้งค่าพารามิเตอร์ก่อนโหลดโมเดล (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span> — สำคัญมากสำหรับ RTX 3050 6GB):</strong>
+              กำหนดค่า <code class="text-emerald-700 dark:text-emerald-300 font-semibold">Context Length (n_ctx) = 2048</code> (ห้ามตั้งเกิน 4096 เพื่อไม่ให้ KV Cache แย่ง VRAM ของ ComfyUI) และตั้งค่า <code>GPU Offload = Max</code> (หรือลดเหลือ <code>60%</code> ในช่วงบ่าย Module 4 ที่เปิดคู่กับ ComfyUI) แล้วกดปุ่ม <strong>Load Model</strong>
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">สับสวิตช์เปิดเซิร์ฟเวอร์เป็น <code>Status: Running</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> สับสวิตช์ด้านซ้ายให้เป็นสีเขียว ตรวจสอบว่า <code>Server Port = 1234</code> และเปิด <code>Enable CORS = ON</code>
+            </li>
+          </ol>
+
+          <!-- Annotated UI Screenshot 3.2 -->
+          <figure class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
+            <img
+              src="./images/lmstudio-server-config.png"
+              alt="หน้าจอเมนู Developer ใน LM Studio แสดงการโหลดโมเดล Qwen2.5-3B-Instruct-GGUF การตั้งค่า Context Length 2048 และการเปิดสวิตช์ Status Running ที่พอร์ต 1234"
+              width="1400"
+              height="580"
+              loading="lazy"
+              class="ui-screenshot-img cursor-zoom-in"
+              data-zoom-src="./images/lmstudio-server-config.png"
+              data-zoom-caption="ขั้นตอนที่ 3.2: หน้าจอเมนู Developer (<->) ตั้งค่า Context Length = 2048 และเปิด Local Server ที่พอร์ต 1234"
+            />
+            <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span><strong>ภาพที่ 3.2:</strong> หน้าจอเมนู Developer (<code>&lt;-&gt;</code>) เมื่อโหลดโมเดลเสร็จและเปิดสวิตช์ <code>Status: Running</code> ที่พอร์ต <code>1234</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/lmstudio-server-config.png" data-zoom-caption="ขั้นตอนที่ 3.2: หน้าจอเมนู Developer (<->) ตั้งค่า Context Length = 2048 และเปิด Local Server ที่พอร์ต 1234">
+                🔍 คลิกขยายภาพเต็มจอ
+              </button>
+            </figcaption>
+          </figure>
+        </div>
 
         <!-- Recommended Model & Parameters Specification Table -->
         <div class="mb-6 overflow-x-auto border-y border-slate-200 dark:border-slate-800">
           <table class="w-full text-left border-collapse text-xs sm:text-sm">
-            <caption class="sr-only">ตารางค่าพารามิเตอร์ที่แนะนำสำหรับตั้งค่า LM Studio</caption>
+            <caption class="sr-only">ตารางสรุปค่าพารามิเตอร์ที่แนะนำสำหรับตั้งค่า LM Studio</caption>
             <thead>
               <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300">
                 <th scope="col" class="py-3 px-4 font-semibold w-1/4">รายการตั้งค่า</th>
@@ -701,7 +819,7 @@ jupyter lab</code></pre>
               <span>Copy</span>
             </button>
           </div>
-          <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>curl http://localhost:1234/v1/models</code></pre>
+          <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>curl http://localhost:1234/v1/models</code></pre>
         </div>
       </section>
 
@@ -711,31 +829,105 @@ jupyter lab</code></pre>
       <section id="step-4" class="py-10">
         <div class="mb-5">
           <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
-            4. การติดตั้ง ComfyUI และการวางไฟล์โมเดล Stable Diffusion 1.5
+            4. การติดตั้ง ComfyUI, ดาวน์โหลดโมเดล SD 1.5 และตั้งค่าโหมดนักพัฒนา
           </h2>
           <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[68ch]">
-            ใช้โมเดล <strong>SD 1.5</strong> (เช่น <code class="text-indigo-700 dark:text-indigo-300 font-semibold">v1-5-pruned-emaonly.safetensors</code> หรือ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">DreamShaper_8_pruned.safetensors</code> ขนาดประมาณ 2GB) เรนเดอร์ภาพขนาด <code>512x512</code> เสร็จภายใน 2 ถึง 3 วินาที
+            ใช้โมเดลตระกูล <strong>Stable Diffusion 1.5 (SD 1.5)</strong> นามสกุล <code>.safetensors</code> วางลงในโฟลเดอร์ <code>models/checkpoints/</code> เพื่อให้เรนเดอร์ภาพ <code>512x512</code> เสร็จภายใน 2–3 วินาทีบนการ์ดจอ 6GB
           </p>
         </div>
 
-        <!-- Windows ComfyUI Instructions -->
-        <div class="os-panel-win space-y-4">
-          <div class="text-sm space-y-2 text-slate-700 dark:text-slate-300 max-w-[70ch]">
-            <h3 class="text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ Windows (ComfyUI Windows Portable):</h3>
-            <ol class="list-decimal list-outside pl-5 space-y-2 leading-relaxed">
-              <li>
-                ดาวน์โหลดไฟล์ <code>ComfyUI_windows_portable_nvidia.7z</code> จากหน้า <a href="https://github.com/comfyanonymous/ComfyUI/releases" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">ComfyUI GitHub Releases</a> แล้วแตกไฟล์ด้วยโปรแกรม 7-Zip
-              </li>
-              <li>
-                นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
-                <code class="inline-block mt-1 text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code>
-              </li>
-              <li>
-                สำหรับการ์ดจอห้องแล็บ <strong>RTX 3050 6GB</strong> แนะนำให้เติมแฟล็ก <code class="text-indigo-700 dark:text-indigo-300 font-semibold">--lowvram</code> ในไฟล์ <code>run_nvidia_gpu.bat</code> เพื่อให้เปิดคู่กับ LM Studio ได้โดยการ์ดจอไม่เต็ม
-              </li>
-            </ol>
+        <!-- Sub-step 4.1: Where to Download SD 1.5 Checkpoint & Exact Folder Placement -->
+        <div class="mt-6 mb-8 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 4.1 — ดาวน์โหลดโมเดลหลัก SD 1.5 จากที่ไหน และนำไปวางไว้ที่โฟลเดอร์ใด?
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+              นามสกุล .safetensors เท่านั้น
+            </span>
           </div>
 
+          <!-- Direct Model Download Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-indigo-500/40 flex flex-col justify-between gap-3">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">ตัวเลือกที่ 1 (โมเดลมาตรฐานหลักในใบงาน)</span>
+                <h4 class="font-mono font-bold text-sm text-slate-900 dark:text-white mt-1">v1-5-pruned-emaonly.safetensors</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  โมเดลต้นฉบับ Stable Diffusion 1.5 ที่ตรงกับชื่อในไฟล์เวิร์กโฟลว์ <code>sd15_txt2img_api.json</code> ทุกประการ
+                </p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <a href="https://huggingface.co/runwayml/stable-diffusion-v1-5/tree/main" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-colors">
+                  <span>เปิดหน้า Files บน Hugging Face ↗</span>
+                </a>
+                <a href="https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors?download=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 text-xs font-semibold transition-colors">
+                  <span>⬇ ลิงก์ดาวน์โหลดตรง (.safetensors)</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-3">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">ตัวเลือกที่ 2 (โมเดลทางเลือก ขนาดกะทัดรัด 2.13 GB)</span>
+                <h4 class="font-mono font-bold text-sm text-slate-900 dark:text-white mt-1">DreamShaper_8_pruned.safetensors</h4>
+                <p class="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                  โมเดล Fine-tuned ตระกูล SD 1.5 ยอดนิยมที่ให้ภาพสีสดและแสงเงาสวยงามตั้งแต่รอบแรก (ขนาดเพียง 2.13 GB)
+                </p>
+              </div>
+              <div class="flex flex-wrap gap-2">
+                <a href="https://huggingface.co/Lykon/DreamShaper/tree/main" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold transition-colors">
+                  <span>เปิดหน้า DreamShaper บน Hugging Face ↗</span>
+                </a>
+                <a href="https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors?download=true" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 text-xs font-semibold transition-colors">
+                  <span>⬇ ดาวน์โหลดตรง (2.13 GB)</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed pt-2">
+            <li>
+              <strong class="text-slate-900 dark:text-white">เข้าแท็บ Files and versions บน Hugging Face (หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> เมื่อคลิกลิงก์ด้านบน ให้สังเกตรายชื่อไฟล์ในคลัง
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">กดดาวน์โหลดเฉพาะไฟล์นามสกุล <code>.safetensors</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> คลิกปุ่ม <strong>Download</strong> ข้างไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (<strong>ข้อควรระวัง:</strong> ข้ามไฟล์นามสกุล <code>.ckpt</code> เพราะเป็นฟอร์แมตเก่า)
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">ย้ายไฟล์ไปวางในโฟลเดอร์ <code>models/checkpoints/</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong>
+              <ul class="list-disc pl-5 mt-1 space-y-1">
+                <li><strong>Windows:</strong> วางไฟล์ไว้ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI_windows_portable\ComfyUI\models\checkpoints\</code></li>
+                <li><strong>macOS:</strong> วางไฟล์ไว้ที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI/models/checkpoints/</code></li>
+              </ul>
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">การเปิดรันเซิร์ฟเวอร์ ComfyUI ที่พอร์ต <code>8188</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> สำหรับการ์ดจอห้องแล็บ <strong>RTX 3050 6GB</strong> แนะนำให้เติมแฟล็ก <code>--lowvram</code> ในไฟล์ <code>run_nvidia_gpu.bat</code> ตามตัวอย่างด้านล่าง
+            </li>
+          </ol>
+
+          <!-- Annotated UI Screenshot 4.1 -->
+          <figure class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
+            <img
+              src="./images/comfyui-model-folder.png"
+              alt="ภาพเปรียบเทียบหน้าดาวน์โหลดไฟล์ v1-5-pruned-emaonly.safetensors บน Hugging Face และตำแหน่งวางไฟล์ในโฟลเดอร์ ComfyUI/models/checkpoints"
+              width="1400"
+              height="580"
+              loading="lazy"
+              class="ui-screenshot-img cursor-zoom-in"
+              data-zoom-src="./images/comfyui-model-folder.png"
+              data-zoom-caption="ขั้นตอนที่ 4.1: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/"
+            />
+            <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span><strong>ภาพที่ 4.1:</strong> ตำแหน่งกดดาวน์โหลดไฟล์ <code>.safetensors</code> บน Hugging Face และพาธโฟลเดอร์ <code>ComfyUI/models/checkpoints/</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-model-folder.png" data-zoom-caption="ขั้นตอนที่ 4.1: การดาวน์โหลดไฟล์ .safetensors จาก Hugging Face และวางในโฟลเดอร์ ComfyUI/models/checkpoints/">
+                🔍 คลิกขยายภาพเต็มจอ
+              </button>
+            </figcaption>
+          </figure>
+        </div>
+
+        <!-- Windows ComfyUI Launch Script -->
+        <div class="os-panel-win space-y-4 mb-8">
           <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
             <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
               <span class="font-medium">run_nvidia_gpu.bat (Windows RTX 3050 6GB: แนะนำเติม --lowvram สำหรับ Module 4)</span>
@@ -743,29 +935,13 @@ jupyter lab</code></pre>
                 <span>Copy</span>
               </button>
             </div>
-            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
+            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code>.\python_embeded\python.exe -s ComfyUI\main.py --windows-standalone-build --lowvram
 pause</code></pre>
           </div>
         </div>
 
-        <!-- macOS ComfyUI Instructions -->
-        <div class="os-panel-mac space-y-4">
-          <div class="text-sm space-y-2 text-slate-700 dark:text-slate-300 max-w-[70ch]">
-            <h3 class="text-slate-900 dark:text-white">วิธีติดตั้งสำหรับ macOS (Apple Silicon M1/M2/M3/M4):</h3>
-            <ol class="list-decimal list-outside pl-5 space-y-2 leading-relaxed">
-              <li>
-                <strong>วิธีที่ 1 (แอปสำเร็จรูป):</strong> ดาวน์โหลด <strong>ComfyUI Desktop for macOS (Apple Silicon)</strong> จาก <a href="https://www.comfy.org/download" target="_blank" rel="noopener noreferrer" class="text-indigo-600 dark:text-indigo-400 underline font-medium">comfy.org/download</a>
-              </li>
-              <li>
-                <strong>วิธีที่ 2 (รันผ่าน Git และ Python):</strong> โคลนโปรเจกต์ ComfyUI แล้วรันผ่าน Apple Metal (<code>MPS</code>) ตามคำสั่งด้านล่าง
-              </li>
-              <li>
-                นำไฟล์โมเดล <code>v1-5-pruned-emaonly.safetensors</code> (~2GB) ไปวางไว้ในโฟลเดอร์:<br />
-                <code class="inline-block mt-1 text-indigo-700 dark:text-indigo-300 font-semibold">ComfyUI/models/checkpoints/</code>
-              </li>
-            </ol>
-          </div>
-
+        <!-- macOS ComfyUI Launch Script -->
+        <div class="os-panel-mac space-y-4 mb-8">
           <div class="code-container relative rounded-xl overflow-hidden bg-slate-900 border border-slate-800">
             <div class="flex items-center justify-between px-4 py-2.5 bg-slate-900 border-b border-slate-800 text-xs text-slate-300">
               <span class="font-medium">Terminal (macOS Apple Silicon): การรัน ComfyUI ที่พอร์ต 8188</span>
@@ -773,16 +949,57 @@ pause</code></pre>
                 <span>Copy</span>
               </button>
             </div>
-            <pre class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
+            <pre tabindex="0" class="p-4 text-xs sm:text-sm text-slate-100 overflow-x-auto leading-relaxed"><code># เข้าไปยังโฟลเดอร์ ComfyUI และรันเซิร์ฟเวอร์ที่พอร์ต 8188
 python main.py --force-fp16</code></pre>
           </div>
         </div>
 
-        <!-- Developer Mode Note (Both OS) -->
-        <p class="mt-5 pt-4 border-t border-slate-200/80 dark:border-slate-800 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-[70ch]">
-          <strong class="text-slate-900 dark:text-white">การเปิด Developer Mode ใน ComfyUI (สำหรับใช้ใน Module 4):</strong>
-          เมื่อเปิดหน้าเว็บ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://127.0.0.1:8188</code> แล้ว ให้คลิกไอคอนรูปฟันเฟือง (Settings) แล้วเปิดสวิตช์ <strong>Enable Dev mode Options</strong> จะมีปุ่ม <strong>Save (API Format)</strong> เพิ่มขึ้นมาสำหรับส่งออกไฟล์เวิร์กโฟลว์ JSON ไปใช้กับโค้ด Python
-        </p>
+        <!-- Sub-step 4.2: ComfyUI Web Interface & Enable Dev Mode Options Walkthrough -->
+        <div class="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+              ขั้นตอนที่ 4.2 — วิธีเลือกโมเดลในหน้าเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) และเปิดโหมด API
+            </h3>
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-800 dark:text-emerald-300">
+              Enable Dev mode Options
+            </span>
+          </div>
+
+          <ol class="list-decimal list-outside pl-5 space-y-2.5 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li>
+              <strong class="text-slate-900 dark:text-white">ตรวจสอบโหนด <code>Load Checkpoint</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> เมื่อเปิดเบราว์เซอร์ไปที่ <code class="text-indigo-700 dark:text-indigo-300 font-semibold">http://127.0.0.1:8188</code> ให้คลิกที่ช่อง <code>ckpt_name</code> ในกล่องโหนด <strong>Load Checkpoint</strong> แล้วเลือกไฟล์ <code>v1-5-pruned-emaonly.safetensors</code> (หากเพิ่งวางไฟล์ขณะเปิดโปรแกรมอยู่ ให้กดปุ่ม <code>R</code> บนคีย์บอร์ดเพื่อ Refresh รายชื่อโมเดล)
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">กดปุ่ม <code>Queue Prompt</code> เพื่อทดสอบวาดภาพแรก (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> ตรวจสอบว่าการ์ดจอสามารถเรนเดอร์ภาพ <code>512x512</code> ออกมาได้ภายใน 2–3 วินาทีโดยไม่มีข้อความแจ้งเตือนสีแดง
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">คลิกไอคอนฟันเฟือง ⚙️ Settings แล้วเปิด <code>Enable Dev mode Options</code> (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> เปิดหน้าต่างตั้งค่าของ ComfyUI แล้วสับสวิตช์ <strong>Enable Dev mode Options</strong> ให้เป็นสีเขียว
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">สังเกตปุ่ม <code>Save (API Format)</code> ที่ปรากฏขึ้นมา (หมายเลข <span class="text-rose-600 dark:text-rose-400">④</span>):</strong> ปุ่มนี้จะใช้ในช่วงบ่าย (Module 3 และ 4) สำหรับส่งออกกราฟโหนดเป็นไฟล์ JSON ให้โค้ด Python สั่งรันอัตโนมัติ
+            </li>
+          </ol>
+
+          <!-- Annotated UI Screenshot 4.2 -->
+          <figure class="mt-4 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
+            <img
+              src="./images/comfyui-webui-devmode.png"
+              alt="หน้าจอเว็บ ComfyUI ที่พอร์ต 8188 แสดงโหนด Load Checkpoint ปุ่ม Queue Prompt หน้าต่าง Settings เปิด Enable Dev mode Options และปุ่ม Save (API Format)"
+              width="1400"
+              height="580"
+              loading="lazy"
+              class="ui-screenshot-img cursor-zoom-in"
+              data-zoom-src="./images/comfyui-webui-devmode.png"
+              data-zoom-caption="ขั้นตอนที่ 4.2: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options"
+            />
+            <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span><strong>ภาพที่ 4.2:</strong> หน้าจอเว็บ ComfyUI (<code>http://127.0.0.1:8188</code>) แสดงตำแหน่งเลือกโมเดลและการเปิดปุ่ม <code>Save (API Format)</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/comfyui-webui-devmode.png" data-zoom-caption="ขั้นตอนที่ 4.2: หน้าเว็บ ComfyUI (http://127.0.0.1:8188) แสดงการเลือก Checkpoint และการเปิด Enable Dev mode Options">
+                🔍 คลิกขยายภาพเต็มจอ
+              </button>
+            </figcaption>
+          </figure>
+        </div>
       </section>
 
       <!-- ==========================================
@@ -792,10 +1009,10 @@ python main.py --force-fp16</code></pre>
         <div class="flex flex-wrap items-start justify-between gap-4 mb-5">
           <div>
             <h2 class="text-slate-900 dark:text-white tabular-nums-ui">
-              5. Pre-flight Checklist (รายการตรวจสอบความพร้อมก่อนเริ่มเรียน)
+              5. ทดสอบรันใบงานที่ 1 ใน JupyterLab &amp; Pre-flight Checklist
             </h2>
             <p class="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-1.5 max-w-[65ch]">
-              ติ๊กถูกในแต่ละข้อเมื่อคุณเตรียมเครื่องเสร็จแล้ว เบราว์เซอร์จะบันทึกสถานะที่คุณติ๊กไว้ให้อัตโนมัติ
+              ตรวจสอบขั้นสุดท้ายว่า JupyterLab สามารถคุยกับทั้ง LM Studio (<code>:1234</code>) และ ComfyUI (<code>:8188</code>) ได้สำเร็จ แล้วติ๊กเช็กลิสต์ด้านล่างให้ครบทั้ง 6 ข้อ
             </p>
           </div>
 
@@ -807,6 +1024,43 @@ python main.py --force-fp16</code></pre>
               ล้างค่า (Reset)
             </button>
           </div>
+        </div>
+
+        <!-- Sub-step 5.1: JupyterLab Verification Screenshot -->
+        <div class="mb-7 p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 space-y-4">
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+            ขั้นตอนที่ 5.1 — วิธีเปิดใบงานที่ 1 ใน JupyterLab เพื่อเช็กสถานะ <code>Online (HTTP 200)</code>
+          </h3>
+          <ol class="list-decimal list-outside pl-5 space-y-2 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            <li>
+              <strong class="text-slate-900 dark:text-white">เปิดไฟล์ใบงานที่ 1 (หมายเลข <span class="text-rose-600 dark:text-rose-400">①</span>):</strong> ในหน้าต่าง JupyterLab แถบซ้ายมือ ให้ดับเบิลคลิกโฟลเดอร์ <code>01-jupyter-basics/</code> แล้วเปิดไฟล์ <code>01_python_and_api_basics.ipynb</code>
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">กดรันทุก Cell (หมายเลข <span class="text-rose-600 dark:text-rose-400">②</span>):</strong> คลิกปุ่ม <code>⏩ Run All Cells</code> ด้านบน (หรือกด <code>Shift + Enter</code> ไล่ลงมาทีละ Cell)
+            </li>
+            <li>
+              <strong class="text-slate-900 dark:text-white">ตรวจสอบตารางผลลัพธ์ด้านล่างสุด (หมายเลข <span class="text-rose-600 dark:text-rose-400">③</span>):</strong> หากทั้ง <code>LM Studio API</code> และ <code>ComfyUI Server</code> แสดงสถานะสีเขียว <strong><code>✓ Online (HTTP 200)</code></strong> แปลว่าเครื่องของคุณพร้อมเข้าเรียน 100%!
+            </li>
+          </ol>
+
+          <figure class="mt-3 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 shadow-sm">
+            <img
+              src="./images/jupyterlab-verify.png"
+              alt="หน้าจอ JupyterLab แสดงการเปิดไฟล์ 01_python_and_api_basics.ipynb และการรันเช็กสถานะเซิร์ฟเวอร์ขึ้น Online (HTTP 200) ทั้งสองรายการ"
+              width="1400"
+              height="580"
+              loading="lazy"
+              class="ui-screenshot-img cursor-zoom-in"
+              data-zoom-src="./images/jupyterlab-verify.png"
+              data-zoom-caption="ขั้นตอนที่ 5.1: หน้าจอ JupyterLab เมื่อรันไฟล์ 01_python_and_api_basics.ipynb ผ่านครบทุก Cell"
+            />
+            <figcaption class="px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <span><strong>ภาพที่ 5.1:</strong> หน้าจอ JupyterLab เมื่อรันตารางตรวจสอบสถานะเซิร์ฟเวอร์ใน <code>01_python_and_api_basics.ipynb</code></span>
+              <button type="button" class="zoom-trigger-btn text-indigo-600 dark:text-indigo-400 font-semibold hover:underline shrink-0" data-zoom-src="./images/jupyterlab-verify.png" data-zoom-caption="ขั้นตอนที่ 5.1: หน้าจอ JupyterLab เมื่อรันไฟล์ 01_python_and_api_basics.ipynb ผ่านครบทุก Cell">
+                🔍 คลิกขยายภาพเต็มจอ
+              </button>
+            </figcaption>
+          </figure>
         </div>
 
         <!-- Semantic Progress Bar -->
@@ -869,6 +1123,21 @@ python main.py --force-fp16</code></pre>
     </div>
 
   </main>
+
+  <!-- Native Modal Dialog for Zooming UI Screenshots (Modern Web Guidance Dialog Rule 1) -->
+  <dialog id="screenshot-lightbox" closedby="any" aria-labelledby="lightbox-caption" class="max-w-6xl w-[calc(100%-2rem)] rounded-2xl bg-slate-950 text-white border border-slate-800 p-0 shadow-2xl">
+    <div class="flex items-center justify-between gap-4 px-5 py-3.5 border-b border-slate-800 bg-slate-900">
+      <h2 id="lightbox-caption" class="text-sm sm:text-base font-bold text-slate-100 m-0">ภาพหน้าจอประกอบการติดตั้ง</h2>
+      <form method="dialog">
+        <button type="submit" autofocus class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-100 transition-colors">
+          ปิดภาพขยาย (Esc)
+        </button>
+      </form>
+    </div>
+    <div class="p-3 sm:p-5 bg-slate-950 overflow-auto max-h-[82dvh]">
+      <img id="lightbox-img" src="./images/lmstudio-discover-download.png" alt="ภาพขยายหน้าจอการตั้งค่า" width="1400" height="580" class="w-full h-auto rounded-xl border border-slate-800" />
+    </div>
+  </dialog>
 
   <!-- Footer -->
   <footer class="border-t border-slate-200 dark:border-slate-800 py-8 mt-6 text-center text-xs text-slate-600 dark:text-slate-400">
@@ -1037,6 +1306,33 @@ python main.py --force-fp16</code></pre>
       setOS(savedOS);
 
       loadChecklist();
+
+      // 5. Screenshot Lightbox Modal
+      const lightbox = document.getElementById('screenshot-lightbox');
+      const lightboxImg = document.getElementById('lightbox-img');
+      const lightboxCaption = document.getElementById('lightbox-caption');
+
+      document.querySelectorAll('[data-zoom-src]').forEach((el) => {
+        el.addEventListener('click', () => {
+          const src = el.getAttribute('data-zoom-src');
+          const caption = el.getAttribute('data-zoom-caption') || 'ภาพหน้าจอประกอบการติดตั้ง';
+          lightboxImg.src = src;
+          lightboxImg.alt = caption;
+          lightboxCaption.textContent = caption;
+          lightbox.showModal();
+        });
+      });
+
+      // Fallback light-dismiss for browsers without dialog closedby="any"
+      if (lightbox && !('closedBy' in HTMLDialogElement.prototype)) {
+        const outside = (e, dialog) => {
+          const r = dialog.getBoundingClientRect();
+          return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+        };
+        let pressedOutside = false;
+        lightbox.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, lightbox); });
+        lightbox.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, lightbox)) lightbox.close(); });
+      }
     });
   </script>
 </body>

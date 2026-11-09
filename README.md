@@ -68,7 +68,7 @@
 | :--- | :--- | :--- | :--- |
 | **09:00 - 10:15** | **Module 1** | **Jupyter Notebook Basics & REST API**<br>• พื้นฐาน Interactive Computing (Kernel, Code vs Markdown cells, Virtual Env)<br>• การจัดการข้อมูลข้อความ, Dictionary/JSON และ `pandas.DataFrame`<br>• การเรียก REST API และเช็กสถานะเซิร์ฟเวอร์ด้วย `requests` | [`01_python_and_api_basics.ipynb`](./01-jupyter-basics/01_python_and_api_basics.ipynb) |
 | *10:15 - 10:30* | *Break* | *พักรับประทานอาหารว่าง (15 นาที)* | - |
-| **10:30 - 12:00** | **Module 2** | **Local LLMs with LM Studio**<br>• โครงสร้าง Local LLM, ฟอร์แมต GGUF, Quantization และการคำนวณ VRAM 6GB<br>• การปรับค่า System Prompt, Temperature, Top-P, Context Length และ GPU Offload<br>• การเปิด Local OpenAI-Compatible API Server (`http://localhost:1234/v1`)<br>• **Lab:** เขียนโค้ดสั่งสกัดข้อมูลและสรุปบทความภาษาไทยเป็น JSON ลงตาราง Pandas | [`02_local_llm_integration.ipynb`](./02-lm-studio-api/02_local_llm_integration.ipynb) |
+| **10:30 - 12:00** | **Module 2** | **Local LLMs with LM Studio**<br>• โครงสร้าง Local LLM, ฟอร์แมต GGUF, Quantization และการคำนวณ VRAM 6GB<br>• สูตรคำนวณความเร็วสร้างข้อความ (Memory Bandwidth vs Token/s)<br>• การปรับค่า System Prompt, Temperature, Context Length และ GPU Offload<br>• การเปิด Local OpenAI-Compatible API Server (`http://localhost:1234/v1`)<br>• **Lab:** ทดสอบความเร็วโมเดล (Streaming Benchmark) และสกัดข้อมูลบทความไทยเป็น JSON | [`02_local_llm_integration.ipynb`](./02-lm-studio-api/02_local_llm_integration.ipynb)<br>[`02_llm_speed_benchmark.ipynb`](./02-lm-studio-api/02_llm_speed_benchmark.ipynb) |
 | *12:00 - 13:00* | *Lunch* | *พักรับประทานอาหารกลางวัน (1 ชั่วโมง)* | - |
 | **13:00 - 14:30** | **Module 3** | **Node-Based Image Generation with ComfyUI**<br>• โครงสร้าง Diffusion Model บนระบบ Node (Load Checkpoint, CLIP, KSampler, Latent, VAE)<br>• การต่อเวิร์กโฟลว์ Text-to-Image และ Image-to-Image (SD 1.5, `512x512`) ตั้งแต่ศูนย์<br>• การเปิด Developer Mode เพื่อส่งออกเวิร์กโฟลว์เป็นไฟล์ API JSON | [`sd15_txt2img_api.json`](./03-comfyui-workflows/sd15_txt2img_api.json) |
 | *14:30 - 14:45* | *Break* | *พักรับประทานอาหารว่าง (15 นาที)* | - |
@@ -98,7 +98,8 @@ mastering-local-ai-stack/
 ├── 01-jupyter-basics/
 │   └── 01_python_and_api_basics.ipynb             # ใบงานที่ 1: พื้นฐาน Jupyter, JSON, Pandas และ REST API
 ├── 02-lm-studio-api/
-│   └── 02_local_llm_integration.ipynb             # ใบงานที่ 2: การเชื่อมต่อ LM Studio API และสกัดข้อมูล JSON
+│   ├── 02_local_llm_integration.ipynb             # ใบงานที่ 2: การเชื่อมต่อ LM Studio API และสกัดข้อมูล JSON
+│   └── 02_llm_speed_benchmark.ipynb               # ใบงานเสริม: วัดความเร็วโมเดล (Streaming TTFT & Tokens/s Benchmark)
 ├── 03-comfyui-workflows/
 │   └── sd15_txt2img_api.json                      # เวิร์กโฟลว์ ComfyUI (API Format) สำหรับ SD 1.5 (512x512)
 ├── 04-capstone-pipeline/

@@ -1,0 +1,27 @@
+name: Local Qwen2.5-Coder (LM Studio)
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Qwen2.5-Coder (LM Studio Chat & Edit)
+    provider: lmstudio
+    model: qwen2.5-coder-3b-instruct
+    apiBase: http://localhost:1234/v1
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 8192
+      temperature: 0.2
+
+  - name: Qwen2.5-Coder Autocomplete
+    provider: lmstudio
+    model: qwen2.5-coder-3b-instruct
+    apiBase: http://localhost:1234/v1
+    roles:
+      - autocomplete
+    defaultCompletionOptions:
+      contextLength: 4096
+      maxTokens: 128
+      temperature: 0.1

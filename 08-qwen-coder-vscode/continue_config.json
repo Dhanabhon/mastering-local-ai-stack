@@ -1,0 +1,20 @@
+{
+  "models": [
+    {
+      "title": "Qwen2.5-Coder 3B/7B (LM Studio)",
+      "provider": "lmstudio",
+      "model": "qwen2.5-coder-3b-instruct",
+      "apiBase": "http://localhost:1234/v1",
+      "contextLength": 8192,
+      "completionOptions": {
+        "temperature": 0.2
+      }
+    }
+  ],
+  "tabAutocompleteModel": {
+    "title": "Qwen2.5-Coder Autocomplete",
+    "provider": "lmstudio",
+    "model": "qwen2.5-coder-3b-instruct",
+    "apiBase": "http://localhost:1234/v1"
+  }
+}

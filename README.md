@@ -31,7 +31,10 @@
 5. **🛍️ โปรเจกต์ตัวอย่างต่อยอด #3 (AdCraft AI — Product Video Ad Studio):**
    - **Interactive Web Demo:** **[https://dhanabhon.github.io/mastering-local-ai-stack/product-ad-studio.html](https://dhanabhon.github.io/mastering-local-ai-stack/product-ad-studio.html)** | [`docs/product-ad-studio.html`](./docs/product-ad-studio.html)
    - **ซอร์สโค้ดสร้างวิดีโอโฆษณาสินค้า 3 ฉากจากภาพสินค้า 1–3 มุมมอง + ชุดตัวอย่าง Prompt 6 หมวดหมู่:** [`07-product-ad-studio/app.py`](./07-product-ad-studio/app.py) | [`07-product-ad-studio/README.md`](./07-product-ad-studio/README.md)
-6. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
+6. **💻 เนื้อหาพิเศษเพิ่มเติม (Bonus Track — Qwen2.5-Coder × VS Code Local AI Coding Assistant):**
+   - **Interactive Web Guide:** **[https://dhanabhon.github.io/mastering-local-ai-stack/qwen-coder.html](https://dhanabhon.github.io/mastering-local-ai-stack/qwen-coder.html)** | [`docs/qwen-coder.html`](./docs/qwen-coder.html)
+   - **คู่มือตั้งค่า Continue / Cline, ไฟล์ Config สำเร็จรูป และโจทย์ฝึกเขียนโค้ด:** [`08-qwen-coder-vscode/README.md`](./08-qwen-coder-vscode/README.md) | [`08-qwen-coder-vscode/continue_config.yaml`](./08-qwen-coder-vscode/continue_config.yaml) | [`08-qwen-coder-vscode/practice_lab.py`](./08-qwen-coder-vscode/practice_lab.py)
+7. **สไลด์ประกอบการบรรยาย (Workshop Slides - ธีม Tomera AI & Google Sans Thai):**
    - **Google Slides:** **[เปิดสไลด์ออนไลน์](https://docs.google.com/presentation/d/10N29z8f3cRq-Ykom9XH18NkSwTtvkkwUQXoFYmqj3zo/edit?usp=sharing)**
    - **ไฟล์ PDF / PPTX ในคลัง:** [`slides/Mastering_Local_AI_Stack_2026.pdf`](./slides/Mastering_Local_AI_Stack_2026.pdf) | [`slides/Mastering_Local_AI_Stack_2026.pptx`](./slides/Mastering_Local_AI_Stack_2026.pptx)
 
@@ -85,7 +88,8 @@ mastering-local-ai-stack/
 │   ├── labs.html                                  # หน้าเว็บใบงานปฏิบัติการ 6 ชั่วโมง + โจทย์ Bonus Challenges
 │   ├── showcase.html                              # หน้าเว็บ Interactive Showcase #1 (CineLocal Storyboard)
 │   ├── media-studio.html                          # หน้าเว็บ Interactive Showcase #2 (Custom Image & Video Studio)
-│   └── product-ad-studio.html                     # หน้าเว็บ Interactive Showcase #3 (Product Video Ad Studio)
+│   ├── product-ad-studio.html                     # หน้าเว็บ Interactive Showcase #3 (Product Video Ad Studio)
+│   └── qwen-coder.html                            # หน้าเว็บเนื้อหาพิเศษ (Qwen2.5-Coder × VS Code Guide)
 ├── slides/
 │   ├── Mastering_Local_AI_Stack_2026.pdf          # ไฟล์สไลด์บรรยาย PDF (ธีม Tomera AI & Google Sans Thai)
 │   └── Mastering_Local_AI_Stack_2026.pptx         # ไฟล์สไลด์บรรยาย PowerPoint (.pptx)
@@ -107,11 +111,16 @@ mastering-local-ai-stack/
 │   ├── app.py                                     # เว็บแอปครอบ LM Studio + ComfyUI เลือกโหมด Image / Video (พอร์ต 8090)
 │   └── workflows/
 │       └── sd15_animatediff_api.json              # เวิร์กโฟลว์ตัวอย่างสำหรับโหมดสร้างวิดีโอด้วย AnimateDiff API
-└── 07-product-ad-studio/
-    ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #3 (Product Video Ad Studio)
-    ├── app.py                                     # เว็บแอปสร้างวิดีโอโฆษณา 3 ฉากจากภาพสินค้า 1-3 มุมมอง (พอร์ต 8095)
-    └── workflows/
-        └── sd15_product_img2img_api.json          # เวิร์กโฟลว์ตัวอย่างสำหรับจัดแสงและฉากหลังภาพสินค้า (Img2Img)
+├── 07-product-ad-studio/
+│   ├── README.md                                  # คู่มือใช้งานโปรเจกต์ต่อยอด #3 (Product Video Ad Studio)
+│   ├── app.py                                     # เว็บแอปสร้างวิดีโอโฆษณา 3 ฉากจากภาพสินค้า 1-3 มุมมอง (พอร์ต 8095)
+│   └── workflows/
+│       └── sd15_product_img2img_api.json          # เวิร์กโฟลว์ตัวอย่างสำหรับจัดแสงและฉากหลังภาพสินค้า (Img2Img)
+└── 08-qwen-coder-vscode/
+    ├── README.md                                  # คู่มือการใช้งาน Qwen2.5-Coder ร่วมกับ VS Code และ LM Studio
+    ├── continue_config.yaml                       # ไฟล์ตั้งค่า Continue Extension (YAML Format)
+    ├── continue_config.json                       # ไฟล์ตั้งค่า Continue Extension (JSON Format)
+    └── practice_lab.py                            # โจทย์ฝึกเขียนโค้ด 4 ด่านสำหรับทดสอบ Qwen Coder ใน VS Code
 ```
 
 ---

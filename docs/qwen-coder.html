@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="th" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Qwen2.5-Coder × VS Code (Bonus Track) | Mastering Local AI Stack 2026</title>
+  <meta name="description" content="คู่มือพิเศษ: การตั้งค่า Qwen2.5-Coder บน LM Studio เชื่อมต่อกับ VS Code (Continue และ Cline) เพื่อเป็นผู้ช่วยเขียนโค้ดและแก้บั๊กแบบออฟไลน์ 100%" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('local_ai_workshop_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
+
+  <style>
+    :root {
+      color-scheme: light dark;
+      --ink: #101317;
+      --paper: #f7f6f2;
+      --surface: #ffffff;
+      --soft: #ebebe5;
+      --line: #d9dcd3;
+      --muted: #61665f;
+      --brand: #2e7d5b;
+      --brand-deep: #256b4e;
+      --brand-bright: #69b98e;
+      --brand-tint: rgba(46, 125, 91, 0.11);
+      --code-bg: #121714;
+      --code-border: #2a342d;
+      --code-text: #eef2ed;
+      --shadow-sm: 0 2px 8px rgba(16, 19, 23, 0.05);
+      --shadow-md: 0 12px 32px rgba(16, 19, 23, 0.12);
+      accent-color: var(--brand);
+    }
+
+    html.dark {
+      --ink: #f7f6f2;
+      --paper: #181d19;
+      --surface: #1f2621;
+      --soft: #262f29;
+      --line: #323d35;
+      --muted: #acb3a8;
+      --brand: #69b98e;
+      --brand-deep: #2e7d5b;
+      --brand-bright: #78c99e;
+      --brand-tint: rgba(105, 185, 142, 0.14);
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
+      --shadow-md: 0 16px 38px rgba(0, 0, 0, 0.42);
+      accent-color: var(--brand-bright);
+    }
+
+    @supports not (accent-color: var(--brand)) {
+      input[type="radio"]:checked {
+        outline: 2px solid var(--brand);
+      }
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Google Sans Thai', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--paper);
+      color: var(--ink);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    code, pre, kbd, .font-mono {
+      font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-variant-ligatures: none;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 0.12rem 0.45rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 0.35rem;
+      border: 1px solid var(--line);
+      background: var(--soft);
+      color: var(--ink);
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 60;
+      background: color-mix(in srgb, var(--paper) 90%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-badge {
+      width: 2.35rem;
+      height: 2.35rem;
+      border-radius: 0.6rem;
+      background: var(--brand-deep);
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 0.98rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-tag {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: var(--brand-tint);
+      color: var(--brand);
+      border: 1px solid color-mix(in srgb, var(--brand) 30%, transparent);
+    }
+
+    .brand-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.8rem;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .btn-ghost:hover {
+      border-color: var(--brand);
+    }
+
+    .hero {
+      padding: 2.2rem 0 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      font-size: clamp(1.55rem, 2.7vw, 2.25rem);
+      line-height: 1.25;
+      margin: 0.45rem 0 0.65rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin: 0 0 0.75rem;
+    }
+
+    .section-block {
+      padding: 2rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    @media (min-width: 860px) {
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.35rem;
+    }
+    @media (min-width: 960px) {
+      .grid-2 {
+        grid-template-columns: 460px minmax(0, 1fr);
+        align-items: start;
+      }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      padding: 1.3rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    fieldset {
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 0.85rem 1rem;
+      margin: 0 0 0.95rem 0;
+    }
+
+    legend {
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 0 0.4rem;
+      color: var(--brand);
+    }
+
+    .radio-stack {
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .radio-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 0.55rem;
+      background: var(--paper);
+      font-size: 0.83rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .code-panel {
+      border-radius: 0.85rem;
+      overflow: hidden;
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      color: var(--code-text);
+    }
+
+    .code-head {
+      padding: 0.6rem 1rem;
+      background: #1a211d;
+      border-bottom: 1px solid var(--code-border);
+      font-size: 0.76rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    pre.code-pre {
+      margin: 0;
+      padding: 1rem;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      line-height: 1.58;
+    }
+
+    .copy-btn {
+      padding: 0.3rem 0.7rem;
+      border-radius: 0.4rem;
+      border: 1px solid #354239;
+      background: var(--brand-deep);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .scenario-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 1rem;
+    }
+
+    .scenario-btn {
+      padding: 0.5rem 0.85rem;
+      border-radius: 0.55rem;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .scenario-btn[aria-pressed="true"] {
+      background: var(--brand-deep);
+      color: #ffffff;
+      border-color: var(--brand-deep);
+    }
+
+    table.cheat-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    table.cheat-table th,
+    table.cheat-table td {
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+    table.cheat-table th {
+      background: var(--soft);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-group">
+        <div class="brand-badge">QC</div>
+        <div>
+          <div class="brand-title">
+            <span>Qwen2.5-Coder × VS Code</span>
+            <span class="pill-tag">Bonus Track • 08-qwen-coder-vscode</span>
+          </div>
+          <p class="brand-sub">เปลี่ยน VS Code ให้มี AI Coding Assistant ส่วนตัวแบบออฟไลน์ 100% ผ่าน LM Studio (:1234)</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <a href="./index.html" class="btn-ghost">← คู่มือเตรียมเครื่อง</a>
+        <a href="./labs.html" class="btn-ghost">ใบงาน Lab 6 ชม.</a>
+        <a href="./showcase.html" class="btn-ghost">Showcase #1</a>
+        <a href="./media-studio.html" class="btn-ghost">Showcase #2</a>
+        <a href="./product-ad-studio.html" class="btn-ghost">Showcase #3</a>
+        <button type="button" id="theme-toggle-btn" class="btn-ghost" aria-label="สลับโหมดสี">
+          <span id="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <span class="pill-tag">เนื้อหาพิเศษเพิ่มเติม • Local AI Pair Programmer</span>
+      <h1>ใช้ Qwen2.5-Coder ช่วยเขียนโค้ด แก้บั๊ก และเติมโค้ดอัตโนมัติบน VS Code</h1>
+      <p style="margin: 0; color: var(--muted); max-width: 84ch; font-size: 0.95rem;">
+        นอกจากใช้ LM Studio สร้างข้อความและสั่งงาน ComfyUI แล้ว เราสามารถโหลดโมเดลสายเขียนโค้ดโดยเฉพาะอย่าง <strong>Qwen2.5-Coder</strong> มาเปิดบนพอร์ต <code>1234</code> ตัวเดิม แล้วเชื่อมเข้ากับส่วนเสริม <strong>Continue</strong> หรือ <strong>Cline</strong> บน VS Code เพื่อใช้งาน <strong>Tab Autocomplete</strong>, <strong>สั่งแก้โค้ดในไฟล์ (<kbd>Ctrl</kbd>+<kbd>I</kbd>)</strong> และ <strong>ถามตอบแก้บั๊ก (<kbd>Ctrl</kbd>+<kbd>L</kbd>)</strong> ได้ฟรีโดยไม่ต้องส่งซอร์สโค้ดออกนอกเครื่อง
+      </p>
+    </div>
+  </section>
+
+  <main class="container">
+    <!-- Section 1: Model Selection for 6GB VRAM -->
+    <section class="section-block" aria-labelledby="sec1-title">
+      <h2 id="sec1-title">1. เลือกรุ่น Qwen2.5-Coder ใน LM Studio ให้เหมาะกับสเปกเครื่อง</h2>
+      <p style="margin-top: 0; color: var(--muted); font-size: 0.9rem;">
+        เปิดแถบ <strong>🔍 Discover</strong> ในโปรแกรม LM Studio แล้วค้นหาชื่อโมเดลตามตารางด้านล่าง (แนะนำเลือกไฟล์ตระกูล <code>GGUF</code> ระดับ <code>Q4_K_M</code>):
+      </p>
+
+      <div class="grid-3">
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <span class="pill-tag">เร็วสูง • ประหยัด VRAM สุด</span>
+            <code style="font-size: 0.78rem; font-weight: 700;">~1.0 GB VRAM</code>
+          </div>
+          <h3 style="margin: 0.2rem 0 0.4rem; font-size: 1.02rem;">Qwen2.5-Coder-1.5B-Instruct</h3>
+          <p style="font-size: 0.83rem; color: var(--muted); margin: 0;">
+            เหมาะสำหรับตั้งเป็นโมเดล <strong>Tab Autocomplete (FIM)</strong> โดยเฉพาะ เพราะใช้เวลาคิดไม่ถึง 0.15 วินาทีต่อการเติมโค้ด 1 บรรทัด เปิดทิ้งไว้เบื้องหลังได้ตลอดวันโดยเครื่องไม่หน่วง
+          </p>
+        </div>
+
+        <div class="card" style="border-color: var(--brand); border-width: 2px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <span class="pill-tag">⭐ แนะนำหลักสำหรับ RTX 3050 6GB</span>
+            <code style="font-size: 0.78rem; font-weight: 700;">~2.1 GB VRAM</code>
+          </div>
+          <h3 style="margin: 0.2rem 0 0.4rem; font-size: 1.02rem;">Qwen2.5-Coder-3B-Instruct</h3>
+          <p style="font-size: 0.83rem; color: var(--muted); margin: 0;">
+            จุดสมดุลที่ดีที่สุดสำหรับการ์ดจอ 6GB VRAM: ตัวเดียวทำได้ครบทั้ง <strong>Chat ถามตอบโค้ดภาษาไทย</strong>, <strong>กด <kbd>Ctrl</kbd>+<kbd>I</kbd> แก้ฟังก์ชัน</strong>, และ <strong>Tab Autocomplete</strong> แถมยังเปิดคู่กับ ComfyUI ได้โดย VRAM ไม่ล้น
+          </p>
+        </div>
+
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+            <span class="pill-tag">🔥 ฉลาดสูงสุด (รันเดี่ยวบน 6GB)</span>
+            <code style="font-size: 0.78rem; font-weight: 700;">~4.7 GB VRAM</code>
+          </div>
+          <h3 style="margin: 0.2rem 0 0.4rem; font-size: 1.02rem;">Qwen2.5-Coder-7B-Instruct</h3>
+          <p style="font-size: 0.83rem; color: var(--muted); margin: 0;">
+            เมื่อปิดโปรแกรม ComfyUI แล้ว การ์ดจอ RTX 3050 (6GB) และ Mac 16GB สามารถรันรุ่น 7B (<code>Q4_K_M</code>) ได้เต็มประสิทธิภาพ เก่งงาน Refactor โค้ดหลายไฟล์ เขียน SQL ซับซ้อน และเขียน Unit Test ระดับใช้งานจริง
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Interactive VS Code Continue Config Builder -->
+    <section class="section-block" aria-labelledby="sec2-title">
+      <h2 id="sec2-title">2. ตั้งค่าเชื่อม LM Studio (:1234) เข้ากับ VS Code Extension (Continue / Cline)</h2>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="margin-top: 0; font-size: 1rem;">ตัวสร้างไฟล์ตั้งค่าอัตโนมัติสำหรับส่วนเสริม Continue</h3>
+          <p style="font-size: 0.82rem; color: var(--muted); margin-top: 0;">
+            ใน VS Code ให้ติดตั้งส่วนเสริมชื่อ <strong>Continue</strong> จากนั้นคลิกไอคอนรูปเฟือง ⚙️ มุมขวาบนของแถบ Continue แล้วเลือกขนาดโมเดลที่คุณโหลดไว้ด้านล่างเพื่อก๊อปปี้โค้ดตั้งค่าไปวางทับได้เลย:
+          </p>
+
+          <form id="config-builder-form">
+            <fieldset>
+              <legend>1. เลือกรุ่นโมเดลที่เปิดใน LM Studio (:1234)</legend>
+              <div class="radio-stack">
+                <label class="radio-row" for="m-3b">
+                  <input type="radio" id="m-3b" name="model_id" value="qwen2.5-coder-3b-instruct" checked />
+                  <span>Qwen2.5-Coder-3B-Instruct (แนะนำสำหรับ VRAM 6GB)</span>
+                </label>
+                <label class="radio-row" for="m-7b">
+                  <input type="radio" id="m-7b" name="model_id" value="qwen2.5-coder-7b-instruct" />
+                  <span>Qwen2.5-Coder-7B-Instruct (เน้นความฉลาดสูงสุด)</span>
+                </label>
+                <label class="radio-row" for="m-15b">
+                  <input type="radio" id="m-15b" name="model_id" value="qwen2.5-coder-1.5b-instruct" />
+                  <span>Qwen2.5-Coder-1.5B-Instruct (เน้นความเร็วสูงสุด)</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>2. เลือกรูปแบบไฟล์ตั้งค่าของ Continue</legend>
+              <div class="radio-stack" style="grid-template-columns: 1fr 1fr;">
+                <label class="radio-row" for="fmt-yaml">
+                  <input type="radio" id="fmt-yaml" name="cfg_format" value="yaml" checked />
+                  <span>config.yaml (รุ่นใหม่)</span>
+                </label>
+                <label class="radio-row" for="fmt-json">
+                  <input type="radio" id="fmt-json" name="cfg_format" value="json" />
+                  <span>config.json (รุ่นดั้งเดิม)</span>
+                </label>
+              </div>
+            </fieldset>
+          </form>
+
+          <div style="font-size: 0.8rem; color: var(--muted); padding: 0.75rem; border-radius: 0.65rem; background: var(--paper); border: 1px solid var(--line);">
+            💡 <strong>ทิปการตั้งค่าใน LM Studio:</strong> ตอนโหลดโมเดลในแถบ <strong>Developer</strong> แนะนำให้ตั้งค่า <strong>Context Length = <code>4096</code> หรือ <code>8192</code></strong> เพื่อให้ Qwen2.5-Coder อ่านไฟล์โค้ดขนาดยาวได้ครบทั้งไฟล์
+          </div>
+        </div>
+
+        <div>
+          <div class="code-panel">
+            <div class="code-head">
+              <span id="config-filename-label">~/.continue/config.yaml (พร้อมก๊อปปี้ไปวางใน VS Code)</span>
+              <button type="button" class="copy-btn" id="copy-config-btn">Copy Config</button>
+            </div>
+            <pre class="code-pre"><code id="generated-config-code"></code></pre>
+          </div>
+
+          <div class="card" style="margin-top: 1rem;">
+            <h3 style="margin-top: 0; font-size: 0.96rem;">ทางเลือกเสริม: หากใช้ส่วนเสริม Cline หรือ Roo Code (สาย Agent สร้างไฟล์อัตโนมัติ)</h3>
+            <ol style="margin: 0; padding-left: 1.2rem; font-size: 0.83rem; color: var(--muted);">
+              <li>ติดตั้งส่วนเสริม <strong>Cline</strong> ใน VS Code แล้วคลิกไอคอนรูปเฟือง ⚙️ Settings</li>
+              <li>ช่อง <strong>API Provider</strong> เลือกเป็น <code>LM Studio</code></li>
+              <li>ช่อง <strong>Base URL</strong> ใส่ <code>http://localhost:1234</code> แล้วคลิกเลือกโมเดล <code>qwen2.5-coder-...</code> จากรายการได้เลย</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Interactive Workflow Simulator -->
+    <section class="section-block" aria-labelledby="sec3-title">
+      <h2 id="sec3-title">3. ทดลองดูตัวอย่างการใช้งานจริง 4 รูปแบบใน VS Code</h2>
+      <p style="margin-top: 0; color: var(--muted); font-size: 0.9rem;">
+        คลิกเลือกสถานการณ์ด้านล่างเพื่อดูว่าเวลาเรากดคีย์ลัดใน VS Code ตัวโมเดล <strong>Qwen2.5-Coder</strong> จะช่วยเขียนหรือแก้โค้ดให้เราอย่างไร (มีไฟล์ฝึกหัดจริงเตรียมไว้ให้แล้วที่ <code>08-qwen-coder-vscode/practice_lab.py</code>):
+      </p>
+
+      <div class="scenario-tabs" role="group" aria-label="เลือกสถานการณ์การเขียนโค้ด">
+        <button type="button" class="scenario-btn" data-sc="autocomplete" aria-pressed="true">
+          1. Tab Autocomplete (เติมโค้ดขณะพิมพ์)
+        </button>
+        <button type="button" class="scenario-btn" data-sc="inline_edit" aria-pressed="false">
+          2. Ctrl+I Inline Edit (สั่งแก้ฟังก์ชัน)
+        </button>
+        <button type="button" class="scenario-btn" data-sc="bug_fix" aria-pressed="false">
+          3. Ctrl+L Chat &amp; Fix Bug (หาบั๊ก JSON)
+        </button>
+        <button type="button" class="scenario-btn" data-sc="unit_test" aria-pressed="false">
+          4. สั่งเขียน Unit Test (pytest)
+        </button>
+      </div>
+
+      <div class="code-panel">
+        <div class="code-head">
+          <span id="sim-header-title">สถานการณ์ที่ 1: พิมพ์หัวข้อฟังก์ชันแล้วให้ Qwen2.5-Coder เติมโค้ดที่เหลือด้วยปุ่ม Tab</span>
+          <span id="sim-shortcut-badge">คีย์ลัด: กดปุ่ม Tab</span>
+        </div>
+        <pre class="code-pre"><code id="sim-code-content"></code></pre>
+      </div>
+    </section>
+
+    <!-- Section 4: Shortcut Cheat Sheet -->
+    <section class="section-block" style="border-bottom: none;" aria-labelledby="sec4-title">
+      <h2 id="sec4-title">4. ตารางสรุปคีย์ลัดประจำตัวนักพัฒนา (VS Code + Continue Cheat Sheet)</h2>
+      <div class="card" style="padding: 0; overflow-x: auto;">
+        <table class="cheat-table">
+          <thead>
+            <tr>
+              <th>คำสั่งใช้งาน</th>
+              <th>Windows / Linux</th>
+              <th>macOS</th>
+              <th>เทคนิคการเขียน Prompt ให้ Qwen2.5-Coder ตอบแม่นยำที่สุด</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ยอมรับโค้ดที่เติมให้อัตโนมัติ</strong></td>
+              <td><kbd>Tab</kbd></td>
+              <td><kbd>Tab</kbd></td>
+              <td>เขียนชื่อฟังก์ชันสื่อความหมายชัดเจน + ใส่ Type Hints (เช่น <code>def fetch_status(url: str) -&gt; dict:</code>) และพิมพ์ Docstring สั้นๆ นำร่อง 1 บรรทัด</td>
+            </tr>
+            <tr>
+              <td><strong>สั่งแก้โค้ดเฉพาะจุดที่คลุมดำ (Inline Edit)</strong></td>
+              <td><kbd>Ctrl</kbd> + <kbd>I</kbd></td>
+              <td><kbd>Cmd</kbd> + <kbd>I</kbd></td>
+              <td>ลากคลุมเฉพาะฟังก์ชันที่ต้องการแก้ แล้วพิมพ์คำสั่งสั้นๆ เช่น <em>"เพิ่มการดักจับ Error ด้วย try/except และคืนค่าเริ่มต้นเป็น dict ว่าง"</em></td>
+            </tr>
+            <tr>
+              <td><strong>ส่งโค้ดที่คลุมดำเข้าห้องแชต</strong></td>
+              <td><kbd>Ctrl</kbd> + <kbd>L</kbd></td>
+              <td><kbd>Cmd</kbd> + <kbd>L</kbd></td>
+              <td>ใช้ถามคำถามเชิงลึกหรือหาบั๊ก เช่น <em>"ทำไมโค้ดส่วนนี้ถึงเกิด JSONDecodeError เวลา LLM ตอบกลับ และควรแก้อย่างไร"</em></td>
+            </tr>
+            <tr>
+              <td><strong>อ้างอิงไฟล์อื่นในโปรเจกต์</strong></td>
+              <td>พิมพ์ <code>@ชื่อไฟล์</code> ในแชต</td>
+              <td>พิมพ์ <code>@ชื่อไฟล์</code> ในแชต</td>
+              <td>พิมพ์ <code>@app.py</code> หรือ <code>@sd15_txt2img_api.json</code> เพื่อให้โมเดลเห็นชื่อตัวแปรและคีย์จริงในไฟล์ก่อนเขียนโค้ด</td>
+            </tr>
+            <tr>
+              <td><strong>ส่งข้อความ Error ใน Terminal ให้ช่วยแก้</strong></td>
+              <td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></td>
+              <td><kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd></td>
+              <td>เมื่อรันสคริปต์ใน Terminal แล้วพัง กดคีย์ลัดนี้เพื่อแนบ Traceback ล่าสุดเข้าห้องแชตโดยไม่ต้องก๊อปปี้วางเอง</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const themeLabel = document.getElementById('theme-label');
+    function syncTheme() {
+      themeLabel.textContent = document.documentElement.classList.contains('dark') ? 'Light' : 'Dark';
+    }
+    syncTheme();
+    themeBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('local_ai_workshop_theme', isDark ? 'dark' : 'light');
+      syncTheme();
+    });
+
+    // Config Builder Logic
+    const configForm = document.getElementById('config-builder-form');
+    const configCodeEl = document.getElementById('generated-config-code');
+    const configFilenameEl = document.getElementById('config-filename-label');
+    const copyConfigBtn = document.getElementById('copy-config-btn');
+
+    function updateConfigPreview() {
+      const fd = new FormData(configForm);
+      const modelId = fd.get('model_id') || 'qwen2.5-coder-3b-instruct';
+      const fmt = fd.get('cfg_format') || 'yaml';
+
+      if (fmt === 'yaml') {
+        configFilenameEl.textContent = '~/.continue/config.yaml (พร้อมก๊อปปี้ไปวางใน VS Code)';
+        configCodeEl.textContent =
+`name: Local Qwen2.5-Coder (LM Studio)
+version: 1.0.0
+schema: v1
+
+models:
+  - name: Qwen2.5-Coder (${modelId})
+    provider: lmstudio
+    model: ${modelId}
+    apiBase: http://localhost:1234/v1
+    roles:
+      - chat
+      - edit
+      - apply
+    defaultCompletionOptions:
+      contextLength: 8192
+      temperature: 0.2
+
+  - name: Qwen2.5-Coder Tab Autocomplete
+    provider: lmstudio
+    model: ${modelId}
+    apiBase: http://localhost:1234/v1
+    roles:
+      - autocomplete
+    defaultCompletionOptions:
+      contextLength: 4096
+      maxTokens: 128
+      temperature: 0.1`;
+      } else {
+        configFilenameEl.textContent = '~/.continue/config.json (พร้อมก๊อปปี้ไปวางใน VS Code)';
+        configCodeEl.textContent = JSON.stringify(
+          {
+            models: [
+              {
+                title: `Qwen2.5-Coder (${modelId})`,
+                provider: 'lmstudio',
+                model: modelId,
+                apiBase: 'http://localhost:1234/v1',
+                contextLength: 8192,
+                completionOptions: { temperature: 0.2 },
+              },
+            ],
+            tabAutocompleteModel: {
+              title: 'Qwen2.5-Coder Autocomplete',
+              provider: 'lmstudio',
+              model: modelId,
+              apiBase: 'http://localhost:1234/v1',
+            },
+          },
+          null,
+          2
+        );
+      }
+    }
+
+    configForm.addEventListener('change', updateConfigPreview);
+    updateConfigPreview();
+
+    copyConfigBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(configCodeEl.textContent);
+        copyConfigBtn.textContent = 'Copied!';
+        setTimeout(() => {
+          copyConfigBtn.textContent = 'Copy Config';
+        }, 1500);
+      } catch (e) {
+        console.error(e);
+      }
+    });
+
+    // Interactive Scenarios
+    const SCENARIOS = {
+      autocomplete: {
+        title: 'สถานการณ์ที่ 1: พิมพ์ชื่อฟังก์ชันและ Docstring แล้วกด Tab ให้ Qwen2.5-Coder เติมโค้ดที่เหลือ',
+        shortcut: 'คีย์ลัด: กดปุ่ม Tab เพื่อยอมรับโค้ด',
+        code:
+`# [สิ่งที่คุณพิมพ์นำร่องในไฟล์ practice_lab.py]
+def calculate_vram_usage_gb(model_params_billion: float, bits_per_weight: int = 4) -> float:
+    """คำนวณปริมาณ VRAM (GB) โดยประมาณของโมเดล LLM จากจำนวนพารามิเตอร์และบิต Quantization"""
+
+# [โค้ดสีเทาที่ Qwen2.5-Coder เติมให้อัตโนมัติภายใน 0.2 วินาที -> กดปุ่ม Tab เพื่อรับโค้ดทันที!]
+    weights_gb = (model_params_billion * bits_per_weight) / 8.0
+    kv_cache_overhead_gb = 0.65
+    return round(weights_gb + kv_cache_overhead_gb, 2)`,
+      },
+      inline_edit: {
+        title: 'สถานการณ์ที่ 2: คลุมดำฟังก์ชันแล้วกด Ctrl+I สั่งเพิ่ม try/except และ timeout',
+        shortcut: 'คีย์ลัด: Ctrl + I (Windows) / Cmd + I (macOS)',
+        code:
+`# คำสั่งที่พิมพ์ในกล่อง Ctrl+I:
+# "เพิ่ม try/except ดักจับ URLError ตั้งค่า timeout=5 วินาที และคืนค่า {'status': 'offline'} เมื่อเชื่อมต่อไม่ได้"
+
+# --- โค้ดเดิมก่อนแก้ ---
+# def fetch_comfyui_queue(base_url: str = "http://127.0.0.1:8188") -> dict:
+#     with urllib.request.urlopen(f"{base_url}/queue") as response:
+#         return json.loads(response.read().decode("utf-8"))
+
+# +++ โค้ดใหม่ที่ Qwen2.5-Coder แก้ให้ในไฟล์โดยตรง (กด Ctrl+Shift+Enter เพื่อ Accept) +++
+def fetch_comfyui_queue(base_url: str = "http://127.0.0.1:8188") -> dict[str, Any]:
+    """ดึงข้อมูลคิวงานปัจจุบันจากเซิร์ฟเวอร์ ComfyUI พร้อมดักจับข้อผิดพลาดกรณีเซิร์ฟเวอร์ปิดอยู่"""
+    try:
+        with urllib.request.urlopen(f"{base_url}/queue", timeout=5.0) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except Exception as err:
+        return {"status": "offline", "error": str(err)}`,
+      },
+      bug_fix: {
+        title: 'สถานการณ์ที่ 3: คลุมดำโค้ดที่มีบั๊กแล้วกด Ctrl+L ให้ Qwen2.5-Coder วิเคราะห์และแก้บั๊ก',
+        shortcut: 'คีย์ลัด: Ctrl + L (Windows) / Cmd + L (macOS)',
+        code:
+`# คำถามในช่องแชต Continue (Ctrl+L):
+# "ฟังก์ชันนี้พังเวลา LLM ตอบกลับมามี \`\`\`json ครอบอยู่ ช่วยแก้ให้ตัด Markdown ออกก่อนแปลงเป็น JSON"
+
+# คำตอบและโค้ดที่ Qwen2.5-Coder แนะนำ:
+def parse_llm_json_response(raw_text: str) -> list[dict[str, str]]:
+    """สกัด JSON จากคำตอบของ LLM อย่างปลอดภัย แม้มี Markdown code block ติดมาด้วย"""
+    cleaned = raw_text.strip()
+    if "\`\`\`" in cleaned:
+        cleaned = cleaned.split("\`\`\`")[1]
+        if cleaned.lower().startswith("json"):
+            cleaned = cleaned[4:].strip()
+    data = json.loads(cleaned)
+    return data.get("items", []) if isinstance(data, dict) else data`,
+      },
+      unit_test: {
+        title: 'สถานการณ์ที่ 4: พิมพ์ @practice_lab.py ในช่องแชตเพื่อสั่งสร้างชุดทดสอบ pytest อัตโนมัติ',
+        shortcut: 'คำสั่งในแชต: @practice_lab.py ช่วยเขียน pytest ให้ครบทุกกรณี',
+        code:
+`# โค้ดทดสอบที่ Qwen2.5-Coder สร้างให้อัตโนมัติ (สามารถรันด้วยคำสั่ง pytest ได้ทันที):
+import pytest
+from practice_lab import calculate_vram_usage_gb, parse_llm_json_response
+
+def test_calculate_vram_3b_q4():
+    # โมเดล 3B ที่ 4-bit กินพื้นที่ weights 1.5GB + overhead 0.65GB = 2.15GB
+    assert calculate_vram_usage_gb(3.0, bits_per_weight=4) == 2.15
+
+def test_parse_llm_json_with_markdown_fence():
+    sample = "\`\`\`json\\n{\\"items\\": [{\\"topic\\": \\"Local AI\\"}]}\\n\`\`\`"
+    result = parse_llm_json_response(sample)
+    assert len(result) == 1
+    assert result[0]["topic"] == "Local AI"`,
+      },
+    };
+
+    const simTitle = document.getElementById('sim-header-title');
+    const simBadge = document.getElementById('sim-shortcut-badge');
+    const simCode = document.getElementById('sim-code-content');
+
+    function selectScenario(key) {
+      const item = SCENARIOS[key] || SCENARIOS.autocomplete;
+      simTitle.textContent = item.title;
+      simBadge.textContent = item.shortcut;
+      simCode.textContent = item.code;
+      document.querySelectorAll('.scenario-btn').forEach((btn) => {
+        btn.setAttribute('aria-pressed', btn.getAttribute('data-sc') === key ? 'true' : 'false');
+      });
+    }
+
+    document.querySelectorAll('.scenario-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectScenario(btn.getAttribute('data-sc'));
+      });
+    });
+
+    selectScenario('autocomplete');
+  </script>
+</body>
+</html>

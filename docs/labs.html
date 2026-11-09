@@ -191,6 +191,11 @@
         transition: none;
       }
     }
+
+    header details summary::-webkit-details-marker,
+    header details summary::marker {
+      display: none;
+    }
   </style>
 </head>
 
@@ -203,7 +208,7 @@
 
   <!-- Sticky Top Header -->
   <header class="sticky top-0 z-50 backdrop-blur-md bg-tomera-paper/95 dark:bg-tomera-dark/95 border-b border-tomera-line dark:border-tomera-darkcard">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-9 h-9 shrink-0 rounded-lg bg-tomera-brand flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-sm">
           LAB
@@ -215,27 +220,41 @@
               6-Hour Lab Guide
             </span>
           </div>
-          <p class="text-xs text-tomera-muted dark:text-tomera-dim truncate">ใบงานปฏิบัติการทีละขั้นตอน • Jupyter × LM Studio × ComfyUI</p>
+          <p class="text-xs text-tomera-muted dark:text-tomera-dim truncate hidden sm:block">ใบงานปฏิบัติการทีละขั้นตอน • Jupyter × LM Studio × ComfyUI</p>
         </div>
       </div>
 
       <!-- Top Navigation & Controls -->
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="./index.html" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-line dark:border-tomera-darkcard bg-white dark:bg-tomera-darkcard hover:border-tomera-brand dark:hover:border-tomera-bright transition-colors">
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <a href="./index.html" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-line dark:border-tomera-darkcard bg-white dark:bg-tomera-darkcard hover:border-tomera-brand dark:hover:border-tomera-bright transition-colors whitespace-nowrap">
           คู่มือเตรียมเครื่อง (Setup)
         </a>
-        <a href="./showcase.html" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-tomera-deep hover:bg-tomera-brand text-white shadow-sm transition-colors">
-          ✨ Showcase #1
-        </a>
-        <a href="./media-studio.html" class="hidden md:inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-brand text-tomera-deep dark:text-tomera-bright hover:bg-tomera-brand hover:text-white transition-colors">
-          🎬 Showcase #2
-        </a>
-        <a href="./product-ad-studio.html" class="hidden lg:inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-brand text-tomera-deep dark:text-tomera-bright hover:bg-tomera-brand hover:text-white transition-colors">
-          🛍️ Showcase #3
-        </a>
-        <a href="./qwen-coder.html" class="hidden xl:inline-flex px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-tomera-brand text-tomera-deep dark:text-tomera-bright hover:bg-tomera-brand hover:text-white transition-colors">
-          💻 Qwen Coder × VS Code
-        </a>
+
+        <!-- Showcases Dropdown Menu -->
+        <details class="relative">
+          <summary class="inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold border border-tomera-line dark:border-tomera-darkcard bg-white dark:bg-tomera-darkcard text-tomera-ink dark:text-tomera-paper hover:border-tomera-brand dark:hover:border-tomera-bright cursor-pointer list-none select-none transition-colors whitespace-nowrap shadow-sm">
+            <span>✨ Showcases</span>
+            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </summary>
+          <div class="absolute right-0 mt-2 w-64 p-1.5 rounded-xl bg-white dark:bg-tomera-darkcard border border-tomera-line dark:border-tomera-darkcard shadow-xl z-50 text-xs flex flex-col gap-0.5">
+            <a href="./showcase.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-tomera-soft dark:hover:bg-tomera-dark font-medium text-tomera-ink dark:text-tomera-paper transition-colors">
+              <span>✨ Showcase #1: CineLocal Studio</span>
+            </a>
+            <a href="./media-studio.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-tomera-soft dark:hover:bg-tomera-dark font-medium text-tomera-ink dark:text-tomera-paper transition-colors">
+              <span>🎬 Showcase #2: Media Studio</span>
+            </a>
+            <a href="./product-ad-studio.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-tomera-soft dark:hover:bg-tomera-dark font-medium text-tomera-ink dark:text-tomera-paper transition-colors">
+              <span>🛍️ Showcase #3: AdCraft AI</span>
+            </a>
+            <div class="my-1 border-t border-tomera-line dark:border-tomera-darkcard"></div>
+            <a href="./qwen-coder.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-tomera-soft dark:hover:bg-tomera-dark font-medium text-tomera-brand dark:text-tomera-bright transition-colors">
+              <span>💻 Bonus: Qwen Coder × VS Code</span>
+            </a>
+            <a href="./pipeline-diagram.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-tomera-soft dark:hover:bg-tomera-dark font-medium text-tomera-muted dark:text-tomera-dim transition-colors">
+              <span>🗺️ Pipeline Architecture Map</span>
+            </a>
+          </div>
+        </details>
 
         <div role="group" aria-label="เลือกระบบปฏิบัติการ" class="flex items-center text-xs bg-tomera-soft dark:bg-tomera-darkcard p-1 rounded-lg">
           <button type="button" id="nav-btn-win" aria-pressed="true" class="px-2.5 py-1 rounded-md font-semibold transition-colors min-h-[28px]">
@@ -1240,6 +1259,14 @@ plt.show()</code></pre>
             }, 1500);
           });
         });
+      });
+
+      // Close header details menu on click outside
+      document.addEventListener('click', (e) => {
+        const headerDetails = document.querySelector('header details');
+        if (headerDetails && headerDetails.open && !headerDetails.contains(e.target)) {
+          headerDetails.removeAttribute('open');
+        }
       });
     });
   </script>

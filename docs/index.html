@@ -329,6 +329,10 @@
       overflow: hidden;
       overscroll-behavior: contain;
     }
+    header details summary::-webkit-details-marker,
+    header details summary::marker {
+      display: none;
+    }
   </style>
 </head>
 
@@ -341,51 +345,66 @@
 
   <!-- Sticky Top Navigation Bar -->
   <header class="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-slate-950/90 border-b border-slate-200/90 dark:border-slate-800/90">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-9 h-9 shrink-0 rounded-lg bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white font-semibold text-sm tracking-tight shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-8 h-8 shrink-0 rounded-lg bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white font-bold text-xs tracking-tight shadow-sm">
           AI
         </div>
         <div class="min-w-0">
           <div class="flex items-center gap-2">
             <span class="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white truncate">Mastering Local AI Stack</span>
-            <span class="hidden md:inline-block text-xs font-medium px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200 tabular-nums-ui">
-              6-Hour Workshop
+            <span class="hidden md:inline-block text-[11px] font-semibold px-2 py-0.5 rounded bg-indigo-50 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200 tabular-nums-ui">
+              Setup Guide
             </span>
           </div>
-          <p class="text-xs text-slate-600 dark:text-slate-400 truncate">Jupyter Notebook × LM Studio × ComfyUI</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate hidden sm:block">Jupyter Notebook × LM Studio × ComfyUI</p>
         </div>
       </div>
 
-      <!-- Quick Controls: Lab Guide Link + Showcase Link + OS Pill (All Viewports) + Dark/Light Mode Toggle -->
-      <div class="flex items-center gap-2 shrink-0">
-        <a href="./labs.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors">
+      <!-- Quick Controls: Lab Guide Link + Showcases Dropdown + OS Pill + Dark/Light Mode Toggle -->
+      <div class="flex flex-wrap items-center gap-2 shrink-0">
+        <a href="./labs.html" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white shadow-sm transition-colors whitespace-nowrap">
           <span>ใบงาน Lab 6 ชม. →</span>
         </a>
-        <a href="./showcase.html" class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold border border-emerald-700/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
-          <span>✨ Showcase #1</span>
-        </a>
-        <a href="./media-studio.html" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold border border-emerald-700/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
-          <span>🎬 Showcase #2</span>
-        </a>
-        <a href="./product-ad-studio.html" class="hidden lg:inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold border border-emerald-700/40 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors">
-          <span>🛍️ Showcase #3</span>
-        </a>
-        <a href="./qwen-coder.html" class="hidden xl:inline-flex items-center gap-1 px-2.5 py-1.5 min-h-[36px] rounded-lg text-xs font-semibold border border-indigo-700/40 text-indigo-800 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors">
-          <span>💻 Qwen Coder × VS Code</span>
-        </a>
+
+        <!-- Showcases Dropdown Menu -->
+        <details class="relative">
+          <summary class="inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[34px] rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-indigo-500 dark:hover:border-indigo-400 cursor-pointer list-none select-none transition-colors whitespace-nowrap shadow-sm">
+            <span>✨ Showcases</span>
+            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </summary>
+          <div class="absolute right-0 mt-2 w-64 p-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl z-50 text-xs flex flex-col gap-0.5">
+            <a href="./showcase.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-800 dark:text-slate-200 transition-colors">
+              <span>✨ Showcase #1: CineLocal Studio</span>
+            </a>
+            <a href="./media-studio.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-800 dark:text-slate-200 transition-colors">
+              <span>🎬 Showcase #2: Media Studio</span>
+            </a>
+            <a href="./product-ad-studio.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-800 dark:text-slate-200 transition-colors">
+              <span>🛍️ Showcase #3: AdCraft AI</span>
+            </a>
+            <div class="my-1 border-t border-slate-100 dark:border-slate-800"></div>
+            <a href="./qwen-coder.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-950/50 font-medium text-indigo-700 dark:text-indigo-300 transition-colors">
+              <span>💻 Bonus: Qwen Coder × VS Code</span>
+            </a>
+            <a href="./pipeline-diagram.html" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 font-medium text-slate-700 dark:text-slate-300 transition-colors">
+              <span>🗺️ Pipeline Architecture Map</span>
+            </a>
+          </div>
+        </details>
+
         <div role="group" aria-label="เลือกระบบปฏิบัติการ" class="flex items-center text-xs bg-slate-200/70 dark:bg-slate-900 p-1 rounded-lg">
           <button type="button" onclick="setOS('windows')" id="nav-btn-win" aria-pressed="true" class="px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px]">
-            <span class="sm:hidden">Windows</span>
-            <span class="hidden sm:inline">Windows (RTX 3050)</span>
+            <span class="sm:hidden">Win</span>
+            <span class="hidden sm:inline">Windows</span>
           </button>
           <button type="button" onclick="setOS('macos')" id="nav-btn-mac" aria-pressed="false" class="px-2.5 py-1.5 rounded-md font-medium transition-colors min-h-[28px]">
-            <span class="sm:hidden">macOS</span>
-            <span class="hidden sm:inline">macOS (Apple Silicon)</span>
+            <span class="sm:hidden">Mac</span>
+            <span class="hidden sm:inline">macOS</span>
           </button>
         </div>
 
-        <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" aria-label="สลับโหมดสี" class="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[36px] rounded-lg text-xs font-medium bg-slate-200/70 hover:bg-slate-300/70 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors">
+        <button type="button" onclick="toggleTheme()" id="theme-toggle-btn" aria-label="สลับโหมดสี" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 min-h-[34px] rounded-lg text-xs font-medium bg-slate-200/70 hover:bg-slate-300/70 dark:bg-slate-900 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 transition-colors">
           <!-- Sun Icon (shown in dark mode to switch to light) -->
           <svg id="theme-icon-sun" aria-hidden="true" class="w-4 h-4 text-amber-400 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="4"></circle>
@@ -395,7 +414,7 @@
           <svg id="theme-icon-moon" aria-hidden="true" class="w-4 h-4 text-indigo-700 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
           </svg>
-          <span id="theme-label">Dark</span>
+          <span id="theme-label" class="hidden sm:inline">Dark</span>
         </button>
       </div>
     </div>
@@ -1578,6 +1597,14 @@ python main.py --force-fp16</code></pre>
         lightbox.addEventListener('pointerdown', (e) => { pressedOutside = outside(e, lightbox); });
         lightbox.addEventListener('pointerup', (e) => { if (pressedOutside && outside(e, lightbox)) lightbox.close(); });
       }
+
+      // Close header details menu on click outside
+      document.addEventListener('click', (e) => {
+        const headerDetails = document.querySelector('header details');
+        if (headerDetails && headerDetails.open && !headerDetails.contains(e.target)) {
+          headerDetails.removeAttribute('open');
+        }
+      });
     });
   </script>
 </body>

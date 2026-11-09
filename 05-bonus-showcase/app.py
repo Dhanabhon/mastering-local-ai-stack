@@ -26,7 +26,9 @@ import argparse
 import base64
 import copy
 import json
+import os
 import random
+import sys
 import time
 import urllib.parse
 import urllib.request
@@ -34,14 +36,38 @@ from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
+# ---------------------------------------------------------------------------
+# Auto-Switch to .venv Python if user forgot to activate .venv
+# ---------------------------------------------------------------------------
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+def _maybe_reexec_in_venv() -> None:
+    if os.environ.get("LOCAL_AI_VENV_ACTIVE") == "1":
+        return
+    candidates = [
+        ROOT_DIR / ".venv" / "Scripts" / "python.exe",
+        ROOT_DIR / ".venv" / "bin" / "python",
+    ]
+    for venv_py in candidates:
+        if venv_py.exists() and Path(sys.executable).resolve() != venv_py.resolve():
+            try:
+                import requests  # noqa: F401
+            except ImportError:
+                os.environ["LOCAL_AI_VENV_ACTIVE"] = "1"
+                os.execv(str(venv_py), [str(venv_py), *sys.argv])
+
+_maybe_reexec_in_venv()
+
+try:
+    import pandas as pd
+except ImportError:
+    pd = None  # type: ignore[assignment]
 import requests
 from openai import OpenAI
 
 # ---------------------------------------------------------------------------
 # Configuration & Paths
 # ---------------------------------------------------------------------------
-ROOT_DIR = Path(__file__).resolve().parent.parent
 WORKFLOW_PATH = ROOT_DIR / "03-comfyui-workflows" / "sd15_txt2img_api.json"
 OUTPUT_DIR = Path(__file__).resolve().parent / "outputs"
 
@@ -373,9 +399,14 @@ def run_cli_pipeline(idea: str, style_key: str) -> None:
         )
 
     # สรุปผลด้วย Pandas DataFrame (ต่อยอดจาก Module 1)
-    df = pd.DataFrame(rows)
-    print("\n[สรุปตารางการผลิต Storyboard ด้วย Pandas DataFrame]")
-    print(df.to_string(index=False))
+    if pd is not None:
+        df = pd.DataFrame(rows)
+        print("\n[สรุปตารางการผลิต Storyboard ด้วย Pandas DataFrame]")
+        print(df.to_string(index=False))
+    else:
+        print("\n[สรุปตารางการผลิต Storyboard]")
+        for r in rows:
+            print(f"  Scene {r['scene']}: {r['title_th']} | Seed: {r['seed']} | {r['render_sec']}s")
 
     html_out = build_pitch_deck_html(storyboard, OUTPUT_DIR / "storyboard_pitch_deck.html")
     json_out = OUTPUT_DIR / "storyboard_data.json"

@@ -28,25 +28,51 @@ from __future__ import annotations
 import argparse
 import base64
 import copy
+import csv
 import io
 import json
+import os
 import random
+import sys
 import time
 import urllib.parse
+import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from typing import Any
 
-import pandas as pd
-import requests
-from openai import OpenAI
-from PIL import Image, ImageDraw
+# ---------------------------------------------------------------------------
+# Auto-Switch to .venv Python if user forgot to activate .venv
+# ---------------------------------------------------------------------------
+STUDIO_DIR = Path(__file__).resolve().parent
+ROOT_DIR = STUDIO_DIR.parent
+
+def _maybe_reexec_in_venv() -> None:
+    if os.environ.get("LOCAL_AI_VENV_ACTIVE") == "1":
+        return
+    candidates = [
+        ROOT_DIR / ".venv" / "Scripts" / "python.exe",
+        ROOT_DIR / ".venv" / "bin" / "python",
+    ]
+    for venv_py in candidates:
+        if venv_py.exists() and Path(sys.executable).resolve() != venv_py.resolve():
+            try:
+                import PIL  # noqa: F401
+            except ImportError:
+                os.environ["LOCAL_AI_VENV_ACTIVE"] = "1"
+                os.execv(str(venv_py), [str(venv_py), *sys.argv])
+
+_maybe_reexec_in_venv()
+
+try:
+    from PIL import Image, ImageDraw
+    HAS_PIL = True
+except ImportError:
+    HAS_PIL = False
 
 # ---------------------------------------------------------------------------
 # Paths & Endpoints
 # ---------------------------------------------------------------------------
-STUDIO_DIR = Path(__file__).resolve().parent
-ROOT_DIR = STUDIO_DIR.parent
 IMAGE_WORKFLOW_PATH = ROOT_DIR / "03-comfyui-workflows" / "sd15_txt2img_api.json"
 VIDEO_WORKFLOW_PATH = STUDIO_DIR / "workflows" / "sd15_animatediff_api.json"
 OUTPUT_DIR = STUDIO_DIR / "outputs"
@@ -54,6 +80,30 @@ HISTORY_CSV_PATH = OUTPUT_DIR / "generation_history.csv"
 
 LM_STUDIO_BASE_URL = "http://localhost:1234/v1"
 COMFYUI_BASE_URL = "http://127.0.0.1:8188"
+
+
+def _http_get_json(url: str, timeout: float = 3.0) -> dict[str, Any]:
+    req = urllib.request.Request(url, method="GET")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _http_post_json(url: str, payload: dict[str, Any], timeout: float = 15.0) -> dict[str, Any]:
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        url,
+        data=body,
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def _http_get_bytes(url: str, timeout: float = 15.0) -> bytes:
+    req = urllib.request.Request(url, method="GET")
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        return resp.read()
 
 ASPECT_RATIOS: dict[str, tuple[int, int, str]] = {
     "1:1": (512, 512, "512×512 (1:1 Square)"),
@@ -104,32 +154,29 @@ def inspect_environment() -> dict[str, Any]:
     }
 
     try:
-        res = requests.get(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
-        if res.status_code == 200:
-            data = res.json().get("data", [])
-            models = [m.get("id", "") for m in data if m.get("id")]
-            status["lm_studio_online"] = True
-            status["lm_studio_models"] = models
+        data_json = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=2.5)
+        data = data_json.get("data", [])
+        models = [m.get("id", "") for m in data if m.get("id")]
+        status["lm_studio_online"] = True
+        status["lm_studio_models"] = models
     except Exception:
         pass
 
     try:
-        res = requests.get(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
-        if res.status_code == 200:
-            status["comfyui_online"] = True
-            obj_res = requests.get(
-                f"{COMFYUI_BASE_URL}/object_info/CheckpointLoaderSimple", timeout=3.0
-            )
-            if obj_res.status_code == 200:
-                ckpt_list = (
-                    obj_res.json()
-                    .get("CheckpointLoaderSimple", {})
-                    .get("input", {})
-                    .get("required", {})
-                    .get("ckpt_name", [[]])[0]
-                )
-                if isinstance(ckpt_list, list) and len(ckpt_list) > 0:
-                    status["checkpoints"] = ckpt_list
+        _http_get_json(f"{COMFYUI_BASE_URL}/system_stats", timeout=2.5)
+        status["comfyui_online"] = True
+        obj_json = _http_get_json(
+            f"{COMFYUI_BASE_URL}/object_info/CheckpointLoaderSimple", timeout=3.0
+        )
+        ckpt_list = (
+            obj_json
+            .get("CheckpointLoaderSimple", {})
+            .get("input", {})
+            .get("required", {})
+            .get("ckpt_name", [[]])[0]
+        )
+        if isinstance(ckpt_list, list) and len(ckpt_list) > 0:
+            status["checkpoints"] = ckpt_list
     except Exception:
         pass
 
@@ -140,14 +187,12 @@ def inspect_environment() -> dict[str, Any]:
 # Step 1: LM Studio Prompt Enhancement (Image & Video Keyframes)
 # ---------------------------------------------------------------------------
 def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = False) -> str:
-    """ใช้ LM Studio แปลงโจทย์ภาษาไทยหรืออังกฤษให้เป็น English SD Prompt ที่สมบูรณ์"""
+    """ใช้ LM Studio แปลงโจทย์ภาษาไทยหรืออังกฤษให้เป็น English SD Prompt ที่สมบูรณ์ (ผ่าน Standard Library)"""
     style_cfg = STYLE_SUFFIXES.get(style_key, STYLE_SUFFIXES["photorealistic"])
     try:
-        client = OpenAI(base_url=LM_STUDIO_BASE_URL, api_key="lm-studio")
-        models = client.models.list()
-        if not models.data:
-            raise RuntimeError("No model loaded in LM Studio")
-        model_id = models.data[0].id
+        models_res = _http_get_json(f"{LM_STUDIO_BASE_URL}/models", timeout=3.0)
+        models_data = models_res.get("data", [])
+        model_id = models_data[0].get("id", "local-model") if models_data else "local-model"
 
         motion_hint = (
             "Include dynamic motion cues (flowing movement, cinematic camera pan, atmospheric particles). "
@@ -160,16 +205,27 @@ def enhance_prompt_with_llm(user_prompt: str, style_key: str, is_video: bool = F
             f"(40-65 words). {motion_hint}"
             "Output ONLY the raw English prompt without quotes or explanations."
         )
-        resp = client.chat.completions.create(
-            model=model_id,
-            messages=[
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": f"Concept: {user_prompt}\nStyle: {style_cfg['label']}"},
-            ],
-            temperature=0.65,
-            max_tokens=160,
+        chat_res = _http_post_json(
+            f"{LM_STUDIO_BASE_URL}/chat/completions",
+            {
+                "model": model_id,
+                "messages": [
+                    {"role": "system", "content": system_msg},
+                    {"role": "user", "content": f"Concept: {user_prompt}\nStyle: {style_cfg['label']}"},
+                ],
+                "temperature": 0.65,
+                "max_tokens": 160,
+            },
+            timeout=20.0,
         )
-        base_en = (resp.choices[0].message.content or "").strip().strip('"').strip("'")
+        base_en = (
+            chat_res.get("choices", [{}])[0]
+            .get("message", {})
+            .get("content", "")
+            .strip()
+            .strip('"')
+            .strip("'")
+        )
         if base_en:
             return f"{base_en}, {style_cfg['positive']}"
     except Exception:
@@ -253,14 +309,12 @@ def inject_workflow_params(
 
 def queue_and_fetch_comfy_media(workflow: dict[str, Any], timeout_sec: int = 150) -> tuple[bytes, str]:
     """ส่ง JSON Workflow เข้าคิว ComfyUI และดึงไบต์รูปภาพหรือวิดีโอที่เรนเดอร์เสร็จแล้วกลับมา"""
-    res = requests.post(f"{COMFYUI_BASE_URL}/prompt", json={"prompt": workflow}, timeout=10)
-    res.raise_for_status()
-    prompt_id = res.json()["prompt_id"]
+    res_json = _http_post_json(f"{COMFYUI_BASE_URL}/prompt", {"prompt": workflow}, timeout=10.0)
+    prompt_id = res_json["prompt_id"]
 
     t0 = time.time()
     while time.time() - t0 < timeout_sec:
-        hist_res = requests.get(f"{COMFYUI_BASE_URL}/history/{prompt_id}", timeout=5)
-        hist_data = hist_res.json()
+        hist_data = _http_get_json(f"{COMFYUI_BASE_URL}/history/{prompt_id}", timeout=5.0)
         if prompt_id in hist_data:
             outputs = hist_data[prompt_id].get("outputs", {})
             for _, node_out in outputs.items():
@@ -276,15 +330,39 @@ def queue_and_fetch_comfy_media(workflow: dict[str, Any], timeout_sec: int = 150
                                 "type": item.get("type", "output"),
                             }
                         )
-                        view_res = requests.get(f"{COMFYUI_BASE_URL}/view?{query}", timeout=15)
-                        view_res.raise_for_status()
-                        return view_res.content, ext
+                        media_bytes = _http_get_bytes(f"{COMFYUI_BASE_URL}/view?{query}", timeout=15.0)
+                        return media_bytes, ext
         time.sleep(0.75)
 
     raise TimeoutError(f"ComfyUI ใช้เวลาเรนเดอร์เกิน {timeout_sec} วินาที")
 
 
-def create_fallback_canvas(width: int, height: int, prompt_text: str, seed: int, frame_idx: int = 0) -> Image.Image:
+def create_fallback_svg_bytes(width: int, height: int, prompt_text: str, seed: int, is_video: bool = False) -> bytes:
+    """สร้างภาพ SVG แบบเคลื่อนไหว/ภาพนิ่งโดยใช้เฉพาะ Python Standard Library กรณีไม่มี Pillow หรือไม่ได้เปิด ComfyUI"""
+    anim_tag = (
+        '<animateTransform attributeName="transform" type="rotate" from="0 256 256" to="360 256 256" dur="6s" repeatCount="indefinite"/>'
+        if is_video
+        else ""
+    )
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+      <defs>
+        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#101820"/>
+          <stop offset="60%" stop-color="#1f3a3d"/>
+          <stop offset="100%" stop-color="#2e7d5b"/>
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#g)"/>
+      <circle cx="{width // 2}" cy="{height // 2}" r="{min(width, height) // 4}" fill="none" stroke="#69b98e" stroke-width="4" stroke-dasharray="14 8">
+        {anim_tag}
+      </circle>
+      <text x="20" y="34" fill="#f7f6f2" font-family="monospace" font-size="13">PREVIEW MODE (ComfyUI Offline) | Seed: {seed}</text>
+      <text x="20" y="{height - 24}" fill="#d1fae5" font-family="sans-serif" font-size="13">{prompt_text[:60]}</text>
+    </svg>"""
+    return svg.encode("utf-8")
+
+
+def create_fallback_canvas(width: int, height: int, prompt_text: str, seed: int, frame_idx: int = 0) -> Any:
     """สร้างภาพจำลองกรณีไม่ได้เปิด ComfyUI เพื่อให้ทดสอบระบบ UI และการสร้างไฟล์วิดีโอได้เสมอ"""
     img = Image.new("RGB", (width, height), (16, 20, 28))
     draw = ImageDraw.Draw(img)
@@ -308,26 +386,24 @@ def create_fallback_canvas(width: int, height: int, prompt_text: str, seed: int,
 # Step 3: Video Synthesis (SD 1.5 AI Motion Clip — 6GB VRAM Safe)
 # ---------------------------------------------------------------------------
 def build_animated_motion_clip(
-    keyframes: list[Image.Image], total_frames: int = 24
+    keyframes: list[Any], total_frames: int = 24
 ) -> tuple[bytes, bytes]:
     """
     สร้างแอนิเมชัน 24 เฟรม (12 FPS) จากภาพคีย์เฟรมด้วยเอฟเฟกต์ Cinema Ken Burns Zoom + Crossfade
-    คืนค่าเป็น (webp_bytes, gif_bytes) โดยใช้เฉพาะ Pillow ที่อยู่ใน .venv
+    คืนค่าเป็น (webp_bytes, gif_bytes)
     """
     base_w, base_h = keyframes[0].size
-    frames: list[Image.Image] = []
+    frames: list[Any] = []
     img_a = keyframes[0].convert("RGB")
     img_b = keyframes[-1].convert("RGB")
 
     for idx in range(total_frames):
-        # ไป-กลับ (Ping-pong loop) เพื่อให้วิดีโอเล่นวนลูปได้เนียนตา
         half = max(1, total_frames // 2)
         progress = (idx / half) if idx < half else ((total_frames - idx) / half)
         progress = max(0.0, min(1.0, progress))
 
         blended = Image.blend(img_a, img_b, alpha=progress)
 
-        # ซูมเข้าอย่างนุ่มนวล (สูงสุด 10%) พร้อมแพนกล้องแนวนอนเล็กน้อย
         zoom = 1.0 + (0.10 * progress)
         crop_w = int(base_w / zoom)
         crop_h = int(base_h / zoom)
@@ -359,6 +435,28 @@ def build_animated_motion_clip(
         loop=0,
     )
     return webp_buf.getvalue(), gif_buf.getvalue()
+
+
+def _append_history_csv(row: dict[str, Any]) -> None:
+    """บันทึกประวัติลงไฟล์ CSV ด้วยโมดูล csv มาตรฐานของ Python (ไม่ต้องพึ่งพา pandas)"""
+    fieldnames = [
+        "timestamp",
+        "mode",
+        "prompt_input",
+        "final_prompt",
+        "seed",
+        "steps",
+        "cfg",
+        "resolution",
+        "filename",
+        "elapsed_sec",
+    ]
+    file_exists = HISTORY_CSV_PATH.exists()
+    with HISTORY_CSV_PATH.open("a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
 
 
 # ---------------------------------------------------------------------------
@@ -407,18 +505,24 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
 
         try:
             img_bytes, ext = queue_and_fetch_comfy_media(wf)
+            mime = "image/webp" if ext == ".webp" else "image/png"
         except Exception:
             used_fallback = True
-            ext = ".png"
-            buf = io.BytesIO()
-            create_fallback_canvas(width, height, final_prompt, seed).save(buf, format="PNG")
-            img_bytes = buf.getvalue()
+            if HAS_PIL:
+                ext = ".png"
+                mime = "image/png"
+                buf = io.BytesIO()
+                create_fallback_canvas(width, height, final_prompt, seed).save(buf, format="PNG")
+                img_bytes = buf.getvalue()
+            else:
+                ext = ".svg"
+                mime = "image/svg+xml"
+                img_bytes = create_fallback_svg_bytes(width, height, final_prompt, seed, is_video=False)
 
         out_name = f"image_{timestamp}_seed{seed}{ext}"
         out_path = OUTPUT_DIR / out_name
         out_path.write_bytes(img_bytes)
 
-        mime = "image/webp" if ext == ".webp" else "image/png"
         b64_data = f"data:{mime};base64,{base64.b64encode(img_bytes).decode('ascii')}"
         result_meta = {
             "mode": "image",
@@ -443,7 +547,7 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
         video_engine = str(params.get("video_engine", "sd15_motion"))
         custom_json_str = str(params.get("custom_workflow_json", "")).strip()
 
-        if video_engine == "comfy_video_api":
+        if video_engine == "comfy_video_api" or not HAS_PIL:
             final_prompt = (
                 enhance_prompt_with_llm(user_prompt, style_key, is_video=True)
                 if use_llm
@@ -466,16 +570,22 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
                 b64_data = f"data:{mime};base64,{base64.b64encode(media_bytes).decode('ascii')}"
             except Exception:
                 used_fallback = True
-                kf1 = create_fallback_canvas(width, height, final_prompt, seed, 0)
-                kf2 = create_fallback_canvas(width, height, final_prompt, seed, 4)
-                webp_bytes, gif_bytes = build_animated_motion_clip([kf1, kf2], total_frames=24)
-                out_name = f"video_{timestamp}_seed{seed}.webp"
-                out_path = OUTPUT_DIR / out_name
-                out_path.write_bytes(webp_bytes)
-                (OUTPUT_DIR / f"video_{timestamp}_seed{seed}.gif").write_bytes(gif_bytes)
-                b64_data = f"data:image/webp;base64,{base64.b64encode(webp_bytes).decode('ascii')}"
+                if HAS_PIL:
+                    kf1 = create_fallback_canvas(width, height, final_prompt, seed, 0)
+                    kf2 = create_fallback_canvas(width, height, final_prompt, seed, 4)
+                    webp_bytes, gif_bytes = build_animated_motion_clip([kf1, kf2], total_frames=24)
+                    out_name = f"video_{timestamp}_seed{seed}.webp"
+                    out_path = OUTPUT_DIR / out_name
+                    out_path.write_bytes(webp_bytes)
+                    (OUTPUT_DIR / f"video_{timestamp}_seed{seed}.gif").write_bytes(gif_bytes)
+                    b64_data = f"data:image/webp;base64,{base64.b64encode(webp_bytes).decode('ascii')}"
+                else:
+                    svg_bytes = create_fallback_svg_bytes(width, height, final_prompt, seed, is_video=True)
+                    out_name = f"video_{timestamp}_seed{seed}.svg"
+                    out_path = OUTPUT_DIR / out_name
+                    out_path.write_bytes(svg_bytes)
+                    b64_data = f"data:image/svg+xml;base64,{base64.b64encode(svg_bytes).decode('ascii')}"
         else:
-            # sd15_motion: สร้างคีย์เฟรมด้วย SD 1.5 ตัวเดิม (ประหยัด VRAM 6GB) แล้วประกอบร่างเป็นวิดีโอแอนิเมชัน 24 เฟรม
             kf_prompts = (
                 generate_motion_keyframe_prompts(user_prompt, style_key, num_keyframes=2)
                 if use_llm
@@ -486,7 +596,7 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
             )
             final_prompt = kf_prompts[0]
             base_wf = json.loads(IMAGE_WORKFLOW_PATH.read_text(encoding="utf-8"))
-            keyframes: list[Image.Image] = []
+            keyframes: list[Any] = []
 
             for idx, kf_p in enumerate(kf_prompts):
                 wf = inject_workflow_params(
@@ -525,28 +635,20 @@ def execute_studio_job(params: dict[str, Any]) -> dict[str, Any]:
             "elapsed_sec": round(time.time() - t_start, 2),
         }
 
-    # บันทึกประวัติลงตาราง CSV ด้วย pandas
-    row_df = pd.DataFrame(
-        [
-            {
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "mode": result_meta["mode"],
-                "prompt_input": result_meta["prompt_input"],
-                "final_prompt": result_meta["final_prompt"],
-                "seed": result_meta["seed"],
-                "steps": result_meta["steps"],
-                "cfg": result_meta["cfg"],
-                "resolution": f"{width}x{height}",
-                "filename": result_meta["filename"],
-                "elapsed_sec": result_meta["elapsed_sec"],
-            }
-        ]
+    _append_history_csv(
+        {
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+            "mode": result_meta["mode"],
+            "prompt_input": result_meta["prompt_input"],
+            "final_prompt": result_meta["final_prompt"],
+            "seed": result_meta["seed"],
+            "steps": result_meta["steps"],
+            "cfg": result_meta["cfg"],
+            "resolution": f"{width}x{height}",
+            "filename": result_meta["filename"],
+            "elapsed_sec": result_meta["elapsed_sec"],
+        }
     )
-    if HISTORY_CSV_PATH.exists():
-        prev_df = pd.read_csv(HISTORY_CSV_PATH)
-        pd.concat([row_df, prev_df], ignore_index=True).head(30).to_csv(HISTORY_CSV_PATH, index=False, encoding="utf-8")
-    else:
-        row_df.to_csv(HISTORY_CSV_PATH, index=False, encoding="utf-8")
 
     return result_meta
 

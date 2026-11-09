@@ -49,6 +49,16 @@ LM_STUDIO_BASE_URL = "http://localhost:1234/v1"
 COMFYUI_BASE_URL = "http://127.0.0.1:8188"
 
 STYLE_PRESETS: dict[str, dict[str, Any]] = {
+    "realistic": {
+        "name": "Realistic Photo",
+        "cfg": 7.0,
+        "steps": 22,
+        "suffix": (
+            "ultra-realistic DSLR photography, 85mm f/1.8 lens, natural skin and surface textures, "
+            "crisp studio and daylight balance, RAW photo, photorealistic, masterpiece"
+        ),
+        "negative": "cartoon, anime, 3d render, illustration, painting, CGI, blurry, low quality, watermark, text, deformed",
+    },
     "cyberpunk": {
         "name": "Cyberpunk Neon",
         "cfg": 7.5,

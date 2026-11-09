@@ -16,7 +16,7 @@
 | :--- | :--- | :--- |
 | **Module 1**<br>(`09:00 - 10:15`) | การใช้ `requests.get()` เช็กสถานะเซิร์ฟเวอร์ และการใช้ `pandas.DataFrame` จัดการตารางข้อมูล | ฟังก์ชัน `check_local_ai_stack()` ตรวจสอบความพร้อมของพอร์ต `1234` และ `8188` ก่อนเริ่มงาน และสรุปเวลาเรนเดอร์ของทั้ง 3 ฉากลง `DataFrame` พร้อมส่งออกเป็นไฟล์ HTML Pitch Deck |
 | **Module 2**<br>(`10:30 - 12:00`) | การสั่ง LM Studio (`OpenAI` SDK) สกัดข้อมูลบทความภาษาไทยออกมาเป็น JSON Schema | ฟังก์ชัน `generate_storyboard_json()` ปรับ `DIRECTOR_SYSTEM_PROMPT` ให้ LLM สวมบทเป็นผู้กำกับภาพยนตร์ แตกไอเดียภาษาไทย 1 บรรทัดออกเป็น JSON Array `"scenes"` จำนวน 3 ฉาก พร้อมฟิลด์ `camera_angle`, `color_palette` และ `sd_positive_prompt` |
-| **Module 3**<br>(`13:00 - 14:30`) | การแกะโครงสร้างไฟล์ `sd15_txt2img_api.json` (Node `"6"`, `"7"`, `"3"`, `"4"`, `"5"`, `"8"`, `"9"`) | ฟังก์ชัน `render_scene_image()` โหลดไฟล์ JSON ต้นแบบ แล้วแทนค่า `text`, `seed`, `steps` และ `cfg` ตาม `STYLE_PRESETS` (`cyberpunk`, `cinematic`, `watercolor`, `isometric`) |
+| **Module 3**<br>(`13:00 - 14:30`) | การแกะโครงสร้างไฟล์ `sd15_txt2img_api.json` (Node `"6"`, `"7"`, `"3"`, `"4"`, `"5"`, `"8"`, `"9"`) | ฟังก์ชัน `render_scene_image()` โหลดไฟล์ JSON ต้นแบบ แล้วแทนค่า `text`, `seed`, `steps` และ `cfg` ตาม `STYLE_PRESETS` (`realistic`, `cyberpunk`, `cinematic`, `watercolor`, `isometric`) |
 | **Module 4**<br>(`14:45 - 16:00`) | การส่ง HTTP `POST /prompt`, วนลูปเช็ก `/history/{prompt_id}` และดึงภาพจาก `/view` ภายใต้ข้อจำกัด VRAM 6GB | แทนที่จะสั่งวาดพร้อมกัน 3 ภาพ (`batch_size = 3`) ซึ่งจะทำให้การ์ดจอ **RTX 3050 6GB** เต็ม ระบบใช้ลูป `for scene in storyboard["scenes"]:` ส่งคิวเรนเดอร์ทีละฉากด้วย `base_seed + idx` ทำให้กิน VRAM คงที่เพียง **~4.2 GB** |
 
 ---

@@ -966,6 +966,10 @@
 
         <span class="field-label">สไตล์ภาพและเลนส์ผู้กำกับ (Visual Style Preset):</span>
         <div class="style-grid" role="group" aria-label="เลือกสไตล์ภาพ">
+          <button type="button" class="style-btn" data-style="realistic" aria-pressed="false">
+            <span class="style-btn-name">Realistic Photo</span>
+            <span class="style-btn-meta">CFG 7.0 • 85mm RAW DSLR</span>
+          </button>
           <button type="button" class="style-btn" data-style="cyberpunk" aria-pressed="true">
             <span class="style-btn-name">Cyberpunk Neon</span>
             <span class="style-btn-meta">CFG 7.5 • 35mm Anamorphic</span>
@@ -1254,6 +1258,13 @@ def render_scene_comfyui(workflow_template: dict, scene: dict, seed: int) -> byt
   <!-- Interactive Studio Script -->
   <script>
     const STYLE_CONFIGS = {
+      realistic: {
+        name: 'Realistic Photo',
+        cfg: 7.0,
+        steps: 22,
+        suffix: 'ultra-realistic DSLR photography, 85mm f/1.8 lens, natural skin and surface textures, crisp studio and daylight balance, RAW photo, photorealistic',
+        negative: 'cartoon, anime, 3d render, illustration, painting, CGI, blurry, low quality, watermark, text, deformed'
+      },
       cyberpunk: {
         name: 'Cyberpunk Neon',
         cfg: 7.5,
@@ -1567,6 +1578,7 @@ def render_scene_comfyui(workflow_template: dict, scene: dict, seed: int) -> byt
       const cleanIdea = customIdea.trim() || 'โลกอนาคตของนักพัฒนา AI ไทย';
       const baseSeed = Math.floor(100000 + Math.random() * 800000);
       const palettes = {
+        realistic: ['#111827', '#0EA5E9', '#10B981', '#F59E0B'],
         cyberpunk: ['#0F172A', '#00F5D4', '#FF7B00', '#F43F5E'],
         cinematic: ['#1C1917', '#D97706', '#FDE68A', '#2E7D5B'],
         watercolor: ['#14532D', '#38BDF8', '#FACC15', '#F472B6'],
